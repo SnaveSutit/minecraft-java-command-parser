@@ -76,18 +76,27 @@ export class Stream {
 	}
 
 	/**
-	 * Returns the index of the provided character in the stream
+	 * Returns the next index of the provided character in the stream
 
 	 * Does not consume
-	 * @param char The character to search for
-	 * @returns The index of the character if found. Otherwise the index of EOF
+	 * @param comparison The character to search for, or a function that takes a character and returns a boolean
+	 * @returns The index of the character if found. Otherwise false
 	 */
-	seek(char: string) {
-		let i
-		for (i = this.index; i < this.string.length; i++) {
-			if (this.string.at(i) === char) return i
+	seek(comparison: string | ((c: string) => boolean), max?: number): number | undefined {
+		if (max) max = this.index + max
+		else max = this.string.length
+		if (typeof comparison === 'string') {
+			for (let i = this.index; i < max; i++) {
+				const c = this.string.at(i)
+				if (c && c === comparison) return i
+			}
+		} else {
+			for (let i = this.index; i < max; i++) {
+				const c = this.string.at(i)
+				if (c && comparison(c)) return i
+			}
 		}
-		return i
+		return
 	}
 
 	/**
@@ -96,10 +105,7 @@ export class Stream {
 	 */
 	lineNumberToIndex(lineNumber: number) {
 		const line = this.lines.find(l => l.number === lineNumber)
-		if (!line)
-			throw new Error(
-				`Tried to access line ${lineNumber} before stream reached it.`
-			)
+		if (!line) throw new Error(`Tried to access line ${lineNumber} before stream reached it.`)
 		return line.startIndex
 	}
 
