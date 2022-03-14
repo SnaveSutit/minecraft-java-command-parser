@@ -617,3 +617,254 @@ particle falling_dust minecraft:stone
 particle item minecraft:apple
 particle vibration 0.0 64.0 0.0 5.0 64.0 0.0 200
 
+placefeature minecraft:epic_feature
+placefeature minecraft:stone_house ~1 ~2 ~3
+
+playsound minecraft:block.note_block.bell ambient @a
+playsound minecraft:block.note_block.bell ambient @a ~ ~ ~
+playsound minecraft:block.note_block.bell ambient @a ~ ~ ~ 1
+playsound minecraft:block.note_block.bell ambient @a ~ ~ ~ 1 0.5
+playsound minecraft:block.note_block.bell ambient @a ~ ~ ~ 1 0.5 0.1
+playsound minecraft:block.note_block.bell block @a
+playsound minecraft:block.note_block.bell block @a ~ ~ ~
+playsound minecraft:block.note_block.bell block @a ~ ~ ~ 1
+playsound minecraft:block.note_block.bell block @a ~ ~ ~ 1 0.5
+playsound minecraft:block.note_block.bell block @a ~ ~ ~ 1 0.5 0.1
+playsound minecraft:block.note_block.bell hostile @a
+playsound minecraft:block.note_block.bell hostile @a ~ ~ ~
+playsound minecraft:block.note_block.bell hostile @a ~ ~ ~ 1
+playsound minecraft:block.note_block.bell hostile @a ~ ~ ~ 1 0.5
+playsound minecraft:block.note_block.bell hostile @a ~ ~ ~ 1 0.5 0.1
+playsound minecraft:block.note_block.bell master @a
+playsound minecraft:block.note_block.bell master @a ~ ~ ~
+playsound minecraft:block.note_block.bell master @a ~ ~ ~ 1
+playsound minecraft:block.note_block.bell master @a ~ ~ ~ 1 0.5
+playsound minecraft:block.note_block.bell master @a ~ ~ ~ 1 0.5 0.1
+playsound minecraft:block.note_block.bell music @a
+playsound minecraft:block.note_block.bell music @a ~ ~ ~
+playsound minecraft:block.note_block.bell music @a ~ ~ ~ 1
+playsound minecraft:block.note_block.bell music @a ~ ~ ~ 1 0.5
+playsound minecraft:block.note_block.bell music @a ~ ~ ~ 1 0.5 0.1
+playsound minecraft:block.note_block.bell neutral @a
+playsound minecraft:block.note_block.bell neutral @a ~ ~ ~
+playsound minecraft:block.note_block.bell neutral @a ~ ~ ~ 1
+playsound minecraft:block.note_block.bell neutral @a ~ ~ ~ 1 0.5
+playsound minecraft:block.note_block.bell neutral @a ~ ~ ~ 1 0.5 0.1
+playsound minecraft:block.note_block.bell player @a
+playsound minecraft:block.note_block.bell player @a ~ ~ ~
+playsound minecraft:block.note_block.bell player @a ~ ~ ~ 1
+playsound minecraft:block.note_block.bell player @a ~ ~ ~ 1 0.5
+playsound minecraft:block.note_block.bell player @a ~ ~ ~ 1 0.5 0.1
+playsound minecraft:block.note_block.bell record @a
+playsound minecraft:block.note_block.bell record @a ~ ~ ~
+playsound minecraft:block.note_block.bell record @a ~ ~ ~ 1
+playsound minecraft:block.note_block.bell record @a ~ ~ ~ 1 0.5
+playsound minecraft:block.note_block.bell record @a ~ ~ ~ 1 0.5 0.1
+playsound minecraft:block.note_block.bell voice @a
+playsound minecraft:block.note_block.bell voice @a ~ ~ ~
+playsound minecraft:block.note_block.bell voice @a ~ ~ ~ 1
+playsound minecraft:block.note_block.bell voice @a ~ ~ ~ 1 0.5
+playsound minecraft:block.note_block.bell voice @a ~ ~ ~ 1 0.5 0.1
+playsound minecraft:block.note_block.bell weather @a
+playsound minecraft:block.note_block.bell weather @a ~ ~ ~
+playsound minecraft:block.note_block.bell weather @a ~ ~ ~ 1
+playsound minecraft:block.note_block.bell weather @a ~ ~ ~ 1 0.5
+playsound minecraft:block.note_block.bell weather @a ~ ~ ~ 1 0.5 0.1
+
+recipe give @s *
+recipe give @s minecraft:stone_pickaxe
+recipe take @s *
+recipe take @s minecraft:stone_pickaxe
+
+say Hello World!
+
+schedule clear foo:bar/baz
+schedule function foo:bar/baz 1
+schedule function foo:bar/baz 1t
+schedule function foo:bar/baz 1s append
+schedule function foo:bar/baz 1d replace
+
+scoreboard objectives add i dummy
+scoreboard objectives add i dummy {"text": "Internal"}
+scoreboard objectives list
+scoreboard objectives modify i displayname {"text": "Internal"}
+scoreboard objectives modify i rendertype hearts
+scoreboard objectives modify i rendertype integer
+scoreboard objectives remove i
+scoreboard objectives setdisplay list
+scoreboard objectives setdisplay sidebar
+scoreboard objectives setdisplay sidebar i
+scoreboard players add @s i 2
+scoreboard players enable @s i
+scoreboard players get @s i
+scoreboard players list
+scoreboard players list @s
+scoreboard players operation @s i = .value i
+scoreboard players operation @s i -= .value i
+scoreboard players operation @s i += .value i
+scoreboard players operation @s i *= .value i
+scoreboard players operation @s i /= .value i
+scoreboard players operation @s i %= .value i
+scoreboard players operation @s i < .value i
+scoreboard players operation @s i > .value i
+scoreboard players operation @s i >< .value i
+scoreboard players remove @s i 2
+scoreboard players reset @s
+scoreboard players reset @s i
+scoreboard players set @s i 2
+
+setblock ~ ~ ~ minecraft:stone
+setblock ~ ~ ~ minecraft:stone destroy
+setblock ~ ~ ~ minecraft:stone keep
+setblock ~ ~ ~ minecraft:stone replace
+
+setworldspawn
+setworldspawn 0 0 0
+setworldspawn 0 0 0 0 90
+
+spawnpoint
+spawnpoint @s
+spawnpoint @s 10 0 10
+spawnpoint @s 10 0 10 90 180
+
+spectate
+spectate @r
+spectate @r @s
+
+spreadplayers ~ ~ 10 256 true @a
+spreadplayers ~ ~ 10 256 under 128 true @a
+
+stopsound @a
+stopsound @a * minecraft:block.note_block.bell
+stopsound @a ambient
+stopsound @a ambient minecraft:block.note_block.bell
+stopsound @a block
+stopsound @a block minecraft:block.note_block.bell
+stopsound @a hostile
+stopsound @a hostile minecraft:block.note_block.bell
+stopsound @a master
+stopsound @a master minecraft:block.note_block.bell
+stopsound @a music
+stopsound @a music minecraft:block.note_block.bell
+stopsound @a neutral
+stopsound @a neutral minecraft:block.note_block.bell
+stopsound @a player
+stopsound @a player minecraft:block.note_block.bell
+stopsound @a record
+stopsound @a record minecraft:block.note_block.bell
+stopsound @a voice
+stopsound @a voice minecraft:block.note_block.bell
+stopsound @a weather
+stopsound @a weather minecraft:block.note_block.bell
+
+summon minecraft:armor_stand
+summon minecraft:armor_stand ~ ~ ~
+summon minecraft:armor_stand ~ ~ ~ {CustomName: '{"text":"No Armor Stands? :(", "italic":false}',NoGravity:1b,Invisible:false}
+
+tag @s add my_tag
+tag @s list
+tag @s remove my_tag
+
+team add my_team
+team add my_team {"text":"Super epic team name"}
+team empty my_team
+team join my_team
+team join my_team @a
+team leave @a
+team list
+team list my_team
+team modify my_team collisionRule always
+team modify my_team collisionRule never
+team modify my_team collisionRule pushOtherTeams
+team modify my_team collisionRule pushOwnTeam
+team modify my_team color aqua
+team modify my_team color black
+team modify my_team color blue
+team modify my_team color dark_aqua
+team modify my_team color dark_blue
+team modify my_team color dark_gray
+team modify my_team color dark_green
+team modify my_team color dark_purple
+team modify my_team color dark_red
+team modify my_team color gold
+team modify my_team color gray
+team modify my_team color green
+team modify my_team color light_purple
+team modify my_team color red
+team modify my_team color white
+team modify my_team color yellow
+team modify my_team deathMessageVisibility always
+team modify my_team deathMessageVisibility hideForOtherTeams
+team modify my_team deathMessageVisibility hideForOwnTeam
+team modify my_team deathMessageVisibility never
+team modify my_team displayName {"text":"Super epic team name"}
+team modify my_team friendlyFire false
+team modify my_team nametagVisibility always
+team modify my_team nametagVisibility hideForOtherTeams
+team modify my_team nametagVisibility hideForOwnTeam
+team modify my_team nametagVisibility never
+team modify my_team prefix {"text":"Best prefix"}
+team modify my_team seeFriendlyInvisibles false
+team modify my_team suffix {"text":"Best suffix"}
+team remove my_team
+
+teleport @s
+teleport ~ ~1 ~
+teleport @s @e[limit=1,sort=random]
+teleport @s ~ ~1 ~
+teleport @s ~ ~1 ~ facing entity @p
+teleport @s ~ ~1 ~ facing entity @p eyes
+teleport @s ~ ~1 ~ facing 0 1 0
+teleport @s ~ ~1 ~ ~ 0
+tp @s
+tp ~ ~1 ~
+tp @s @e[limit=1,sort=random]
+tp @s ~ ~1 ~
+tp @s ~ ~1 ~ facing entity @p
+tp @s ~ ~1 ~ facing entity @p eyes
+tp @s ~ ~1 ~ facing 0 1 0
+tp @s ~ ~1 ~ ~ 0
+
+tellraw @a ["",{"text":"Your mom's a hoe.","italic": true, "bold": false}]
+
+time add 1
+time add 1t
+time add 1s
+time add 1d
+time query day
+time query daytime
+time query gametime
+time set day
+time set midnight
+time set night
+time set noon
+time set 1
+
+title @a actionbar {"text":"My Special Title"}
+title @a clear
+title @a reset
+title @a subtitle {"text":"My Special Title"}
+title @a times 0 10 80
+title @a title {"text":"My Special Title"}
+
+trigger trigger
+trigger trigger add 1
+trigger trigger set 1
+
+weather clear
+weather clear 10
+weather rain
+weather rain 10
+weather thunder
+weather thunder 10
+
+worldborder add 10
+worldborder add 10 20
+worldborder center 0 ~ 0
+worldborder damage amount 6.9
+worldborder damage buffer 22
+worldborder get
+worldborder set 10
+worldborder set 10 20
+worldborder warning distance 42
+worldborder warning time 1

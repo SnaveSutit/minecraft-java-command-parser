@@ -1,6 +1,11 @@
 {
 	"name": "java-edition-command-parser",
 	"version": "1.0.0",
+	"author": {
+		"name": "Titus Evans",
+		"email": "snavesutit@gmail.com",
+		"url": "https://discordapp.com/users/213746232923783168"
+	},
 	"description": "",
 	"private": true,
 	"scripts": {

@@ -37,8 +37,8 @@ export interface TokenEntitySubSelector extends Token {
 	inverted?: boolean
 }
 
-export interface TokenTargetEntity extends Token {
-	type: 'targetEntity'
+export interface TokenEntity extends Token {
+	type: 'entity'
 	entity: TokenEntitySelector | TokenPlayerName | TokenFakePlayer | TokenUuid
 }
 
@@ -135,9 +135,10 @@ export interface TokenLiteral extends Token {
 	value: string
 }
 
-export interface TokenRotationCoordinate extends Token {
-	type: 'rotationCoordinate'
-	value: TokenDouble
+export interface TokenRotVec2 extends Token {
+	type: 'rotVec2'
+	x: TokenCoordinate
+	z: TokenCoordinate
 	scope?: 'relative'
 }
 
@@ -147,15 +148,15 @@ export interface TokenCoordinate extends Token {
 	scope?: 'local' | 'relative'
 }
 
-export interface TokenCoordinateTriplet extends Token {
-	type: 'coordinateTriplet'
+export interface TokenPosVec3 extends Token {
+	type: 'posVec3'
 	x: TokenCoordinate
 	y: TokenCoordinate
 	z: TokenCoordinate
 }
 
-export interface TokenCoordinatePair extends Token {
-	type: 'coordinatePair'
+export interface TokenPosVec2 extends Token {
+	type: 'posVec2'
 	x: TokenCoordinate
 	z: TokenCoordinate
 }
@@ -248,6 +249,8 @@ export type TokenAny =
 	| TokenLiteral
 	| TokenNbtList
 	| TokenNbtPath
+	| TokenPosVec2
+	| TokenPosVec3
 	| TokenSwizzle
 	| TokenIntRange
 	| TokenNbtObject
@@ -256,16 +259,14 @@ export type TokenAny =
 	| TokenPlayerName
 	| TokenDoubleRange
 	| TokenScoresObject
-	| TokenTargetEntity
-	| TokenCoordinatePair
+	| TokenEntity
 	| TokenUnknownCommand
 	| TokenUnquotedString
 	| TokenEntitySelector
 	| TokenResourceLocation
 	| TokenEntitySubSelector
-	| TokenCoordinateTriplet
 	| TokenAdvancementObject
-	| TokenRotationCoordinate
+	| TokenRotVec2
 
 const alphabet = 'abcdefghijklmnopqrstuvwxyz'
 const numbers = '0123456789'
@@ -279,7 +280,7 @@ export const CHARS = {
 	DOUBLE_QUOTES: genComparison(`"`),
 	BOOLEAN_START: genComparison('tf'),
 	WHITESPACE: genComparison(' \t\n\r'),
-	FAKE_PLAYER_START: genComparison('.#'),
+	FAKE_PLAYER_START: genComparison('.#*'),
 	INT_START: genComparison(`-${numbers}`),
 	NUMBER_TYPE: genComparison(`bBsSlLfFdD`),
 	SELECTOR_TARGETS: genComparison('aepsr'),
@@ -288,8 +289,9 @@ export const CHARS = {
 	COMMAND_NAME: genComparison(`${alphabet}${alphabet.toUpperCase()}`),
 	WORD: genComparison(`${numbers}${alphabet}${alphabet.toUpperCase()}_`),
 	OBJECT_KEY: genComparison(`${numbers}${alphabet}${alphabet.toUpperCase()}_`),
+	PLAYER_NAME: genComparison(`${numbers}${alphabet}${alphabet.toUpperCase()}_`),
 	ENTITY_TAG: genComparison(`${numbers}${alphabet}${alphabet.toUpperCase()}_+.-`),
-	FAKE_PLAYER: genComparison(`${numbers}${alphabet}${alphabet.toUpperCase()}_.#`),
+	FAKE_PLAYER: genComparison(`${numbers}${alphabet}${alphabet.toUpperCase()}_.#*`),
 	UNQUOTED_STRING: genComparison(`${numbers}${alphabet}${alphabet.toUpperCase()}_.-`),
 	RESOURCE_LOCATION: genComparison(`${numbers}${alphabet}${alphabet.toUpperCase()}_:/.`),
 	SCOREBOARD_OBJECTIVE: genComparison(`${numbers}${alphabet}${alphabet.toUpperCase()}_.-`),
@@ -476,7 +478,7 @@ function collectUnquotedString(
 	}
 }
 
-export function collectStringLiteral<V extends string[]>(
+export function collectLiteral<V extends string[]>(
 	stream: Stream,
 	expectedValues: V
 ): TokenLiteral & { value: V[any] } {
@@ -486,7 +488,10 @@ export function collectStringLiteral<V extends string[]>(
 	return { type: 'literal', value: str, raw: str }
 }
 
-function collectInt(stream: Stream, allowedIndicators?: string[]): TokenInt {
+function collectInt<T extends string[]>(
+	stream: Stream,
+	allowedIndicators?: T
+): TokenInt & { indicator?: T[any] } {
 	let sign = ''
 	if (stream.item === '-') {
 		sign = '-'
@@ -705,21 +710,38 @@ function collectCoordinateScope(stream: Stream) {
 	}
 }
 
-function collectRotationCoordinate(stream: Stream): TokenRotationCoordinate {
-	const scope = collectCoordinateScope(stream)
-	if (scope === 'local') throwSyntaxError(stream, 'Rotation coordinate cannot be in local scope')
-	const sign = stream.look(0, 1)
-	let value
+function collectRotVec2(stream: Stream): TokenRotVec2 {
+	let x, z
+	let error
 	try {
-		value = collectDouble(stream)
+		x = collectCoordinate(stream)
+		expectAndConsumeEOA(stream)
 	} catch (err) {
-		if (!scope || sign === '-') throwSyntaxError(stream, 'Expected coordinate')
+		if (err.name === 'MinecraftSyntaxError') error = err
+		else throw err
 	}
+	if (error) throwSyntaxError(stream, 'Expected first coordinate of rot vec2')
+	try {
+		z = collectCoordinate(stream)
+	} catch (err) {
+		if (err.name === 'MinecraftSyntaxError') error = err
+		else throw err
+	}
+	if (error) throwSyntaxError(stream, 'Expected second coordinate of rot vec2')
+
+	if (x.scope === 'local' || z.scope === 'local')
+		throwSyntaxError(
+			stream,
+			'Invalid rot vec2. Cannot use local scope in rotations',
+			null,
+			stream.column - `${x.raw} ${z.raw}`.length
+		)
+
 	return {
-		type: 'rotationCoordinate',
-		value,
-		scope: scope ? 'relative' : undefined,
-		raw: `${scope === 'relative' ? '~' : ''}${value ? value.raw : ''}`,
+		type: 'rotVec2',
+		x,
+		z,
+		raw: `${x.raw} ${z.raw}`,
 	}
 }
 
@@ -742,7 +764,7 @@ function collectCoordinate(stream: Stream): TokenCoordinate {
 	}
 }
 
-function collectCoordinateTriplet(stream: Stream): TokenCoordinateTriplet {
+function collectPosVec3(stream: Stream): TokenPosVec3 {
 	let x, y, z
 	let error
 	try {
@@ -752,7 +774,7 @@ function collectCoordinateTriplet(stream: Stream): TokenCoordinateTriplet {
 		if (err.name === 'MinecraftSyntaxError') error = err
 		else throw err
 	}
-	if (error) throwSyntaxError(stream, 'Expected first coordinate of coordinate triplet')
+	if (error) throwSyntaxError(stream, 'Expected first coordinate of pos vec3')
 	try {
 		y = collectCoordinate(stream)
 		expectAndConsumeEOA(stream)
@@ -760,14 +782,14 @@ function collectCoordinateTriplet(stream: Stream): TokenCoordinateTriplet {
 		if (err.name === 'MinecraftSyntaxError') error = err
 		else throw err
 	}
-	if (error) throwSyntaxError(stream, 'Expected second coordinate of coordinate triplet')
+	if (error) throwSyntaxError(stream, 'Expected second coordinate of pos vec3')
 	try {
 		z = collectCoordinate(stream)
 	} catch (err) {
 		if (err.name === 'MinecraftSyntaxError') error = err
 		else throw err
 	}
-	if (error) throwSyntaxError(stream, 'Expected third coordinate of coordinate triplet')
+	if (error) throwSyntaxError(stream, 'Expected third coordinate of pos vec3')
 
 	if (
 		(x.scope === 'local' || y.scope === 'local' || z.scope === 'local') &&
@@ -775,13 +797,13 @@ function collectCoordinateTriplet(stream: Stream): TokenCoordinateTriplet {
 	)
 		throwSyntaxError(
 			stream,
-			'Invalid coordinate triplet Cannot mix local coordinate scope with relative or global scopes',
+			'Invalid pos vec3. Cannot mix local coordinate scope with relative or global scopes',
 			null,
 			stream.column - `${x.raw} ${y.raw} ${z.raw}`.length
 		)
 
 	return {
-		type: 'coordinateTriplet',
+		type: 'posVec3',
 		x,
 		y,
 		z,
@@ -789,7 +811,7 @@ function collectCoordinateTriplet(stream: Stream): TokenCoordinateTriplet {
 	}
 }
 
-function collectCoordinatePair(stream: Stream): TokenCoordinatePair {
+function collectPosVec2(stream: Stream): TokenPosVec2 {
 	let x, z
 	let error
 	try {
@@ -799,14 +821,14 @@ function collectCoordinatePair(stream: Stream): TokenCoordinatePair {
 		if (err.name === 'MinecraftSyntaxError') error = err
 		else throw err
 	}
-	if (error) throwSyntaxError(stream, 'Expected first coordinate of coordinate pair')
+	if (error) throwSyntaxError(stream, 'Expected first coordinate of pos vec2')
 	try {
 		z = collectCoordinate(stream)
 	} catch (err) {
 		if (err.name === 'MinecraftSyntaxError') error = err
 		else throw err
 	}
-	if (error) throwSyntaxError(stream, 'Expected second coordinate of coordinate pair')
+	if (error) throwSyntaxError(stream, 'Expected second coordinate of pos vec2')
 
 	if (
 		(x.scope === 'local' || z.scope === 'local') &&
@@ -814,13 +836,13 @@ function collectCoordinatePair(stream: Stream): TokenCoordinatePair {
 	)
 		throwSyntaxError(
 			stream,
-			'Invalid coordinate pair. Cannot mix local coordinate scope with relative or global scopes',
+			'Invalid pos vec2. Cannot mix local coordinate scope with relative or global scopes',
 			null,
 			stream.column - `${x.raw} ${z.raw}`.length
 		)
 
 	return {
-		type: 'coordinatePair',
+		type: 'posVec2',
 		x,
 		z,
 		raw: `${x.raw} ${z.raw}`,
@@ -1196,17 +1218,12 @@ function collectSubSelectors(stream: Stream): TokenEntitySubSelector[] {
 			// gamemode = !?<creative|survival|adventure|spectator>
 			case 'gamemode':
 				inverted = isInverted(stream, true, key)
-				value = collectStringLiteral(stream, [
-					'creative',
-					'survival',
-					'adventure',
-					'spectator',
-				])
+				value = collectLiteral(stream, ['creative', 'survival', 'adventure', 'spectator'])
 				break
 			// sort = <arbitrary|furthest|nearest|random>
 			case 'sort':
 				inverted = isInverted(stream, false, key)
-				value = collectStringLiteral(stream, ['arbitrary', 'furthest', 'nearest', 'random'])
+				value = collectLiteral(stream, ['arbitrary', 'furthest', 'nearest', 'random'])
 				break
 			// type = !?<entityId>
 			case 'type':
@@ -1286,7 +1303,7 @@ function collectEntitySelector(stream: Stream): TokenEntitySelector {
 }
 
 function collectPlayerName(stream: Stream): TokenPlayerName {
-	const value = collectString(stream, true, CHARS.DOUBLE_QUOTES, false, CHARS.WORD)
+	const value = collectString(stream, true, CHARS.DOUBLE_QUOTES, false, CHARS.PLAYER_NAME)
 	if (!value) throwSyntaxError(stream, 'Expected player name')
 	return {
 		type: 'playerName',
@@ -1328,7 +1345,7 @@ function collectUuid(stream: Stream): TokenUuid {
 	}
 }
 
-function collectTargetEntity(stream: Stream, allowFakePlayers: boolean): TokenTargetEntity {
+function collectEntity(stream: Stream, allowFakePlayers: boolean): TokenEntity {
 	let entity: TokenEntitySelector | TokenPlayerName | TokenFakePlayer | TokenUuid
 
 	if (stream.item === '@') entity = collectEntitySelector(stream)
@@ -1359,7 +1376,7 @@ function collectTargetEntity(stream: Stream, allowFakePlayers: boolean): TokenTa
 			}
 		}
 	}
-	return { type: 'targetEntity', entity, raw: entity.raw }
+	return { type: 'entity', entity, raw: entity.raw }
 }
 
 function collectCommandName(stream: Stream) {
@@ -1489,7 +1506,9 @@ export interface TokenUnknownCommand extends Token {
 }
 function tokenizeUnknownCommand(stream: Stream, name: string): TokenUnknownCommand {
 	if (GLOBALS.multiline) throwSyntaxError(stream, 'Attempted to multiline an unknown command')
-	console.log(`[WARN] Unknown command '${name}' at ${stream.line}:${stream.column - name.length}`)
+	console.log(
+		`[WARN] Unknown command '${name}' at ${stream.line}:${stream.column - name.length - 1}`
+	)
 	const str = stream.collect(s => !CHARS.NEWLINES(s.item))
 	return {
 		type: 'unknownCommand',
@@ -1608,7 +1627,7 @@ export class Command<T extends TokenCommand> {
 		return undefined
 	}
 
-	//! WARNING: Consumes performance to exist. Only use if absolutely necessary
+	// WARNING: Consumes performance to exist. Only use if absolutely necessary
 	static choiceArg(
 		stream: Stream,
 		collectors: [(s: Stream, ...args: any[]) => TokenAny, ...any][]
@@ -1674,10 +1693,9 @@ export const TokenCollectors = {
 	Boolean: collectBoolean,
 	Command: collectCommand,
 	Coordinate: collectCoordinate,
-	CoordinatePair: collectCoordinatePair,
 	CoordinateScope: collectCoordinateScope,
-	CoordinateTriplet: collectCoordinateTriplet,
 	Double: collectDouble,
+	Entity: collectEntity,
 	EntitySelector: collectEntitySelector,
 	FakePlayer: collectFakePlayer,
 	Int: collectInt,
@@ -1685,18 +1703,19 @@ export const TokenCollectors = {
 	Json: collectJson,
 	JsonArray: collectJsonArray,
 	JsonObject: collectJsonObject,
-	Literal: collectStringLiteral,
+	Literal: collectLiteral,
 	NBTObject: collectNbtObject,
 	NBTPath: collectNbtPath,
 	Number: collectNumber,
 	PlayerName: collectPlayerName,
+	PosVec2: collectPosVec2,
+	PosVec3: collectPosVec3,
 	RangeableDouble: collectRangeableDouble,
 	RangeableInt: collectRangeableInt,
 	ResourceLocation: collectResourceLocation,
-	RotationCoordinate: collectRotationCoordinate,
+	RotVec2: collectRotVec2,
 	String: collectString,
 	Swizzle: collectSwizzle,
-	TargetEntity: collectTargetEntity,
 	UnquotedString: collectUnquotedString,
 	UUID: collectUuid,
 }

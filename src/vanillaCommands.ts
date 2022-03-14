@@ -6,7 +6,7 @@ import {
 	TokenBoolean,
 	TokenCollectors as Token,
 	TokenCommand,
-	TokenCoordinateTriplet,
+	TokenPosVec3,
 	TokenDouble,
 	TokenInt,
 	TokenItem,
@@ -14,11 +14,11 @@ import {
 	TokenNbtObject,
 	TokenNbtPath,
 	TokenResourceLocation,
-	TokenRotationCoordinate,
+	TokenRotVec2,
 	TokenString,
 	TokenLiteral,
 	TokenSwizzle,
-	TokenTargetEntity,
+	TokenEntity,
 	TokenUnquotedString,
 	TokenUuid,
 	GLOBALS as G,
@@ -28,9 +28,10 @@ import {
 	TokenUnknownCommand,
 	TokenIntRange,
 	SETTINGS,
-	TokenCoordinatePair,
+	TokenPosVec2,
 	TokenArray,
 	TokenAny,
+	TokenEntitySelector,
 } from './lexer'
 
 const CR = new CommandRegister('minecraft:vanilla')
@@ -39,14 +40,14 @@ export { CR as register }
 /**
  * ```html
  * /advancement <action: (grant|revoke)> ...
- * - grant <target: targetEntity> <operation: (everything|only|from|through|until)> ...
+ * - grant <target: entity> <operation: (everything|only|from|through|until)> ...
  *   - everything
  *   - only <advancement: resourceLocation> [<criterion: unquotedString>]
  *   - from ...
  *   - through ...
  *   - until ...
  *     - <advancement: resourceLocation>
- * - revoke <target: targetEntity> <operation: (everything|only|from|through|until)> ...
+ * - revoke <target: entity> <operation: (everything|only|from|through|until)> ...
  *   - everything
  *   - only <advancement: resourceLocation> [<criterion: unquotedString>]
  *   - from ...
@@ -59,7 +60,7 @@ interface TokenAdvancementCommand extends TokenCommand {
 	name: 'advancement'
 	args: {
 		action: TokenLiteral
-		target: TokenTargetEntity
+		target: TokenEntity
 		operation: TokenLiteral
 		advancement?: TokenResourceLocation
 		criterion?: TokenUnquotedString
@@ -74,8 +75,8 @@ export const advancementCommand = CR.newCommand<TokenAdvancementCommand>(
 	(s, t, c) => {
 		// <action: (grant|revoke)>
 		t.args.action = C.requiredArg(s, Token.Literal, [c.meta.action])
-		// <target: targetEntity>
-		t.args.target = C.requiredArg(s, Token.TargetEntity)
+		// <target: entity>
+		t.args.target = C.requiredArg(s, Token.Entity)
 		// <operation: (everything|only|from|through|until)>
 		t.args.operation = C.requiredArg(s, Token.Literal, [c.meta.operation])
 
@@ -95,7 +96,7 @@ export const advancementCommand = CR.newCommand<TokenAdvancementCommand>(
 
 /**
  * ```html
- * /attribute <target: targetEntity> <attribute: resourceLocation> <action: (get|base|modifier)> ...
+ * /attribute <target: entity> <attribute: resourceLocation> <action: (get|base|modifier)> ...
  * - get [<scale: double>]
  * - base <operation: (get|set)> ...
  *   - get [<scale: double>]
@@ -109,7 +110,7 @@ export const advancementCommand = CR.newCommand<TokenAdvancementCommand>(
 interface TokenAttributeCommand extends TokenCommand {
 	name: 'attribute'
 	args: {
-		target: TokenTargetEntity
+		target: TokenEntity
 		attribute: TokenResourceLocation
 		action: TokenLiteral & { value: 'get' | 'base' | 'modifier' }
 		scale?: TokenDouble
@@ -130,8 +131,8 @@ export const attributeCommand = CR.newCommand<TokenAttributeCommand>(
 		modifierOperation: ['add', 'multiply_base', 'multiply'],
 	},
 	(s, t, c) => {
-		// <target: targetEntity>
-		t.args.target = C.requiredArg(s, Token.TargetEntity)
+		// <target: entity>
+		t.args.target = C.requiredArg(s, Token.Entity)
 		// <attribute: resourceLocation>
 		t.args.attribute = C.requiredArg(s, Token.ResourceLocation)
 		// <action: (get|base|modifier)>
@@ -196,7 +197,7 @@ export const attributeCommand = CR.newCommand<TokenAttributeCommand>(
  *   - color <color: (blue|green|pink|purple|red|white|yellow)>
  *   - max <max: int>
  *   - name <name: textComponent>
- *   - players [<targets: targetEntity>]
+ *   - players [<targets: entity>]
  *   - style <style: (notched_6|notched_10|notched_12|notched_20|progress)>
  *   - value <value: int>
  *   - visible <visible: boolean>
@@ -216,7 +217,7 @@ interface TokenBossbarCommand extends TokenCommand {
 			value: 'blue' | 'green' | 'pink' | 'purple' | 'red' | 'white' | 'yellow'
 		}
 		max?: TokenInt
-		targets?: TokenTargetEntity
+		targets?: TokenEntity
 		style?: TokenLiteral & {
 			value: 'notched_6' | 'notched_10' | 'notched_12' | 'notched_20' | 'progress'
 		}
@@ -276,8 +277,8 @@ export const bossbarCommand = CR.newCommand<TokenBossbarCommand>(
 						break
 					case 'players':
 						// players
-						// [<targets: targetEntity>]
-						t.args.targets = C.optionalArg(s, Token.TargetEntity)
+						// [<targets: entity>]
+						t.args.targets = C.optionalArg(s, Token.Entity)
 						break
 					case 'style':
 						// style
@@ -311,20 +312,20 @@ export const bossbarCommand = CR.newCommand<TokenBossbarCommand>(
 
 /**
  * ```html
- * /clear [<targets: targetEntity>] [<item: item>] [<maxCount: int>]
+ * /clear [<targets: entity>] [<item: item>] [<maxCount: int>]
  * ```
  */
 interface TokenClearCommand extends TokenCommand {
 	name: 'clear'
 	args: {
-		targets?: TokenTargetEntity
+		targets?: TokenEntity
 		item?: TokenItem
 		maxCount?: TokenInt
 	}
 }
 export const clearCommand = CR.newCommand<TokenClearCommand>('clear', {}, (s, t, c) => {
-	// [<targets: targetEntity>]
-	t.args.targets = C.optionalArg(s, Token.TargetEntity)
+	// [<targets: entity>]
+	t.args.targets = C.optionalArg(s, Token.Entity)
 	// [<item: item>]
 	t.args.item = C.optionalArg(s, Token.Item)
 	// [<maxCount: int>]
@@ -335,7 +336,7 @@ export const clearCommand = CR.newCommand<TokenClearCommand>('clear', {}, (s, t,
 
 /**
  * ```html
- * /clone <from: coordinateTriplet> <to: coordinateTriplet> <destination: coordinateTriplet> [<maskMode: (replace|masked|filtered)>] ...
+ * /clone <from: posVec3> <to: posVec3> <destination: posVec3> [<maskMode: (replace|masked|filtered)>] ...
  * - replace ...
  * - masked ...
  * - filtered <filter: block> ...
@@ -345,9 +346,9 @@ export const clearCommand = CR.newCommand<TokenClearCommand>('clear', {}, (s, t,
 interface TokenCloneCommand extends TokenCommand {
 	name: 'clone'
 	args: {
-		from: TokenCoordinateTriplet
-		to: TokenCoordinateTriplet
-		destination: TokenCoordinateTriplet
+		from: TokenPosVec3
+		to: TokenPosVec3
+		destination: TokenPosVec3
 		maskMode?: TokenLiteral & { value: 'replace' | 'masked' | 'filtered' }
 		filter?: TokenBlock
 		cloneMode?: TokenLiteral & { value: 'force' | 'move' | 'normal' }
@@ -360,12 +361,12 @@ export const cloneCommand = CR.newCommand<TokenCloneCommand>(
 		cloneMode: ['force', 'move', 'normal'],
 	},
 	(s, t, c) => {
-		// <from: coordinateTriplet>
-		t.args.from = C.requiredArg(s, Token.CoordinateTriplet)
-		// <to: coordinateTriplet>
-		t.args.to = C.requiredArg(s, Token.CoordinateTriplet)
-		// <destination: coordinateTriplet>
-		t.args.destination = C.requiredArg(s, Token.CoordinateTriplet)
+		// <from: posVec3>
+		t.args.from = C.requiredArg(s, Token.PosVec3)
+		// <to: posVec3>
+		t.args.to = C.requiredArg(s, Token.PosVec3)
+		// <destination: posVec3>
+		t.args.destination = C.requiredArg(s, Token.PosVec3)
 		// [<maskMode: (replace|masked|filtered)>] ...
 		t.args.maskMode = C.optionalArg(s, Token.Literal, [c.meta.maskMode])
 		switch (t.args.maskMode?.value) {
@@ -390,18 +391,18 @@ export const cloneCommand = CR.newCommand<TokenCloneCommand>(
  * ```html
  * /data <mode: (get|merge|modify|remove)> ...
  * - get <dataType: (block|entity|storage)> ...
- *   - block <targetPos: coordinateTriplet> ...
- *   - entity <targetEntity: targetEntity> ...
+ *   - block <targetPos: posVec3> ...
+ *   - entity <entity: entity> ...
  *   - storage <targetStorage: resourceLocation> ...
  *     - [<targetPath: nbtPath>] [<scale: double>]
  * - merge <dataType: (block|entity|storage)> ...
- *   - block <targetPos: coordinateTriplet> ...
- *   - entity <targetEntity: targetEntity> ...
+ *   - block <targetPos: posVec3> ...
+ *   - entity <entity: entity> ...
  *   - storage <targetStorage: resourceLocation> ...
  *     - <nbt: nbtObject>
  * - modify <dataType: (block|entity|storage)> ...
- *   - block <targetPos: coordinateTriplet> ...
- *   - entity <targetEntity: targetEntity> ...
+ *   - block <targetPos: posVec3> ...
+ *   - entity <entity: entity> ...
  *   - storage <targetStorage: resourceLocation> ...
  *     - <targetPath: nbtPath> <modifyMode: (append|insert|merge|prepend|set)> ...
  *       - append <setMode: (from|value)> ...
@@ -410,14 +411,14 @@ export const cloneCommand = CR.newCommand<TokenCloneCommand>(
  *       - prepend <setMode: (from|value)> ...
  *       - set <setMode: (from|value)> ...
  *         - from <fromDataType: (block|entity|storage)>
- *           - block <sourcePos: coordinateTriplet> ...
- *           - entity <sourceEntity: targetEntity> ...
+ *           - block <sourcePos: posVec3> ...
+ *           - entity <sourceEntity: entity> ...
  *           - storage <sourceStorage: resourceLocation> ...
  *             - [<sourcePath: nbtPath>]
  *         - value <value: nbtAny>
  * - remove <dataType: (block|entity|storage)> ...
- *   - block <targetPos: coordinateTriplet> ...
- *   - entity <targetEntity: targetEntity> ...
+ *   - block <targetPos: posVec3> ...
+ *   - entity <entity: entity> ...
  *   - storage <targetStorage: resourceLocation> ...
  *     - <targetPath: nbtPath>
  * ```
@@ -427,12 +428,12 @@ interface TokenDataCommand extends TokenCommand {
 	args: {
 		mode: TokenLiteral & { value: 'get' | 'merge' | 'modify' | 'remove' }
 		dataType: TokenLiteral & { value: 'block' | 'entity' | 'storage' }
-		targetPos?: TokenCoordinateTriplet
-		targetEntity?: TokenTargetEntity
+		targetPos?: TokenPosVec3
+		entity?: TokenEntity
 		targetStorage?: TokenResourceLocation
 		targetPath?: TokenNbtPath
-		sourcePos?: TokenCoordinateTriplet
-		sourceEntity?: TokenTargetEntity
+		sourcePos?: TokenPosVec3
+		sourceEntity?: TokenEntity
 		sourceStorage?: TokenResourceLocation
 		sourcePath?: TokenNbtPath
 		scale?: TokenDouble
@@ -465,12 +466,12 @@ export const dataCommand = CR.newCommand<TokenDataCommand>(
 				t.args.dataType = C.requiredArg(s, Token.Literal, [c.meta.dataType])
 				switch (t.args.dataType.value) {
 					case 'block':
-						// block <targetPos: coordinateTriplet>
-						t.args.targetPos = C.requiredArg(s, Token.CoordinateTriplet)
+						// block <targetPos: posVec3>
+						t.args.targetPos = C.requiredArg(s, Token.PosVec3)
 						break
 					case 'entity':
-						// entity <targetEntity: targetEntity>
-						t.args.targetEntity = C.requiredArg(s, Token.TargetEntity)
+						// entity <entity: entity>
+						t.args.entity = C.requiredArg(s, Token.Entity)
 						break
 					case 'storage':
 						// storage <targetStorage: resourceLocation>
@@ -488,12 +489,12 @@ export const dataCommand = CR.newCommand<TokenDataCommand>(
 				t.args.dataType = C.requiredArg(s, Token.Literal, [c.meta.dataType])
 				switch (t.args.dataType.value) {
 					case 'block':
-						// block <targetPos: coordinateTriplet>
-						t.args.targetPos = C.requiredArg(s, Token.CoordinateTriplet)
+						// block <targetPos: posVec3>
+						t.args.targetPos = C.requiredArg(s, Token.PosVec3)
 						break
 					case 'entity':
-						// entity <targetEntity: targetEntity>
-						t.args.targetEntity = C.requiredArg(s, Token.TargetEntity)
+						// entity <entity: entity>
+						t.args.entity = C.requiredArg(s, Token.Entity)
 						break
 					case 'storage':
 						// storage <targetStorage: resourceLocation>
@@ -509,12 +510,12 @@ export const dataCommand = CR.newCommand<TokenDataCommand>(
 				t.args.dataType = C.requiredArg(s, Token.Literal, [c.meta.dataType])
 				switch (t.args.dataType.value) {
 					case 'block':
-						// block <targetPos: coordinateTriplet>
-						t.args.targetPos = C.requiredArg(s, Token.CoordinateTriplet)
+						// block <targetPos: posVec3>
+						t.args.targetPos = C.requiredArg(s, Token.PosVec3)
 						break
 					case 'entity':
-						// entity <targetEntity: targetEntity>
-						t.args.targetEntity = C.requiredArg(s, Token.TargetEntity)
+						// entity <entity: entity>
+						t.args.entity = C.requiredArg(s, Token.Entity)
 						break
 					case 'storage':
 						// storage <targetStorage: resourceLocation>
@@ -548,12 +549,12 @@ export const dataCommand = CR.newCommand<TokenDataCommand>(
 					t.args.fromDataType = C.requiredArg(s, Token.Literal, [c.meta.dataType])
 					switch (t.args.fromDataType.value) {
 						case 'block':
-							// block <sourcePos: coordinateTriplet> ...
-							t.args.sourcePos = C.requiredArg(s, Token.CoordinateTriplet)
+							// block <sourcePos: posVec3> ...
+							t.args.sourcePos = C.requiredArg(s, Token.PosVec3)
 							break
 						case 'entity':
-							// entity <sourceEntity: targetEntity> ...
-							t.args.sourceEntity = C.requiredArg(s, Token.TargetEntity)
+							// entity <sourceEntity: entity> ...
+							t.args.sourceEntity = C.requiredArg(s, Token.Entity)
 							break
 						case 'storage':
 							// storage <sourceStorage: resourceLocation> ...
@@ -573,12 +574,12 @@ export const dataCommand = CR.newCommand<TokenDataCommand>(
 				t.args.dataType = C.requiredArg(s, Token.Literal, [c.meta.dataType])
 				switch (t.args.dataType.value) {
 					case 'block':
-						// block <targetPos: coordinateTriplet> ...
-						t.args.targetPos = C.requiredArg(s, Token.CoordinateTriplet)
+						// block <targetPos: posVec3> ...
+						t.args.targetPos = C.requiredArg(s, Token.PosVec3)
 						break
 					case 'entity':
-						// entity <targetEntity: targetEntity> ...
-						t.args.targetEntity = C.requiredArg(s, Token.TargetEntity)
+						// entity <entity: entity> ...
+						t.args.entity = C.requiredArg(s, Token.Entity)
 						break
 					case 'storage':
 						// storage <targetStorage: resourceLocation> ...
@@ -684,15 +685,15 @@ export const difficultyCommand = CR.newCommand<TokenDifficultyCommand>(
 /**
  * ```html
  * /effect <mode: (clear|give)> ...
- * - clear [<targets: targetEntity>] [<effect: resourceLocation>]
- * - give <targets: targetEntity> <effect: resourceLocation> [<seconds: int>] [<amplifier: int>] [<hideParticles: boolean>]
+ * - clear [<targets: entity>] [<effect: resourceLocation>]
+ * - give <targets: entity> <effect: resourceLocation> [<seconds: int>] [<amplifier: int>] [<hideParticles: boolean>]
  * ```
  */
 interface TokenEffectCommand extends TokenCommand {
 	name: 'effect'
 	args: {
 		mode: TokenLiteral & { value: 'clear' | 'give' }
-		targets?: TokenTargetEntity
+		targets?: TokenEntity
 		effect?: TokenResourceLocation
 		seconds?: TokenInt
 		amplifier?: TokenInt
@@ -709,14 +710,14 @@ export const effectCommand = CR.newCommand<TokenEffectCommand>(
 		t.args.mode = C.requiredArg(s, Token.Literal, [c.meta.mode])
 		if (t.args.mode.value === 'clear') {
 			// clear
-			// [<targets: targetEntity>]
-			t.args.targets = C.optionalArg(s, Token.TargetEntity)
+			// [<targets: entity>]
+			t.args.targets = C.optionalArg(s, Token.Entity)
 			// [<effect: resourceLocation>]
 			t.args.effect = C.optionalArg(s, Token.ResourceLocation)
 		} else {
 			// give
-			// <targets: targetEntity>
-			t.args.targets = C.requiredArg(s, Token.TargetEntity)
+			// <targets: entity>
+			t.args.targets = C.requiredArg(s, Token.Entity)
 			// <effect: resourceLocation>
 			t.args.effect = C.requiredArg(s, Token.ResourceLocation)
 			// [<seconds: int>]
@@ -733,20 +734,20 @@ export const effectCommand = CR.newCommand<TokenEffectCommand>(
 
 /**
  * ```html
- * /enchant <targets: targetEntity> <enchantment: resourceLocation> [<level: int>]
+ * /enchant <targets: entity> <enchantment: resourceLocation> [<level: int>]
  * ```
  */
 interface TokenEnchantCommand extends TokenCommand {
 	name: 'enchant'
 	args: {
-		targets: TokenTargetEntity
+		targets: TokenEntity
 		enchantment: TokenResourceLocation
 		level?: TokenInt
 	}
 }
 export const enchantCommand = CR.newCommand<TokenEnchantCommand>('enchant', {}, (s, t, c) => {
-	// <targets: targetEntity>
-	t.args.targets = C.requiredArg(s, Token.TargetEntity)
+	// <targets: entity>
+	t.args.targets = C.requiredArg(s, Token.Entity)
 	// <enchantment: resourceLocation>
 	t.args.enchantment = C.requiredArg(s, Token.ResourceLocation)
 	// [<level: int>]
@@ -769,22 +770,22 @@ interface ExecuteAnchoredSubCommand extends TokenCommand {
 interface ExecuteAsSubCommand extends TokenCommand {
 	name: 'as'
 	args: {
-		targets: TokenTargetEntity
+		targets: TokenEntity
 	}
 }
 interface ExecuteAtSubCommand extends TokenCommand {
 	name: 'at'
 	args: {
-		targets: TokenTargetEntity
+		targets: TokenEntity
 	}
 }
 interface ExecuteFacingSubCommand extends TokenCommand {
 	name: 'facing'
 	args: {
 		entity?: TokenLiteral & { value: 'entity' }
-		targets?: TokenTargetEntity
+		targets?: TokenEntity
 		anchor?: TokenLiteral & { value: 'eyes' | 'feet' }
-		pos?: TokenCoordinateTriplet
+		pos?: TokenPosVec3
 	}
 }
 interface ExecuteInSubCommand extends TokenCommand {
@@ -797,17 +798,16 @@ interface ExecutePositionedSubCommand extends TokenCommand {
 	name: 'positioned'
 	args: {
 		as?: TokenLiteral & { value: 'as' }
-		targets?: TokenTargetEntity
-		pos?: TokenCoordinateTriplet
+		targets?: TokenEntity
+		pos?: TokenPosVec3
 	}
 }
 interface ExecuteRotatedSubCommand extends TokenCommand {
 	name: 'rotated'
 	args: {
 		as?: TokenLiteral & { value: 'as' }
-		targets?: TokenTargetEntity
-		xRot?: TokenRotationCoordinate
-		yRot?: TokenRotationCoordinate
+		targets?: TokenEntity
+		rot?: TokenRotVec2
 	}
 }
 interface ExecuteStoreSubCommand extends TokenCommand {
@@ -815,13 +815,13 @@ interface ExecuteStoreSubCommand extends TokenCommand {
 	args: {
 		mode: TokenLiteral & { value: 'result' | 'success' }
 		location: TokenLiteral & { value: 'block' | 'bossbar' | 'entity' | 'score' | 'storage' }
-		pos?: TokenCoordinateTriplet
+		pos?: TokenPosVec3
 		path?: TokenNbtPath | (TokenLiteral & { value: 'max' | 'value' })
 		type?: TokenLiteral & { value: 'byte' | 'short' | 'int' | 'long' | 'float' | 'double' }
 		scale?: TokenDouble
 		id?: TokenResourceLocation
-		target?: TokenTargetEntity
-		targets?: TokenTargetEntity
+		target?: TokenEntity
+		targets?: TokenEntity
 		objective?: TokenUnquotedString
 		storage?: TokenResourceLocation
 	}
@@ -832,23 +832,23 @@ interface ExecuteConditionalSubCommand extends TokenCommand {
 		check: TokenLiteral & {
 			value: 'blocks' | 'block' | 'data' | 'entity' | 'predicate' | 'score'
 		}
-		pos?: TokenCoordinateTriplet
+		pos?: TokenPosVec3
 		block?: TokenBlock
-		from?: TokenCoordinateTriplet
-		to?: TokenCoordinateTriplet
-		destination?: TokenCoordinateTriplet
+		from?: TokenPosVec3
+		to?: TokenPosVec3
+		destination?: TokenPosVec3
 		maskMode?: TokenLiteral & { value: 'all' | 'masked' }
 		type?: TokenLiteral & { value: 'block' | 'entity' | 'storage' }
 		path?: TokenNbtPath
-		targets?: TokenTargetEntity
+		targets?: TokenEntity
 		storage?: TokenResourceLocation
 		predicate?: TokenResourceLocation
-		target?: TokenTargetEntity
+		target?: TokenEntity
 		targetObjective?: TokenUnquotedString
 		matches?: TokenLiteral & { value: 'matches' }
 		operator?: TokenLiteral & { value: '<=' | '<' | '=' | '>=' | '>' }
 		range?: TokenIntRange | TokenInt
-		source?: TokenTargetEntity
+		source?: TokenEntity
 		sourceObjective?: TokenUnquotedString
 	}
 }
@@ -905,38 +905,38 @@ type AnyExecuteSubCommand =
  * <SUBCOMMAND>: <name: (align|anchored|as|at|facing|in|positioned|rotated|store|if|unless|run)> ...
  * - align <swizzle: swizzle> <SUBCOMMAND>
  * - anchored <part: (eyes|feet)> <SUBCOMMAND>
- * - as <targets: targetEntity> <SUBCOMMAND>
- * - at <targets: targetEntity> <SUBCOMMAND>
+ * - as <targets: entity> <SUBCOMMAND>
+ * - at <targets: entity> <SUBCOMMAND>
  * - facing ...
- *   - [<entity: (entity)>] <targets: targetEntity> <anchor: (eyes|feet)> <SUBCOMMAND>
- *   - <pos: coordinateTriplet> <SUBCOMMAND>
+ *   - [<entity: (entity)>] <targets: entity> <anchor: (eyes|feet)> <SUBCOMMAND>
+ *   - <pos: posVec3> <SUBCOMMAND>
  * - in <dimension: resourceLocation> <SUBCOMMAND>
  * - positioned ...
- *   - [<as: (as)>] <targets: targetEntity> <SUBCOMMAND>
- *   - <pos: coordinateTriplet> <SUBCOMMAND>
+ *   - [<as: (as)>] <targets: entity> <SUBCOMMAND>
+ *   - <pos: posVec3> <SUBCOMMAND>
  * - rotated ...
- *   - [<as: (as)>] <targets: targetEntity> <SUBCOMMAND>
- *   - <xRot: rotationCoordinate> <yRot: rotationCoordinate> <SUBCOMMAND>
+ *   - [<as: (as)>] <targets: entity> <SUBCOMMAND>
+ *   - <rot: rotVec2> <SUBCOMMAND>
  * - store <mode: (resultSuccess)> <location: (block|bossbar|entity|score|storage)> ...
- *   - block <pos: coordinateTriplet> <path: nbtPath> <type: (byte|short|int|long|float|double)> <scale: double> <SUBCOMMAND>
+ *   - block <pos: posVec3> <path: nbtPath> <type: (byte|short|int|long|float|double)> <scale: double> <SUBCOMMAND>
  *   - bossbar <id: resourceLocation> <path: (max|value)> <SUBCOMMAND>
- *   - entity <target: targetEntity> <path: nbtPath> <type: (byte|short|int|long|float|double)> <scale: double> <SUBCOMMAND>
- *   - score <targets: targetEntity> <objective: unquotedString> <SUBCOMMAND>
+ *   - entity <target: entity> <path: nbtPath> <type: (byte|short|int|long|float|double)> <scale: double> <SUBCOMMAND>
+ *   - score <targets: entity> <objective: unquotedString> <SUBCOMMAND>
  *   - storage <storage: resourceLocation> <path: nbtPath> <type: (byte|short|int|long|float|double)> <scale: double> <SUBCOMMAND>
  * - if ...
  * - unless ...
  *   - <check: (blocks|block|data|entity|predicate|score)> ...
- *     - block <pos: coordinateTriplet> <block: block> <SUBCOMMAND>
- *     - blocks <from: coordinateTriplet> <to: coordinateTriplet> <destination: coordinateTriplet> <maskMode: (all|masked)> <SUBCOMMAND>
+ *     - block <pos: posVec3> <block: block> <SUBCOMMAND>
+ *     - blocks <from: posVec3> <to: posVec3> <destination: posVec3> <maskMode: (all|masked)> <SUBCOMMAND>
  *     - data <type: (block|entity|storage)> ...
- *       - block <pos: coordinateTriplet> <path: nbtPath> <SUBCOMMAND>
- *       - entity <targets: targetEntity> <path: nbtPath> <SUBCOMMAND>
+ *       - block <pos: posVec3> <path: nbtPath> <SUBCOMMAND>
+ *       - entity <targets: entity> <path: nbtPath> <SUBCOMMAND>
  *       - storage <storage: resourceLocation> <path: nbtPath> <SUBCOMMAND>
- *     - entity <targets: targetEntity> <SUBCOMMAND>
+ *     - entity <targets: entity> <SUBCOMMAND>
  *     - predicate <predicate: resourceLocation> <SUBCOMMAND>
- *     - score <target: targetEntity> <targetObjective: unquotedString> ...
+ *     - score <target: entity> <targetObjective: unquotedString> ...
  *       - [<matches: (matches)>] <range: rangeableInt> <SUBCOMMAND>
- *       - <operator: (<=|<|=|>=|>)> <source: targetEntity> <sourceObjective: unquotedString> <SUBCOMMAND>
+ *       - <operator: (<=|<|=|>=|>)> <source: entity> <sourceObjective: unquotedString> <SUBCOMMAND>
  * - run <command: command>
  * ```
  */
@@ -991,8 +991,7 @@ export const executeCommand = CR.newCommand<TokenExecuteCommand>(
 				pos,
 				dimension,
 				_as,
-				xRot,
-				yRot,
+				rot,
 				mode,
 				_location,
 				path,
@@ -1033,15 +1032,15 @@ export const executeCommand = CR.newCommand<TokenExecuteCommand>(
 					break
 				case 'as':
 					// as
-					// <targets: targetEntity>
-					targets = C.requiredArg(s, Token.TargetEntity)
+					// <targets: entity>
+					targets = C.requiredArg(s, Token.Entity)
 					// return
 					t.args.subCommands.push(newSubCommand('as', { targets }))
 					break
 				case 'at':
 					// at
-					// <targets: targetEntity>
-					targets = C.requiredArg(s, Token.TargetEntity)
+					// <targets: entity>
+					targets = C.requiredArg(s, Token.Entity)
 					// return
 					t.args.subCommands.push(newSubCommand('as', { targets }))
 					break
@@ -1050,13 +1049,13 @@ export const executeCommand = CR.newCommand<TokenExecuteCommand>(
 					// [<entity: (entity)>]
 					entity = C.optionalArg(s, Token.Literal, [c.meta.entity], true)
 					if (entity) {
-						// <targets: targetEntity>
-						targets = C.requiredArg(s, Token.TargetEntity)
+						// <targets: entity>
+						targets = C.requiredArg(s, Token.Entity)
 						// <anchor: (eyes|feet)>
 						anchor = C.requiredArg(s, Token.Literal, [c.meta.anchorPart])
 					} else {
-						// <pos: coordinateTriplet>
-						pos = C.requiredArg(s, Token.CoordinateTriplet)
+						// <pos: posVec3>
+						pos = C.requiredArg(s, Token.PosVec3)
 					}
 					// return
 					t.args.subCommands.push(
@@ -1075,11 +1074,11 @@ export const executeCommand = CR.newCommand<TokenExecuteCommand>(
 					// [<as: (as)>]
 					_as = C.optionalArg(s, Token.Literal, [c.meta.as], true)
 					if (_as) {
-						// <targets: targetEntity>
-						targets = C.requiredArg(s, Token.TargetEntity)
+						// <targets: entity>
+						targets = C.requiredArg(s, Token.Entity)
 					} else {
-						// <pos: coordinateTriplet>
-						pos = C.requiredArg(s, Token.CoordinateTriplet)
+						// <pos: posVec3>
+						pos = C.requiredArg(s, Token.PosVec3)
 					}
 					// return
 					t.args.subCommands.push(newSubCommand('positioned', { as: _as, targets, pos }))
@@ -1089,18 +1088,14 @@ export const executeCommand = CR.newCommand<TokenExecuteCommand>(
 					// [<as: (as)>]
 					_as = C.optionalArg(s, Token.Literal, [c.meta.as], true)
 					if (_as) {
-						// <targets: targetEntity>
-						targets = C.requiredArg(s, Token.TargetEntity)
+						// <targets: entity>
+						targets = C.requiredArg(s, Token.Entity)
 					} else {
-						// <xRot: rotationCoordinate>
-						// <yRot: rotationCoordinate>
-						xRot = C.requiredArg(s, Token.RotationCoordinate)
-						yRot = C.requiredArg(s, Token.RotationCoordinate)
+						// <rot: rotVec2>
+						rot = C.requiredArg(s, Token.RotVec2)
 					}
 					// return
-					t.args.subCommands.push(
-						newSubCommand('rotated', { as: _as, targets, xRot, yRot })
-					)
+					t.args.subCommands.push(newSubCommand('rotated', { as: _as, targets, rot }))
 					break
 				case 'store':
 					// store
@@ -1111,8 +1106,8 @@ export const executeCommand = CR.newCommand<TokenExecuteCommand>(
 					switch (_location.value) {
 						case 'block':
 							// block
-							// <pos: coordinateTriplet>
-							pos = C.requiredArg(s, Token.CoordinateTriplet)
+							// <pos: posVec3>
+							pos = C.requiredArg(s, Token.PosVec3)
 							// <path: nbtPath>
 							path = C.requiredArg(s, Token.NBTPath)
 							// <type: (byte|short|int|long|float|double)>
@@ -1129,8 +1124,8 @@ export const executeCommand = CR.newCommand<TokenExecuteCommand>(
 							break
 						case 'entity':
 							// entity
-							// <target: targetEntity>
-							target = C.requiredArg(s, Token.TargetEntity)
+							// <target: entity>
+							target = C.requiredArg(s, Token.Entity)
 							// <path: nbtPath>
 							path = C.requiredArg(s, Token.NBTPath)
 							// <type: (byte|short|int|long|float|double)>
@@ -1140,8 +1135,8 @@ export const executeCommand = CR.newCommand<TokenExecuteCommand>(
 							break
 						case 'score':
 							// score
-							// <targets: targetEntity>
-							targets = C.requiredArg(s, Token.TargetEntity, [true])
+							// <targets: entity>
+							targets = C.requiredArg(s, Token.Entity, [true])
 							// <objective: unquotedString>
 							objective = C.requiredArg(s, Token.UnquotedString)
 							break
@@ -1182,19 +1177,19 @@ export const executeCommand = CR.newCommand<TokenExecuteCommand>(
 					switch (check.value) {
 						case 'block':
 							// block
-							// <pos: coordinateTriplet>
-							pos = C.requiredArg(s, Token.CoordinateTriplet)
+							// <pos: posVec3>
+							pos = C.requiredArg(s, Token.PosVec3)
 							// <block: block>
 							block = C.requiredArg(s, Token.Block)
 							break
 						case 'blocks':
 							// blocks
-							// <from: coordinateTriplet>
-							from = C.requiredArg(s, Token.CoordinateTriplet)
-							// <to: coordinateTriplet>
-							to = C.requiredArg(s, Token.CoordinateTriplet)
-							// <destination: coordinateTriplet>
-							destination = C.requiredArg(s, Token.CoordinateTriplet)
+							// <from: posVec3>
+							from = C.requiredArg(s, Token.PosVec3)
+							// <to: posVec3>
+							to = C.requiredArg(s, Token.PosVec3)
+							// <destination: posVec3>
+							destination = C.requiredArg(s, Token.PosVec3)
 							// <maskMode: (all|masked)>
 							maskMode = C.requiredArg(s, Token.Literal, [c.meta.maskMode])
 							break
@@ -1205,15 +1200,15 @@ export const executeCommand = CR.newCommand<TokenExecuteCommand>(
 							switch (_type.value) {
 								case 'block':
 									// block
-									// <pos: coordinateTriplet>
-									pos = C.requiredArg(s, Token.CoordinateTriplet)
+									// <pos: posVec3>
+									pos = C.requiredArg(s, Token.PosVec3)
 									// <path: nbtPath>
 									path = C.requiredArg(s, Token.NBTPath)
 									break
 								case 'entity':
 									// entity
-									// <targets: targetEntity>
-									targets = C.requiredArg(s, Token.TargetEntity)
+									// <targets: entity>
+									targets = C.requiredArg(s, Token.Entity)
 									// <path: nbtPath>
 									path = C.requiredArg(s, Token.NBTPath)
 									break
@@ -1228,8 +1223,8 @@ export const executeCommand = CR.newCommand<TokenExecuteCommand>(
 							break
 						case 'entity':
 							// entity
-							// <targets: targetEntity>
-							targets = C.requiredArg(s, Token.TargetEntity)
+							// <targets: entity>
+							targets = C.requiredArg(s, Token.Entity)
 							break
 						case 'predicate':
 							// predicate
@@ -1238,8 +1233,8 @@ export const executeCommand = CR.newCommand<TokenExecuteCommand>(
 							break
 						case 'score':
 							// score
-							// <target: targetEntity>
-							target = C.requiredArg(s, Token.TargetEntity, [true])
+							// <target: entity>
+							target = C.requiredArg(s, Token.Entity, [true])
 							// <targetObjective: unquotedString>
 							targetObjective = C.requiredArg(s, Token.UnquotedString)
 							// [<matches: (matches)>]
@@ -1250,8 +1245,8 @@ export const executeCommand = CR.newCommand<TokenExecuteCommand>(
 							} else {
 								// <operator: (<=|<|=|>=|>)>
 								operator = C.requiredArg(s, Token.Literal, [c.meta.operators])
-								// <source: targetEntity>
-								source = C.requiredArg(s, Token.TargetEntity, [true])
+								// <source: entity>
+								source = C.requiredArg(s, Token.Entity, [true])
 								// <sourceObjective: unquotedString>
 								sourceObjective = C.requiredArg(s, Token.UnquotedString)
 							}
@@ -1321,15 +1316,15 @@ export const executeCommand = CR.newCommand<TokenExecuteCommand>(
  * /(experiance|xp) <mode: (add|set|query)> ...
  * - add ...
  * - set ...
- *   - <targets: targetEntity> <amount: int> [<valueNode: (levels|points)>]
- * - query <targets: targetEntity> [<valueNode: (levels|points)>]
+ *   - <targets: entity> <amount: int> [<valueNode: (levels|points)>]
+ * - query <targets: entity> [<valueNode: (levels|points)>]
  * ```
  */
 interface TokenExperienceCommand extends TokenCommand {
 	name: 'experience' | 'xp'
 	args: {
 		mode: TokenLiteral & { value: 'add' | 'set' | 'query' }
-		targets: TokenTargetEntity
+		targets: TokenEntity
 		amount: TokenInt
 		valueMode: TokenLiteral & { value: 'levels' | 'points' }
 	}
@@ -1343,8 +1338,8 @@ export const experienceCommand = CR.newCommand<TokenExperienceCommand>(
 	(s, t, c) => {
 		// <mode: (add|set|query)>
 		t.args.mode = C.requiredArg(s, Token.Literal, [c.meta.mode])
-		// <targets: targetEntity>
-		t.args.targets = C.requiredArg(s, Token.TargetEntity)
+		// <targets: entity>
+		t.args.targets = C.requiredArg(s, Token.Entity)
 		if (t.args.mode.value !== 'query')
 			// <amount: int>
 			t.args.amount = C.requiredArg(s, Token.Int)
@@ -1361,7 +1356,7 @@ export const xp = CR.newCommand<TokenExperienceCommand>(
 
 /**
  * ```html
- * /fill <from: coordinateTriplet> <to: coordinateTriplet> <block: block> [<mode: (destroy|hollow|keep|outline|replace)>] ...
+ * /fill <from: posVec3> <to: posVec3> <block: block> [<mode: (destroy|hollow|keep|outline|replace)>] ...
  * - destroy
  * - hollow
  * - keep
@@ -1372,8 +1367,8 @@ export const xp = CR.newCommand<TokenExperienceCommand>(
 interface TokenFillCommand extends TokenCommand {
 	name: 'fill'
 	args: {
-		from: TokenCoordinateTriplet
-		to: TokenCoordinateTriplet
+		from: TokenPosVec3
+		to: TokenPosVec3
 		block: TokenBlock
 		mode?: TokenLiteral & { value: 'destroy' | 'hollow' | 'keep' | 'outline' | 'replace' }
 		filter?: TokenBlock
@@ -1385,10 +1380,10 @@ export const fillCommand = CR.newCommand<TokenFillCommand>(
 		mode: ['destroy', 'hollow', 'keep', 'outline', 'replace'],
 	},
 	(s, t, c) => {
-		// <from: coordinateTriplet>
-		t.args.from = C.requiredArg(s, Token.CoordinateTriplet)
-		// <to: coordinateTriplet>
-		t.args.to = C.requiredArg(s, Token.CoordinateTriplet)
+		// <from: posVec3>
+		t.args.from = C.requiredArg(s, Token.PosVec3)
+		// <to: posVec3>
+		t.args.to = C.requiredArg(s, Token.PosVec3)
 		// <block: block>
 		t.args.block = C.requiredArg(s, Token.Block)
 		// [<mode: (destroy|hollow|keep|outline|replace)>] ...
@@ -1404,21 +1399,21 @@ export const fillCommand = CR.newCommand<TokenFillCommand>(
 /**
  * ```html
  * /forceload <mode: (add|remove|query)> ...
- * - add <from: coordinatePair> [<to: coordinatePair>]
- * - query [<pos: coordinatePair>]
+ * - add <from: PosVec2> [<to: PosVec2>]
+ * - query [<pos: PosVec2>]
  * - remove ...
  *   - [<all: (all)>]
- *   - <from: coordinatePair> [<to: coordinatePair>]
+ *   - <from: PosVec2> [<to: PosVec2>]
  * ```
  */
 interface TokenForceloadCommand extends TokenCommand {
 	name: 'forceload'
 	args: {
 		mode: TokenLiteral & { value: 'add' | 'remove' | 'query' }
-		from: TokenCoordinatePair
-		to?: TokenCoordinatePair
+		from: TokenPosVec2
+		to?: TokenPosVec2
 		all?: TokenLiteral & { value: 'all' }
-		pos?: TokenCoordinatePair
+		pos?: TokenPosVec2
 	}
 }
 export const forceloadCommand = CR.newCommand<TokenForceloadCommand>(
@@ -1433,25 +1428,25 @@ export const forceloadCommand = CR.newCommand<TokenForceloadCommand>(
 		switch (t.args.mode.value) {
 			case 'add':
 				// add
-				// <from: coordinatePair>
-				t.args.from = C.requiredArg(s, Token.CoordinatePair)
-				// [<to: coordinatePair>]
-				t.args.to = C.optionalArg(s, Token.CoordinatePair)
+				// <from: PosVec2>
+				t.args.from = C.requiredArg(s, Token.PosVec2)
+				// [<to: PosVec2>]
+				t.args.to = C.optionalArg(s, Token.PosVec2)
 				break
 			case 'query':
 				// query
-				// [<pos: coordinatePair>]
-				t.args.pos = C.optionalArg(s, Token.CoordinatePair)
+				// [<pos: PosVec2>]
+				t.args.pos = C.optionalArg(s, Token.PosVec2)
 				break
 			case 'remove':
 				// remove
 				// [<all: (all)>]
 				t.args.all = C.optionalArg(s, Token.Literal, [c.meta.all], true)
 				if (!t.args.all) {
-					// <from: coordinatePair>
-					t.args.from = C.requiredArg(s, Token.CoordinatePair)
-					// [<to: coordinatePair>]
-					t.args.to = C.optionalArg(s, Token.CoordinatePair)
+					// <from: PosVec2>
+					t.args.from = C.requiredArg(s, Token.PosVec2)
+					// [<to: PosVec2>]
+					t.args.to = C.optionalArg(s, Token.PosVec2)
 				}
 				break
 		}
@@ -1478,14 +1473,14 @@ export const functionCommand = CR.newCommand<TokenFunctionCommand>('function', {
 
 /**
  * ```html
- * /gamemode <gamemode: (adventure|creative|spectator|survival)> [<targets: targetEntity>]
+ * /gamemode <gamemode: (adventure|creative|spectator|survival)> [<targets: entity>]
  * ```
  */
 interface TokenGamemodeCommand extends TokenCommand {
 	name: 'gamemode'
 	args: {
 		gamemode: TokenLiteral & { value: 'adventure' | 'creative' | 'spectator' | 'survival' }
-		targets?: TokenTargetEntity
+		targets?: TokenEntity
 	}
 }
 export const gamemodeCommand = CR.newCommand<TokenGamemodeCommand>(
@@ -1496,8 +1491,8 @@ export const gamemodeCommand = CR.newCommand<TokenGamemodeCommand>(
 	(s, t, c) => {
 		// <gamemode: (adventure|creative|spectator|survival)>
 		t.args.gamemode = C.requiredArg(s, Token.Literal, [c.meta.gamemode])
-		// [<targets: targetEntity>]
-		t.args.targets = C.optionalArg(s, Token.TargetEntity)
+		// [<targets: entity>]
+		t.args.targets = C.optionalArg(s, Token.Entity)
 		return t
 	}
 )
@@ -1528,20 +1523,20 @@ export const gameruleCommand = CR.newCommand<TokenGameruleCommand>('gamerule', {
 
 /**
  * ```html
- * /give <targets: targetEntity> <item: item> [<count: int>]
+ * /give <targets: entity> <item: item> [<count: int>]
  * ```
  */
 interface TokenGiveCommand extends TokenCommand {
 	name: 'give'
 	args: {
-		targets: TokenTargetEntity
+		targets: TokenEntity
 		item: TokenItem
 		count?: TokenInt
 	}
 }
 export const giveCommand = CR.newCommand<TokenGiveCommand>('give', {}, (s, t, c) => {
-	// <targets: targetEntity>
-	t.args.targets = C.requiredArg(s, Token.TargetEntity)
+	// <targets: entity>
+	t.args.targets = C.requiredArg(s, Token.Entity)
 	// <item: item>
 	t.args.item = C.requiredArg(s, Token.Item)
 	// [<count: int>]
@@ -1553,17 +1548,17 @@ export const giveCommand = CR.newCommand<TokenGiveCommand>('give', {}, (s, t, c)
  * ```html
  * /item <mode: (modify|replace)>
  * - modify <targetType: (block|entity)> ...
- *   - block <pos: coordinateTriplet> ...
- *   - entity <target: targetEntity> ...
+ *   - block <pos: posVec3> ...
+ *   - entity <target: entity> ...
  *     - <slot: unquotedString> <modifier: resourceLocation>
  * - replace <targetType: (block|entity)> ...
- *   - block <pos: coordinateTriplet> ...
- *   - entity <target: targetEntity> ...
+ *   - block <pos: posVec3> ...
+ *   - entity <target: entity> ...
  *     - <slot: unquotedString> <replaceMode: (with|from)> ...
  *       - with <item: item> [<count: int>]
  *       - from <sourceType: (block|entity)> ...
- *         - block <sourcePos: coordinateTriplet> ...
- *         - entity <sourceTarget: targetEntity> ...
+ *         - block <sourcePos: posVec3> ...
+ *         - entity <sourceTarget: entity> ...
  *           - <sourceSlot: unquotedString> [<modifier: resourceLocation>]
  * ```
  */
@@ -1572,16 +1567,16 @@ interface TokenItemCommand extends TokenCommand {
 	args: {
 		mode: TokenLiteral & { value: 'modify' | 'replace' }
 		targetType: TokenLiteral & { value: 'block' | 'entity' }
-		pos?: TokenCoordinateTriplet
-		target?: TokenTargetEntity
+		pos?: TokenPosVec3
+		target?: TokenEntity
 		slot?: TokenUnquotedString
 		modifier?: TokenResourceLocation
 		replaceMode?: TokenLiteral & { value: 'with' | 'from' }
 		item?: TokenItem
 		count?: TokenInt
 		sourceType?: TokenLiteral & { value: 'block' | 'entity' }
-		sourceTarget?: TokenTargetEntity
-		sourcePosition?: TokenCoordinateTriplet
+		sourceTarget?: TokenEntity
+		sourcePosition?: TokenPosVec3
 		sourceSlot?: TokenUnquotedString
 	}
 }
@@ -1602,12 +1597,12 @@ export const itemCommand = CR.newCommand<TokenItemCommand>(
 			t.args.targetType = C.requiredArg(s, Token.Literal, [c.meta.targetType])
 			if (t.args.targetType.value === 'block') {
 				// block
-				// <pos: coordinateTriplet>
-				t.args.pos = C.requiredArg(s, Token.CoordinateTriplet)
+				// <pos: posVec3>
+				t.args.pos = C.requiredArg(s, Token.PosVec3)
 			} else {
 				// entity
-				// <target: targetEntity>
-				t.args.target = C.requiredArg(s, Token.TargetEntity)
+				// <target: entity>
+				t.args.target = C.requiredArg(s, Token.Entity)
 			}
 			// <slot: unquotedString>
 			t.args.slot = C.requiredArg(s, Token.UnquotedString)
@@ -1618,12 +1613,12 @@ export const itemCommand = CR.newCommand<TokenItemCommand>(
 			t.args.targetType = C.requiredArg(s, Token.Literal, [c.meta.targetType])
 			if (t.args.targetType.value === 'block') {
 				// block
-				// <pos: coordinateTriplet>
-				t.args.pos = C.requiredArg(s, Token.CoordinateTriplet)
+				// <pos: posVec3>
+				t.args.pos = C.requiredArg(s, Token.PosVec3)
 			} else {
 				// entity
-				// <target: targetEntity>
-				t.args.target = C.requiredArg(s, Token.TargetEntity)
+				// <target: entity>
+				t.args.target = C.requiredArg(s, Token.Entity)
 			}
 			// <slot: unquotedString>
 			t.args.slot = C.requiredArg(s, Token.UnquotedString)
@@ -1642,12 +1637,12 @@ export const itemCommand = CR.newCommand<TokenItemCommand>(
 				t.args.sourceType = C.requiredArg(s, Token.Literal, [c.meta.sourceType])
 				if (t.args.sourceType.value === 'block') {
 					// block
-					// <sourcePos: coordinateTriplet>
-					t.args.sourcePosition = C.requiredArg(s, Token.CoordinateTriplet)
+					// <sourcePos: posVec3>
+					t.args.sourcePosition = C.requiredArg(s, Token.PosVec3)
 				} else {
 					// entity
-					// <source: targetEntity>
-					t.args.sourceTarget = C.requiredArg(s, Token.TargetEntity)
+					// <source: entity>
+					t.args.sourceTarget = C.requiredArg(s, Token.Entity)
 				}
 				// <sourceSlot: unquotedString>
 				t.args.sourceSlot = C.requiredArg(s, Token.UnquotedString)
@@ -1661,18 +1656,18 @@ export const itemCommand = CR.newCommand<TokenItemCommand>(
 
 /**
  * ```html
- * /kill [<targets: targetEntity>]
+ * /kill [<targets: entity>]
  * ```
  */
 interface TokenKillCommand extends TokenCommand {
 	name: 'kill'
 	args: {
-		targets?: TokenTargetEntity
+		targets?: TokenEntity
 	}
 }
 export const killCommand = CR.newCommand<TokenKillCommand>('kill', {}, (s, t, c) => {
-	// [<targets: targetEntity>]
-	t.args.targets = C.optionalArg(s, Token.TargetEntity)
+	// [<targets: entity>]
+	t.args.targets = C.optionalArg(s, Token.Entity)
 	return t
 })
 
@@ -1741,34 +1736,34 @@ export const locatebiomeCommand = CR.newCommand<TokenLocatebiomeCommand>(
  * ```html
  * /loot <TARGET> <SOURCE>
  * <TARGET>: <targetMode: (give|insert|replace|spawn)> ...
- * - give <targets: targetEntity>
- * - insert <targetPos: coordinateTriplet>
- * - spawn <targetPos: coordinateTriplet>
+ * - give <targets: entity>
+ * - insert <targetPos: posVec3>
+ * - spawn <targetPos: posVec3>
  * - replace <replaceMode: (block|entity)> ...
- *   - entity <targets: targetEntity> ...
- *   - block <targetPos: coordinateTriplet> ...
+ *   - entity <targets: entity> ...
+ *   - block <targetPos: posVec3> ...
  *     - <slot: unquotedString> [<count: int>]
  * <SOURCE>: <sourceMode: (fish|loot|kill|mine)> ...
- * - fish <lootTable: resourceLocation> <sourcePos: coordinateTriplet> [<tool: item|(mainhand|offhand)>]
+ * - fish <lootTable: resourceLocation> <sourcePos: posVec3> [<tool: item|(mainhand|offhand)>]
  * - loot <lootTable: resourceLocation>
- * - kill <sourceTarget: targetEntity>
- * - mine <sourcePos: coordinateTriplet> [<tool: item|(mainhand|offhand)>]
+ * - kill <sourceTarget: entity>
+ * - mine <sourcePos: posVec3> [<tool: item|(mainhand|offhand)>]
  * ```
  */
 interface TokenLootCommand extends TokenCommand {
 	name: 'loot'
 	args: {
 		targetMode: TokenLiteral & { value: 'give' | 'insert' | 'replace' | 'spawn' }
-		targets?: TokenTargetEntity
-		targetPos?: TokenCoordinateTriplet
+		targets?: TokenEntity
+		targetPos?: TokenPosVec3
 		replaceMode?: TokenLiteral & { value: 'block' | 'entity' }
 		slot?: TokenUnquotedString
 		count?: TokenInt
 		sourceMode?: TokenLiteral & { value: 'fish' | 'loot' | 'kill' | 'mine' }
 		lootTable?: TokenResourceLocation
-		sourcePos?: TokenCoordinateTriplet
+		sourcePos?: TokenPosVec3
 		tool?: TokenItem | (TokenLiteral & { value: 'mainhand' | 'offhand' })
-		sourceTarget?: TokenTargetEntity
+		sourceTarget?: TokenEntity
 	}
 }
 export const lootCommand = CR.newCommand<TokenLootCommand>(
@@ -1786,18 +1781,18 @@ export const lootCommand = CR.newCommand<TokenLootCommand>(
 		switch (t.args.targetMode.value) {
 			case 'give':
 				// give
-				// <targets: targetEntity>
-				t.args.targets = C.requiredArg(s, Token.TargetEntity)
+				// <targets: entity>
+				t.args.targets = C.requiredArg(s, Token.Entity)
 				break
 			case 'insert':
 				// insert
-				// <targetPos: coordinateTriplet>
-				t.args.targetPos = C.requiredArg(s, Token.CoordinateTriplet)
+				// <targetPos: posVec3>
+				t.args.targetPos = C.requiredArg(s, Token.PosVec3)
 				break
 			case 'spawn':
 				// spawn
-				// <targetPos: coordinateTriplet>
-				t.args.targetPos = C.requiredArg(s, Token.CoordinateTriplet)
+				// <targetPos: posVec3>
+				t.args.targetPos = C.requiredArg(s, Token.PosVec3)
 				break
 			case 'replace':
 				// replace
@@ -1805,12 +1800,12 @@ export const lootCommand = CR.newCommand<TokenLootCommand>(
 				t.args.replaceMode = C.requiredArg(s, Token.Literal, [c.meta.replaceMode])
 				if (t.args.replaceMode.value === 'entity') {
 					// entity
-					// <targets: targetEntity> ...
-					t.args.targets = C.requiredArg(s, Token.TargetEntity)
+					// <targets: entity> ...
+					t.args.targets = C.requiredArg(s, Token.Entity)
 				} else {
 					// block
-					// <targetPos: coordinateTriplet> ...
-					t.args.targetPos = C.requiredArg(s, Token.CoordinateTriplet)
+					// <targetPos: posVec3> ...
+					t.args.targetPos = C.requiredArg(s, Token.PosVec3)
 				}
 				// <slot: unquotedString>
 				t.args.slot = C.requiredArg(s, Token.UnquotedString)
@@ -1826,8 +1821,8 @@ export const lootCommand = CR.newCommand<TokenLootCommand>(
 				// fish
 				// <lootTable: resourceLocation>
 				t.args.lootTable = C.requiredArg(s, Token.ResourceLocation)
-				// <sourcePos: coordinateTriplet>
-				t.args.sourcePos = C.requiredArg(s, Token.CoordinateTriplet)
+				// <sourcePos: posVec3>
+				t.args.sourcePos = C.requiredArg(s, Token.PosVec3)
 				// [<tool: item|(mainhand|offhand)>]
 				t.args.tool = C.optionalArg(s, Token.Literal, [c.meta.tool], true)
 				if (!t.args.tool) t.args.tool = C.optionalArg(s, Token.Item)
@@ -1839,13 +1834,13 @@ export const lootCommand = CR.newCommand<TokenLootCommand>(
 				break
 			case 'kill':
 				// kill
-				// <sourceTarget: targetEntity>
-				t.args.sourceTarget = C.requiredArg(s, Token.TargetEntity)
+				// <sourceTarget: entity>
+				t.args.sourceTarget = C.requiredArg(s, Token.Entity)
 				break
 			case 'mine':
 				// mine
-				// <sourcePos: coordinateTriplet>
-				t.args.sourcePos = C.requiredArg(s, Token.CoordinateTriplet)
+				// <sourcePos: posVec3>
+				t.args.sourcePos = C.requiredArg(s, Token.PosVec3)
 				// [<tool: item|(mainhand|offhand)>]
 				t.args.tool = C.optionalArg(s, Token.Literal, [c.meta.tool], true)
 				if (!t.args.tool) t.args.tool = C.optionalArg(s, Token.Item)
@@ -1858,8 +1853,8 @@ export const lootCommand = CR.newCommand<TokenLootCommand>(
 /**
  * ```html
  * /particle <particle: resourceLocation> <particleArgs: ...> ...
- * - [<pos: coordinateTriplet>]
- * - <pos: coordinateTriplet> <delta: coordinateTriplet> <speed: double> <count: int> [<viewingMode: (force|normal)>] [<viewers: targetEntity>]
+ * - [<pos: posVec3>]
+ * - <pos: posVec3> <delta: posVec3> <speed: double> <count: int> [<viewingMode: (force|normal)>] [<viewers: entity>]
  * ```
  */
 interface TokenParticleCommand extends TokenCommand {
@@ -1867,12 +1862,12 @@ interface TokenParticleCommand extends TokenCommand {
 	args: {
 		particle: TokenResourceLocation
 		particleArgs: TokenAny[]
-		pos?: TokenCoordinateTriplet
-		delta?: TokenCoordinateTriplet
+		pos?: TokenPosVec3
+		delta?: TokenPosVec3
 		speed?: TokenDouble
 		count?: TokenInt
 		viewingMode?: TokenLiteral & { value: 'force' | 'normal' }
-		viewers?: TokenTargetEntity
+		viewers?: TokenEntity
 	}
 }
 export const particleCommand = CR.newCommand<TokenParticleCommand>(
@@ -1917,10 +1912,10 @@ export const particleCommand = CR.newCommand<TokenParticleCommand>(
 				t.args.particleArgs.push(C.requiredArg(s, Token.Int)) // duration
 				break
 		}
-		// [<pos: coordinateTriplet>]
-		t.args.pos = C.optionalArg(s, Token.CoordinateTriplet)
-		// <delta: coordinateTriplet>
-		t.args.delta = C.optionalArg(s, Token.CoordinateTriplet)
+		// [<pos: posVec3>]
+		t.args.pos = C.optionalArg(s, Token.PosVec3)
+		// <delta: posVec3>
+		t.args.delta = C.optionalArg(s, Token.PosVec3)
 		if (t.args.pos && t.args.delta) {
 			// <speed: double>
 			t.args.speed = C.requiredArg(s, Token.Double)
@@ -1928,8 +1923,1219 @@ export const particleCommand = CR.newCommand<TokenParticleCommand>(
 			t.args.count = C.requiredArg(s, Token.Int)
 			// [<viewingMode: (force|normal)>]
 			t.args.viewingMode = C.optionalArg(s, Token.Literal, [c.meta.viewingMode])
-			// [<viewers: targetEntity>]
-			t.args.viewers = C.optionalArg(s, Token.TargetEntity)
+			// [<viewers: entity>]
+			t.args.viewers = C.optionalArg(s, Token.Entity)
+		}
+		return t
+	}
+)
+
+/**
+ * ```html
+ * /placefeature <feature: resourceLocation> [<pos: posVec3>]
+ * ```
+ */
+interface TokenPlacefeatureCommand extends TokenCommand {
+	name: 'placefeature'
+	args: {
+		feature: TokenResourceLocation
+		pos?: TokenPosVec3
+	}
+}
+export const placefeatureCommand = CR.newCommand<TokenPlacefeatureCommand>(
+	'placefeature',
+	{},
+	(s, t, c) => {
+		// <feature: resourceLocation>
+		t.args.feature = C.requiredArg(s, Token.ResourceLocation)
+		// [<pos: posVec3>]
+		t.args.pos = C.optionalArg(s, Token.PosVec3)
+		return t
+	}
+)
+
+/**
+ * ```html
+ * /playsound <sound: resourceLocation> <SOURCE> <targets: entity> [<pos: posVec3>] [<volume: double>] [<pitch: double>] [<minVolume: double>]
+ * <SOURCE>: <source: (master|music|record|weather|block|hostile|neutral|player|ambient|voice)>
+ * ```
+ */
+interface TokenPlaysoundCommand extends TokenCommand {
+	name: 'playsound'
+	args: {
+		sound: TokenResourceLocation
+		source: TokenLiteral & {
+			value:
+				| 'master'
+				| 'music'
+				| 'record'
+				| 'weather'
+				| 'block'
+				| 'hostile'
+				| 'neutral'
+				| 'player'
+				| 'ambient'
+				| 'voice'
+		}
+		targets: TokenEntity
+		pos?: TokenPosVec3
+		volume?: TokenDouble
+		pitch?: TokenDouble
+		minVolume?: TokenDouble
+	}
+}
+export const playsoundCommand = CR.newCommand<TokenPlaysoundCommand>(
+	'playsound',
+	{
+		source: [
+			'master',
+			'music',
+			'record',
+			'weather',
+			'block',
+			'hostile',
+			'neutral',
+			'player',
+			'ambient',
+			'voice',
+		],
+	},
+	(s, t, c) => {
+		// <sound: resourceLocation>
+		t.args.sound = C.requiredArg(s, Token.ResourceLocation)
+		// <source: (master|music|record|weather|block|hostile|neutral|player|ambient|voice)>
+		t.args.source = C.requiredArg(s, Token.Literal, [c.meta.source])
+		// <targets: entity>
+		t.args.targets = C.requiredArg(s, Token.Entity)
+		// [<pos: posVec3>]
+		t.args.pos = C.optionalArg(s, Token.PosVec3)
+		// [<volume: double>]
+		t.args.volume = C.optionalArg(s, Token.Double)
+		// [<pitch: double>]
+		t.args.pitch = C.optionalArg(s, Token.Double)
+		// [<minVolume: double>]
+		t.args.minVolume = C.optionalArg(s, Token.Double)
+		return t
+	}
+)
+
+/**
+ * ```html
+ * /recipe <mode: (give|take)> <targets: entity> <recipe: (*)|resourceLocation>
+ * ```
+ */
+interface TokenRecipeCommand extends TokenCommand {
+	name: 'recipe'
+	args: {
+		mode: TokenLiteral & { value: 'give' | 'take' }
+		targets: TokenEntity
+		recipe: TokenResourceLocation | (TokenLiteral & { value: '*' })
+	}
+}
+export const recipeCommand = CR.newCommand<TokenRecipeCommand>(
+	'recipe',
+	{
+		mode: ['give', 'take'],
+		recipe: ['*'],
+	},
+	(s, t, c) => {
+		// <mode: (give|take)>
+		t.args.mode = C.requiredArg(s, Token.Literal, [c.meta.mode])
+		// <targets: entity>
+		t.args.targets = C.requiredArg(s, Token.Entity)
+		// <recipe: (*)|resourceLocation>
+		t.args.recipe = C.optionalArg(s, Token.Literal, [c.meta.recipe], true)
+		if (!t.args.recipe) t.args.recipe = C.requiredArg(s, Token.ResourceLocation)
+		return t
+	}
+)
+
+/**
+ * ```html
+ * /say <message: unquotedString>
+ * ```
+ */
+interface TokenSayCommand extends TokenCommand {
+	name: 'say'
+	args: {
+		message: TokenUnquotedString
+	}
+}
+export const sayCommand = CR.newCommand<TokenSayCommand>('say', {}, (s, t, c) => {
+	// <message: unquotedString>
+	t.args.message = C.optionalArg(s, Token.UnquotedString, [CHARS.NEWLINES, true])
+	return t
+})
+
+/**
+ * ```html
+ * /schedule <mode: (function|clear)> ...
+ * - function <function: resourceLocation> <time: int[t|s|d]> [<pushMode: (append|replace)>]
+ * - clear <function: resourceLocation>
+ * ```
+ */
+interface TokenScheduleCommand extends TokenCommand {
+	name: 'schedule'
+	args: {
+		mode: TokenLiteral & { value: 'function' | 'clear' }
+		function: TokenResourceLocation
+		time?: TokenInt & { indicator?: 't' | 's' | 'd' }
+		pushMode?: TokenLiteral & { value: 'append' | 'replace' }
+	}
+}
+export const scheduleCommand = CR.newCommand<TokenScheduleCommand>(
+	'schedule',
+	{
+		mode: ['function', 'clear'],
+		pushMode: ['append', 'replace'],
+		timeIndicators: ['t', 's', 'd'],
+	},
+	(s, t, c) => {
+		// <mode: (function|clear)>
+		t.args.mode = C.requiredArg(s, Token.Literal, [c.meta.mode])
+		if (t.args.mode.value === 'function') {
+			// function
+			// <function: resourceLocation>
+			t.args.function = C.requiredArg(s, Token.ResourceLocation)
+			// <time: int[t|s|d]>
+			t.args.time = C.requiredArg(s, Token.Int, [c.meta.timeIndicators])
+			// [<pushMode: (append|replace)>]
+			t.args.pushMode = C.optionalArg(s, Token.Literal, [c.meta.pushMode])
+		} else {
+			// clear
+			// <function: resourceLocation>
+			t.args.function = C.requiredArg(s, Token.ResourceLocation)
+		}
+		return t
+	}
+)
+
+/**
+ * ```html
+ * /scoreboard <mode: (objectives|players)> ...
+ * - objectives <objectivesMode: (add|list|modify|remove|setdisplay)> ...
+ *   - add <objective: unquotedString> <objectiveCriteria: resourceLocation> [<displayName: json>]
+ *   - list
+ *   - modify <objective: unquotedString> <property: (displayname|rendertype)> ...
+ *     - displayname <displayName: json>
+ *     - rendertype <renderType: (hearts|integer)>
+ *   - remove <objective: unquotedString>
+ *   - setdisplay <slot: resourceLocation> [<objective: unquotedString>]
+ * - players <playersMode: (add|enable|get|list|operation|remove|reset|set)> ...
+ *   - add <targets: entity> <objective: unquotedString> <score: int>
+ *   - enable <targets: entity> <objective: unquotedString>
+ *   - get <targets: entity> <objective: unquotedString>
+ *   - list [<targets: entity>]
+ *   - operation <targets: entity> <targetObjective: unquotedString> <operator: (=|-=|+=|*=|/=|%=|<|>|><)> <source: entity> <sourceObjective: unquotedString>
+ *   - remove <targets: entity> <objective: unquotedString> <score: int>
+ *   - reset <resetTargets: (*)|entity> [<objective: unquotedString>]
+ *   - set <targets: entity> <objective: unquotedString> <score: int>
+ * ```
+ */
+interface TokenScoreboardCommand extends TokenCommand {
+	name: 'scoreboard'
+	args: {
+		mode: TokenLiteral & { value: 'objectives' | 'players' }
+		objectivesMode?: TokenLiteral & {
+			value: 'add' | 'list' | 'modify' | 'remove' | 'setdisplay'
+		}
+		objective?: TokenUnquotedString
+		objectiveCriteria?: TokenResourceLocation
+		displayName?: TokenJson
+		property?: TokenLiteral & { value: 'displayname' | 'rendertype' }
+		renderType?: TokenLiteral & { value: 'hearts' | 'integer' }
+		slot?: TokenResourceLocation
+		playersMode?: TokenLiteral & {
+			value: 'add' | 'enable' | 'get' | 'list' | 'operation' | 'remove' | 'reset' | 'set'
+		}
+		targets?: TokenEntity
+		score?: TokenInt
+		targetObjective?: TokenUnquotedString
+		operator?: TokenLiteral & {
+			value: '=' | '-=' | '+=' | '*=' | '/=' | '%=' | '><' | '<' | '>'
+		}
+		source?: TokenEntity
+		sourceObjective?: TokenUnquotedString
+		resetTargets?: TokenEntity | (TokenLiteral & { value: '*' })
+	}
+}
+export const scoreboardCommand = CR.newCommand<TokenScoreboardCommand>(
+	'scoreboard',
+	{
+		mode: ['objectives', 'players'],
+		objectivesMode: ['add', 'list', 'modify', 'remove', 'setdisplay'],
+		property: ['displayname', 'rendertype'],
+		renderType: ['hearts', 'integer'],
+		playersMode: ['add', 'set', 'enable', 'get', 'list', 'operation', 'remove', 'reset'],
+		operator: ['=', '-=', '+=', '*=', '/=', '%=', '><', '<', '>'],
+		resetTargets: ['*'],
+	},
+	(s, t, c) => {
+		// <mode: (objectives|players)>
+		t.args.mode = C.requiredArg(s, Token.Literal, [c.meta.mode])
+		if (t.args.mode.value === 'objectives') {
+			// objectives
+			// <objectivesMode: (add|list|modify|remove|setdisplay)> ...
+			t.args.objectivesMode = C.requiredArg(s, Token.Literal, [c.meta.objectivesMode])
+			switch (t.args.objectivesMode.value) {
+				case 'add':
+					// add
+					// <objective: unquotedString>
+					t.args.objective = C.requiredArg(s, Token.UnquotedString)
+					// <objectiveCriteria: resourceLocation>
+					t.args.objectiveCriteria = C.requiredArg(s, Token.ResourceLocation)
+					// [<displayName: json>]
+					t.args.displayName = C.optionalArg(s, Token.Json)
+					break
+				case 'list':
+					// list
+					break
+				case 'modify':
+					// modify
+					// <objective: unquotedString>
+					t.args.objective = C.requiredArg(s, Token.UnquotedString)
+					// <property: (displayname|rendertype)> ...
+					t.args.property = C.requiredArg(s, Token.Literal, [c.meta.property])
+					if (t.args.property.value === 'displayname') {
+						// displayname
+						// <displayName: json>
+						t.args.displayName = C.requiredArg(s, Token.Json)
+					} else {
+						// rendertype
+						// <renderType: (hearts|integer)>
+						t.args.renderType = C.requiredArg(s, Token.Literal, [c.meta.renderType])
+					}
+					break
+				case 'remove':
+					// remove
+					// <objective: unquotedString>
+					t.args.objective = C.requiredArg(s, Token.UnquotedString)
+					break
+				case 'setdisplay':
+					// setdisplay
+					// <slot: resourceLocation>
+					t.args.slot = C.requiredArg(s, Token.ResourceLocation)
+					// [<objective: unquotedString>]
+					t.args.objective = C.optionalArg(s, Token.UnquotedString)
+					break
+			}
+		} else {
+			// <playersMode: (add|enable|get|list|operation|remove|reset|set)> ...
+			t.args.playersMode = C.requiredArg(s, Token.Literal, [c.meta.playersMode])
+			switch (t.args.playersMode.value) {
+				case 'add':
+					// add
+					// <targets: entity>
+					t.args.targets = C.requiredArg(s, Token.Entity, [true])
+					// <objective: unquotedString>
+					t.args.objective = C.requiredArg(s, Token.UnquotedString)
+					// <score: int>
+					t.args.score = C.requiredArg(s, Token.Int)
+					break
+				case 'enable':
+					// enable
+					// <targets: entity>
+					t.args.targets = C.requiredArg(s, Token.Entity, [true])
+					// <objective: unquotedString>
+					t.args.objective = C.requiredArg(s, Token.UnquotedString)
+					break
+				case 'get':
+					// get
+					// <targets: entity>
+					t.args.targets = C.requiredArg(s, Token.Entity, [true])
+					// <objective: unquotedString>
+					t.args.objective = C.requiredArg(s, Token.UnquotedString)
+					break
+				case 'list':
+					// list
+					// [<targets: entity>]
+					t.args.targets = C.optionalArg(s, Token.Entity, [true])
+					break
+				case 'operation':
+					// operation
+					// <targets: entity>
+					t.args.targets = C.requiredArg(s, Token.Entity, [true])
+					// <targetObjective: unquotedString>
+					t.args.targetObjective = C.requiredArg(s, Token.UnquotedString)
+					// <operator: (=|-=|+=|*=|/=|%=|<|>|><)>
+					t.args.operator = C.requiredArg(s, Token.Literal, [c.meta.operator])
+					// <source: entity>
+					t.args.source = C.requiredArg(s, Token.Entity, [true])
+					// <sourceObjective: unquotedString>
+					t.args.sourceObjective = C.requiredArg(s, Token.UnquotedString)
+					break
+				case 'remove':
+					// remove
+					// <targets: entity>
+					t.args.targets = C.requiredArg(s, Token.Entity, [true])
+					// <objective: unquotedString>
+					t.args.objective = C.requiredArg(s, Token.UnquotedString)
+					// <score: int>
+					t.args.score = C.requiredArg(s, Token.Int)
+					break
+				case 'reset':
+					// reset
+					// <resetTargets: (*)|entity>
+					t.args.resetTargets = C.optionalArg(
+						s,
+						Token.Literal,
+						[c.meta.resetTargets],
+						true
+					)
+					if (!t.args.resetTargets) t.args.resetTargets = C.requiredArg(s, Token.Entity)
+					// [<objective: unquotedString>]
+					t.args.objective = C.optionalArg(s, Token.UnquotedString)
+					break
+				case 'set':
+					// set
+					// <targets: entity>
+					t.args.targets = C.requiredArg(s, Token.Entity)
+					// <objective: unquotedString>
+					t.args.objective = C.requiredArg(s, Token.UnquotedString)
+					// <score: int>
+					t.args.score = C.requiredArg(s, Token.Int)
+					break
+			}
+		}
+		return t
+	}
+)
+
+/**
+ * ```html
+ * /setblock <pos: posVec3> <block: block> [<mode: (destroy|keep|replace)>]
+ * ```
+ */
+interface TokenSetblockCommand extends TokenCommand {
+	name: 'setblock'
+	args: {
+		pos: TokenPosVec3
+		block: TokenBlock
+		mode: TokenLiteral & { value: 'destroy' | 'keep' | 'replace' }
+	}
+}
+export const setblockCommand = CR.newCommand<TokenSetblockCommand>(
+	'setblock',
+	{
+		mode: ['destroy', 'keep', 'replace'],
+	},
+	(s, t, c) => {
+		// <pos: posVec3>
+		t.args.pos = C.requiredArg(s, Token.PosVec3)
+		// <block: block>
+		t.args.block = C.requiredArg(s, Token.Block)
+		// [<mode: (destroy|keep|replace)>]
+		t.args.mode = C.optionalArg(s, Token.Literal, [c.meta.mode])
+		return t
+	}
+)
+
+/**
+ * ```html
+ * /setworldspawn [<pos: posVec3>] [<angle: rotVec2>]
+ * ```
+ */
+interface TokenSetworldspawnCommand extends TokenCommand {
+	name: 'setworldspawn'
+	args: {
+		pos: TokenPosVec3
+		angle: TokenRotVec2
+	}
+}
+export const setworldspawnCommand = CR.newCommand<TokenSetworldspawnCommand>(
+	'setworldspawn',
+	{},
+	(s, t, c) => {
+		// [<pos: posVec3>]
+		t.args.pos = C.optionalArg(s, Token.PosVec3)
+		// [<angle: rotVec2>]
+		t.args.angle = C.optionalArg(s, Token.RotVec2)
+		return t
+	}
+)
+
+/**
+ * ```html
+ * /spawnpoint [<targets: entity>] [<pos: posVec3>] [<angle: rotVec2>]
+ * ```
+ */
+interface TokenSpawnpointCommand extends TokenCommand {
+	name: 'spawnpoint'
+	args: {
+		targets?: TokenEntity
+		pos?: TokenPosVec3
+		angle?: TokenRotVec2
+	}
+}
+export const spawnpointCommand = CR.newCommand<TokenSpawnpointCommand>(
+	'spawnpoint',
+	{},
+	(s, t, c) => {
+		// [<targets: entity>]
+		t.args.targets = C.optionalArg(s, Token.Entity)
+		// [<pos: posVec3>]
+		t.args.pos = C.optionalArg(s, Token.PosVec3)
+		// [<angle: rotVec2>]
+		t.args.angle = C.optionalArg(s, Token.RotVec2)
+		return t
+	}
+)
+
+/**
+ * ```html
+ * /spectate [<target: entity>] [<player: entity>]
+ * ```
+ */
+interface TokenSpectateCommand extends TokenCommand {
+	name: 'spectate'
+	args: {
+		target?: TokenEntity
+		player?: TokenEntity
+	}
+}
+export const spectateCommand = CR.newCommand<TokenSpectateCommand>('spectate', {}, (s, t, c) => {
+	// [<target: entity>]
+	t.args.target = C.optionalArg(s, Token.Entity)
+	// [<player: entity>]
+	t.args.player = C.optionalArg(s, Token.Entity)
+	return t
+})
+
+/**
+ * ```html
+ * /spreadplayers <center: posVec2> <spreadDistance: double> <maxRange: double> ...
+ * - <under: (under)> <maxHeight: int> ...
+ * - <respectTeams: boolean> <targets: entity>
+ * ```
+ */
+interface TokenSpreadplayersCommand extends TokenCommand {
+	name: 'spreadplayers'
+	args: {
+		center: TokenPosVec2
+		spreadDistance: TokenDouble
+		maxRange: TokenDouble
+		under?: TokenLiteral & { value: 'under' }
+		maxHeight?: TokenInt
+		respectTeams: TokenBoolean
+		targets: TokenEntity
+	}
+}
+export const spreadplayersCommand = CR.newCommand<TokenSpreadplayersCommand>(
+	'spreadplayers',
+	{
+		under: ['under'],
+	},
+	(s, t, c) => {
+		// <center: posVec2>
+		t.args.center = C.requiredArg(s, Token.PosVec2)
+		// <spreadDistance: double>
+		t.args.spreadDistance = C.requiredArg(s, Token.Double)
+		// <maxRange: double>
+		t.args.maxRange = C.requiredArg(s, Token.Double)
+		// <under: (under)>
+		t.args.under = C.optionalArg(s, Token.Literal, [c.meta.under], true)
+		if (t.args.under) {
+			// <maxHeight: int>
+			t.args.maxHeight = C.requiredArg(s, Token.Int)
+		}
+		// <respectTeams: boolean>
+		t.args.respectTeams = C.requiredArg(s, Token.Boolean)
+		// <targets: entity>
+		t.args.targets = C.requiredArg(s, Token.Entity)
+		return t
+	}
+)
+
+/**
+ * ```html
+ * /stopsound <targets: entity> [<SOURCE>] [<sound: resourceLocation>]
+ * <SOURCE>: <source: (master|music|record|weather|block|hostile|neutral|player|ambient|voice)>
+ * ```
+ */
+interface TokenStopsoundCommand extends TokenCommand {
+	name: 'stopsound'
+	args: {
+		targets: TokenEntity
+		source?: TokenLiteral & {
+			value:
+				| 'master'
+				| 'music'
+				| 'record'
+				| 'weather'
+				| 'block'
+				| 'hostile'
+				| 'neutral'
+				| 'player'
+				| 'ambient'
+				| 'voice'
+				| '*'
+		}
+		sound?: TokenResourceLocation
+	}
+}
+export const stopsoundCommand = CR.newCommand<TokenStopsoundCommand>(
+	'stopsound',
+	{
+		source: [
+			'master',
+			'music',
+			'record',
+			'weather',
+			'block',
+			'hostile',
+			'neutral',
+			'player',
+			'ambient',
+			'voice',
+			'*',
+		],
+	},
+	(s, t, c) => {
+		// <targets: entity>
+		t.args.targets = C.requiredArg(s, Token.Entity)
+		// [<source: (master|music|record|weather|block|hostile|neutral|player|ambient|voice)>]
+		t.args.source = C.optionalArg(s, Token.Literal, [c.meta.source])
+		// [<sound: resourceLocation>]
+		t.args.sound = C.optionalArg(s, Token.ResourceLocation)
+		return t
+	}
+)
+
+/**
+ * ```html
+ * /summon <entity: resourceLocation> [<pos: posVec3>] [<nbt: nbtObject>]
+ * ```
+ */
+interface TokenSummonCommand extends TokenCommand {
+	name: 'summon'
+	args: {
+		entity: TokenResourceLocation
+		pos?: TokenPosVec3
+		nbt?: TokenNbtObject
+	}
+}
+export const summonCommand = CR.newCommand<TokenSummonCommand>('summon', {}, (s, t, c) => {
+	// <entity: resourceLocation>
+	t.args.entity = C.requiredArg(s, Token.ResourceLocation)
+	// [<pos: posVec3>]
+	t.args.pos = C.optionalArg(s, Token.PosVec3)
+	// [<nbt: nbtObject>]
+	t.args.nbt = C.optionalArg(s, Token.NBTObject)
+	return t
+})
+
+/**
+ * ```html
+ * /tag <targets: entity> <mode: (add|list|remove)> ...
+ * - add <name: unquotedString>
+ * - remove <name: unquotedString>
+ * - list
+ * ```
+ */
+interface TokenTagCommand extends TokenCommand {
+	name: 'tag'
+	args: {
+		targets: TokenEntity
+		mode: TokenLiteral & { value: 'add' | 'list' | 'remove' }
+		name?: TokenUnquotedString
+	}
+}
+export const tagCommand = CR.newCommand<TokenTagCommand>(
+	'tag',
+	{
+		mode: ['add', 'list', 'remove'],
+	},
+	(s, t, c) => {
+		// <targets: entity>
+		t.args.targets = C.requiredArg(s, Token.Entity)
+		// <mode: (add|list|remove)>
+		t.args.mode = C.requiredArg(s, Token.Literal, [c.meta.mode])
+		if (t.args.mode.value !== 'list') {
+			// add
+			// remove
+			// <name: unquotedString>
+			t.args.name = C.requiredArg(s, Token.UnquotedString, [CHARS.ENTITY_TAG])
+		}
+		// list
+		return t
+	}
+)
+
+/**
+ * ```html
+ * /team <mode: (add|empty|join|leave|list|modify|remove)> ...
+ * - add <team: unquotedString> [<displayName: json>]
+ * - empty <team: unquotedString>
+ * - join <team: unquotedString> [<members: entity>]
+ * - leave <members: entity>
+ * - list [<team: unquotedString>]
+ * - modify <team: unquotedString> <property: (collisionRule|color|deathMessageVisibility|displayName|friendlyFire|nametagVisibility|prefix|seeFriendlyInvisibles|suffix)> ...
+ *   - collisionRule <collisionRule: (always|never|pushOtherTeams|pushOwnTeam)>
+ *   - color <color: (aqua|black|blue|dark_aqua|dark_blue|dark_gray|dark_green|dark_purple|dark_red|gold|gray|green|light_purple|red|white|yellow)>
+ *   - deathMessageVisibility <deathMessageVisibility: (always|never|hideForOtherTeams|hideForOwnTeam)>
+ *   - displayName <displayName: json>
+ *   - friendlyFire <allowed: boolean>
+ *   - nametagVisibility <nametagVisibility: (always|never|hideForOtherTeams|hideForOwnTeam)>
+ *   - prefix <prefix: json>
+ *   - seeFriendlyInvisibles <allowed: boolean>
+ *   - suffix <suffix: boolean>
+ * - remove <team: unquotedString>
+ * ```
+ */
+interface TokenTeamCommand extends TokenCommand {
+	name: 'team'
+	args: {
+		mode: TokenLiteral & {
+			value: 'add' | 'empty' | 'join' | 'leave' | 'list' | 'modify' | 'remove'
+		}
+		team?: TokenUnquotedString
+		displayName?: TokenJson
+		members?: TokenEntity
+		property?: TokenLiteral & {
+			value:
+				| 'collisionRule'
+				| 'color'
+				| 'deathMessageVisibility'
+				| 'displayName'
+				| 'friendlyFire'
+				| 'nametagVisibility'
+				| 'prefix'
+				| 'seeFriendlyInvisibles'
+				| 'suffix'
+		}
+		collisionRule?: TokenLiteral & {
+			value: 'always' | 'never' | 'pushOtherTeams' | 'pushOwnTeam'
+		}
+		color: TokenLiteral & {
+			value:
+				| 'aqua'
+				| 'black'
+				| 'blue'
+				| 'dark_aqua'
+				| 'dark_blue'
+				| 'dark_gray'
+				| 'dark_green'
+				| 'dark_purple'
+				| 'dark_red'
+				| 'gold'
+				| 'gray'
+				| 'green'
+				| 'light_purple'
+				| 'red'
+				| 'white'
+				| 'yellow'
+		}
+		deathMessageVisibility?: TokenLiteral & {
+			value: 'always' | 'never' | 'hideForOtherTeams' | 'hideForOwnTeam'
+		}
+		allowed?: TokenBoolean
+		nametagVisibility?: TokenLiteral & {
+			value: 'always' | 'never' | 'hideForOtherTeams' | 'hideForOwnTeam'
+		}
+		prefix?: TokenJson
+		suffix?: TokenJson
+	}
+}
+export const teamCommand = CR.newCommand<TokenTeamCommand>(
+	'team',
+	{
+		mode: ['add', 'empty', 'join', 'leave', 'list', 'modify', 'remove'],
+		property: [
+			'collisionRule',
+			'color',
+			'deathMessageVisibility',
+			'displayName',
+			'friendlyFire',
+			'nametagVisibility',
+			'prefix',
+			'seeFriendlyInvisibles',
+			'suffix',
+		],
+		collisionRule: ['always', 'never', 'pushOtherTeams', 'pushOwnTeam'],
+		color: [
+			'aqua',
+			'black',
+			'blue',
+			'dark_aqua',
+			'dark_blue',
+			'dark_gray',
+			'dark_green',
+			'dark_purple',
+			'dark_red',
+			'gold',
+			'gray',
+			'green',
+			'light_purple',
+			'red',
+			'white',
+			'yellow',
+		],
+		deathMessageVisibility: ['always', 'never', 'hideForOtherTeams', 'hideForOwnTeam'],
+		nametagVisibility: ['always', 'never', 'hideForOtherTeams', 'hideForOwnTeam'],
+	},
+	(s, t, c) => {
+		// <mode: (add|empty|join|leave|list|modify|remove)>
+		t.args.mode = C.requiredArg(s, Token.Literal, [c.meta.mode])
+		switch (t.args.mode.value) {
+			case 'add':
+				// add
+				// <team: unquotedString>
+				t.args.team = C.requiredArg(s, Token.UnquotedString)
+				// [<displayName: json>]
+				t.args.displayName = C.optionalArg(s, Token.Json)
+				break
+			case 'empty':
+				// empty
+				// <team: unquotedString>
+				t.args.team = C.requiredArg(s, Token.UnquotedString)
+				break
+			case 'join':
+				// join
+				// <team: unquotedString>
+				t.args.team = C.requiredArg(s, Token.UnquotedString)
+				// [<members: entity>]
+				t.args.members = C.optionalArg(s, Token.Entity)
+				break
+			case 'leave':
+				// leave
+				// <members: entity>
+				t.args.members = C.requiredArg(s, Token.Entity)
+				break
+			case 'list':
+				// list
+				// [<team: unquotedString>]
+				t.args.team = C.optionalArg(s, Token.UnquotedString)
+				break
+			case 'modify':
+				// modify
+				// <team: unquotedString>
+				t.args.team = C.requiredArg(s, Token.UnquotedString)
+				// <property: (collisionRule|color|deathMessageVisibility|displayName|friendlyFire|nametagVisibility|prefix|seeFriendlyInvisibles|suffix)>
+				t.args.property = C.requiredArg(s, Token.Literal, [c.meta.property])
+				switch (t.args.property.value) {
+					case 'collisionRule':
+						// collisionRule
+						// <collisionRule: (always|never|pushOtherTeams|pushOwnTeam)>
+						t.args.collisionRule = C.requiredArg(s, Token.Literal, [
+							c.meta.collisionRule,
+						])
+						break
+					case 'color':
+						// color
+						// <color: (aqua|black|blue|dark_aqua|dark_blue|dark_gray|dark_green|dark_purple|dark_red|gold|gray|green|light_purple|red|white|yellow)>
+						t.args.color = C.requiredArg(s, Token.Literal, [c.meta.color])
+						break
+					case 'deathMessageVisibility':
+						// deathMessageVisibility
+						// <deathMessageVisibility: (always|never|hideForOtherTeams|hideForOwnTeam)>
+						t.args.deathMessageVisibility = C.requiredArg(s, Token.Literal, [
+							c.meta.deathMessageVisibility,
+						])
+						break
+					case 'displayName':
+						// displayName
+						// <displayName: json>
+						t.args.displayName = C.requiredArg(s, Token.Json)
+						break
+					case 'friendlyFire':
+						// friendlyFire
+						// <allowed: boolean>
+						t.args.allowed = C.requiredArg(s, Token.Boolean)
+						break
+					case 'nametagVisibility':
+						// nametagVisibility
+						// <nametagVisibility: (always|never|hideForOtherTeams|hideForOwnTeam)>
+						t.args.nametagVisibility = C.requiredArg(s, Token.Literal, [
+							c.meta.nametagVisibility,
+						])
+						break
+					case 'prefix':
+						// prefix
+						// <prefix: json>
+						t.args.prefix = C.requiredArg(s, Token.Json)
+						break
+					case 'seeFriendlyInvisibles':
+						// seeFriendlyInvisibles
+						// <allowed: boolean>
+						t.args.allowed = C.requiredArg(s, Token.Boolean)
+						break
+					case 'suffix':
+						// suffix
+						// <suffix: boolean>
+						t.args.suffix = C.requiredArg(s, Token.Json)
+						break
+				}
+				break
+			case 'remove':
+				// remove
+				// <team: unquotedString>
+				t.args.team = C.requiredArg(s, Token.UnquotedString)
+				break
+		}
+		return t
+	}
+)
+
+/**
+ * ```html
+ * /(teleport|tp) ...
+ * - <destination: entity>
+ * - <location: posVec3>
+ * - <targets: entity> ...
+ *   - <destination: entity>
+ *   - <location: posVec3> ...
+ *     - [<facing: (facing)>] ...
+ *       - [<entity: (entity)>] <facingEntity: entity> [<facingAnchor: (eyes|feet)>]
+ *       - <facingLocation: posVec3>
+ *     - <rotation: rotVec2>
+ * ```
+ */
+interface TokenTeleportCommand extends TokenCommand {
+	name: 'teleport' | 'tp'
+	args: {
+		destination?: TokenEntity
+		location?: TokenPosVec3
+		targets?: TokenEntity
+		facing?: TokenLiteral & { value: 'facing' }
+		entity?: TokenLiteral & { value: 'entity' }
+		facingEntity?: TokenEntity
+		facingAnchor?: TokenLiteral & { value: 'eyes' | 'feet' }
+		facingLocation?: TokenPosVec3
+		rotation?: TokenRotVec2
+	}
+}
+export const teleportCommand = CR.newCommand<TokenTeleportCommand>(
+	'teleport',
+	{
+		facing: ['facing'],
+		entity: ['entity'],
+		facingAnchor: ['eyes', 'feet'],
+	},
+	(s, t, c) => {
+		const [arg1, error1] = C.choiceArg(s, [[Token.PosVec3], [Token.Entity]])
+		if (arg1.type === 'posVec3') {
+			// <location: posVec3>
+			t.args.location = arg1
+		} else if (arg1.type === 'entity') {
+			// <destination: entity> || <targets: entity>
+			// Check what arg2 is
+			const [arg2, error2] = C.choiceArg(s, [[Token.PosVec3], [Token.Entity]])
+			if (arg2?.type === 'posVec3') {
+				// <targets: entity>
+				t.args.targets = arg1
+				// <location: posVec3>
+				t.args.location = arg2
+				// [<facing: (facing)>]
+				t.args.facing = C.optionalArg(s, Token.Literal, [c.meta.facing], true)
+				if (t.args.facing) {
+					// [<entity: (entity)>]
+					t.args.entity = C.optionalArg(s, Token.Literal, [c.meta.entity], true)
+					if (t.args.entity) {
+						// <facingEntity: entity>
+						t.args.facingEntity = C.requiredArg(s, Token.Entity)
+						// [<facingAnchor: (eyes|feet)>]
+						t.args.facingAnchor = C.optionalArg(s, Token.Literal, [c.meta.facingAnchor])
+					} else {
+						// <facingLocation: posVec3>
+						t.args.facingLocation = C.requiredArg(s, Token.PosVec3)
+					}
+				} else {
+					// [<rotation: rotVec2>]
+					t.args.rotation = C.optionalArg(s, Token.RotVec2)
+				}
+			} else if (arg2?.type === 'entity') {
+				// <targets: entity>
+				t.args.targets = arg1
+				// <destination: entity>
+				t.args.destination = arg2
+			} else {
+				// <destination: entity>
+				t.args.destination = arg1
+			}
+		}
+		return t
+	}
+)
+export const tp = CR.newCommand<TokenTeleportCommand>(
+	'tp',
+	teleportCommand.meta,
+	teleportCommand.tokenizer
+)
+
+/**
+ * ```html
+ * /tellraw <targets: entity> <message: json>
+ * ```
+ */
+interface TokenTellrawCommand extends TokenCommand {
+	name: 'tellraw'
+	args: {
+		targets: TokenEntity
+		message: TokenJson
+	}
+}
+export const tellrawCommand = CR.newCommand<TokenTellrawCommand>('tellraw', {}, (s, t, c) => {
+	// <targets: entity>
+	t.args.targets = C.requiredArg(s, Token.Entity)
+	// <message: json>
+	t.args.message = C.requiredArg(s, Token.Json)
+	return t
+})
+
+/**
+ * ```html
+ * /time <mode: (add|query|set)> ...
+ * - add <addTime: int[t|s|d]>
+ * - query <query: (daytime|gametime|day)>
+ * - set <setTime: int|(day|night|noon|midnight)>
+ * ```
+ */
+interface TokenTimeCommand extends TokenCommand {
+	name: 'time'
+	args: {
+		mode: TokenLiteral & { value: 'add' | 'query' | 'set' }
+		addTime?: TokenInt & { indicator?: 't' | 's' | 'd' }
+		query?: TokenLiteral & { value: 'daytime' | 'gametime' | 'day' }
+		setTime?: TokenInt | (TokenLiteral & { value: 'day' | 'night' | 'noon' | 'midnight' })
+	}
+}
+export const timeCommand = CR.newCommand<TokenTimeCommand>(
+	'time',
+	{
+		mode: ['add', 'query', 'set'],
+		addTimeIndicator: ['t', 's', 'd'],
+		query: ['daytime', 'gametime', 'day'],
+		setTime: ['day', 'night', 'noon', 'midnight'],
+	},
+	(s, t, c) => {
+		//<mode: (add|query|set)> ...
+		t.args.mode = C.requiredArg(s, Token.Literal, [c.meta.mode])
+		switch (t.args.mode.value) {
+			case 'add':
+				// add
+				// <addTime: int[t|s|d]>
+				t.args.addTime = C.requiredArg(s, Token.Int, [c.meta.addTimeIndicator])
+				break
+			case 'query':
+				// query
+				// <query: (daytime|gametime|day)>
+				t.args.query = C.requiredArg(s, Token.Literal, [c.meta.query])
+				break
+			case 'set':
+				// set
+				// <setTime: int|(day|night|noon|midnight)>
+				t.args.setTime = C.optionalArg(s, Token.Literal, [c.meta.setTime], true)
+				if (!t.args.setTime) t.args.setTime = C.requiredArg(s, Token.Int)
+				break
+		}
+		return t
+	}
+)
+
+/**
+ * ```html
+ * /title <targets: entity> <mode: (actionbar|clear|reset|subtitle|times|title)> ...
+ * - title ...
+ * - subtitle ..
+ * - actionbar ...
+ *   - <title: json>
+ * - clear
+ * - reset
+ * - times <fadeIn: int> <stay: int> <fadeOut: int>
+ * ```
+ */
+interface TokenTitleCommand extends TokenCommand {
+	name: 'title'
+	args: {
+		targets: TokenEntity
+		mode: TokenLiteral & {
+			value: 'actionbar' | 'clear' | 'reset' | 'subtitle' | 'times' | 'title'
+		}
+		title?: TokenJson
+		fadeIn?: TokenInt
+		stay?: TokenInt
+		fadeOut?: TokenInt
+	}
+}
+export const titleCommand = CR.newCommand<TokenTitleCommand>(
+	'title',
+	{
+		mode: ['actionbar', 'clear', 'reset', 'subtitle', 'times', 'title'],
+	},
+	(s, t, c) => {
+		// <targets: entity>
+		t.args.targets = C.requiredArg(s, Token.Entity)
+		// <mode: (actionbar|clear|reset|subtitle|times|title)>
+		t.args.mode = C.requiredArg(s, Token.Literal, [c.meta.mode])
+		switch (t.args.mode.value) {
+			case 'title':
+			case 'subtitle':
+			case 'actionbar':
+				// title ...
+				// subtitle ..
+				// actionbar ...
+				// <title: json>
+				t.args.title = C.requiredArg(s, Token.Json)
+				break
+			case 'times':
+				// times
+				// <fadeIn: int>
+				t.args.fadeIn = C.requiredArg(s, Token.Int)
+				// <stay: int>
+				t.args.stay = C.requiredArg(s, Token.Int)
+				// <fadeOut: int>
+				t.args.fadeOut = C.requiredArg(s, Token.Int)
+				break
+		}
+		return t
+	}
+)
+
+/**
+ * ```html
+ * /trigger <objective: unquotedString> [<mode: (add|set)>] <value: int>
+ * ```
+ */
+interface TokenTriggerCommand extends TokenCommand {
+	name: 'trigger'
+	args: {
+		objective: TokenUnquotedString
+		mode?: TokenLiteral & { value: 'add' | 'set' }
+		value?: TokenInt
+	}
+}
+export const triggerCommand = CR.newCommand<TokenTriggerCommand>(
+	'trigger',
+	{
+		mode: ['add', 'set'],
+	},
+	(s, t, c) => {
+		// <objective: unquotedString>
+		t.args.objective = C.requiredArg(s, Token.UnquotedString)
+		// [<mode: (add|set)>]
+		t.args.mode = C.optionalArg(s, Token.Literal, [c.meta.mode])
+		if (t.args.mode) {
+			// <value: int>
+			t.args.value = C.requiredArg(s, Token.Int)
+		}
+		return t
+	}
+)
+
+/**
+ * ```html
+ * /weather <mode: (clear|rain|thunder)> [<duration: int>]
+ * ```
+ */
+interface TokenWeatherCommand extends TokenCommand {
+	name: 'weather'
+	args: {
+		mode: TokenLiteral & { value: 'clear' | 'rain' | 'thunder' }
+		duration?: TokenInt
+	}
+}
+export const weatherCommand = CR.newCommand<TokenWeatherCommand>(
+	'weather',
+	{
+		mode: ['clear', 'rain', 'thunder'],
+	},
+	(s, t, c) => {
+		// <mode: (clear|rain|thunder)>
+		t.args.mode = C.requiredArg(s, Token.Literal, [c.meta.mode])
+		// [<duration: int>]
+		t.args.duration = C.optionalArg(s, Token.Int)
+		return t
+	}
+)
+
+/**
+ * ```html
+ * /worldborder <mode: (add|center|damage|get|set|warning)> ...
+ * - add <distance: double> [<time: int>]
+ * - center <pos: posVec3>
+ * - damage <damageType: (amount|buffer)> ...
+ *   - amount <damagePerBlock: double>
+ *   - buffer <distance: double>
+ * - get
+ * - set <distance: double> [<time: int>]
+ * - warning <warningMode: (distance|time)> ...
+ *   - distance <distance: int>
+ *   - time <time: int>
+ * ```
+ */
+interface TokenWorldborderCommand extends TokenCommand {
+	name: 'worldborder'
+	args: {
+		mode: TokenLiteral & { value: 'add' | 'center' | 'damage' | 'get' | 'set' | 'warning' }
+		distance?: TokenDouble | TokenInt
+		damageType?: TokenLiteral & { value: 'amount' | 'buffer' }
+		damagePerBlock?: TokenDouble
+		time?: TokenInt
+		pos?: TokenPosVec3
+		warningMode?: TokenLiteral & { value: 'distance' | 'time' }
+	}
+}
+export const worldborderCommand = CR.newCommand<TokenWorldborderCommand>(
+	'worldborder',
+	{
+		mode: ['add', 'center', 'damage', 'get', 'set', 'warning'],
+		damageType: ['amount', 'buffer'],
+		warningMode: ['distance', 'time'],
+	},
+	(s, t, c) => {
+		// <mode: (add|center|damage|get|set|warning)>
+		t.args.mode = C.requiredArg(s, Token.Literal, [c.meta.mode])
+		switch (t.args.mode.value) {
+			case 'add':
+				// add
+				// <distance: double>
+				t.args.distance = C.requiredArg(s, Token.Double)
+				// [<time: int>]
+				t.args.time = C.optionalArg(s, Token.Int)
+				break
+			case 'center':
+				// center
+				// <pos: posVec3>
+				t.args.pos = C.requiredArg(s, Token.PosVec3)
+				break
+			case 'damage':
+				// damage
+				// <damageType: (amount|buffer)>
+				t.args.damageType = C.requiredArg(s, Token.Literal, [c.meta.damageType])
+				if (t.args.damageType.value === 'amount') {
+					// amount
+					// <damagePerBlock: double>
+					t.args.damagePerBlock = C.requiredArg(s, Token.Double)
+				} else {
+					// buffer
+					// <distance: double>
+					t.args.distance = C.requiredArg(s, Token.Double)
+				}
+				break
+			case 'get':
+				// get
+				break
+			case 'set':
+				// set
+				// <distance: double>
+				t.args.distance = C.requiredArg(s, Token.Double)
+				// [<time: int>]
+				t.args.time = C.optionalArg(s, Token.Int)
+				break
+			case 'warning':
+				// warning
+				// <warningMode: (distance|time)> ...
+				t.args.warningMode = C.requiredArg(s, Token.Literal, [c.meta.warningMode])
+				if (t.args.warningMode.value === 'distance') {
+					// distance
+					// <distance: int>
+					t.args.distance = C.requiredArg(s, Token.Double)
+				} else {
+					// time
+					// <time: int>
+					t.args.time = C.requiredArg(s, Token.Int)
+				}
+				break
 		}
 		return t
 	}
