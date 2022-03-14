@@ -5,6 +5,9 @@ const commonConfig = require(`./webpack.${production ? 'prod' : 'dev'}.js`)
 console.log('production:', production)
 module.exports = () => ({
 	...commonConfig,
-	entry: './src/main.ts',
+	entry: {
+		index: './src/index.ts',
+		tests: './src/tests.ts'
+	},
 	target: 'node',
 })

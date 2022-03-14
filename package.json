@@ -7,6 +7,7 @@
 		"url": "https://discordapp.com/users/213746232923783168"
 	},
 	"description": "",
+	"main": "./dist/index.js",
 	"private": true,
 	"scripts": {
 		"dev": "webpack --mode=development --watch",
