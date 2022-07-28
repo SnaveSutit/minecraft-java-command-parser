@@ -19,8 +19,12 @@ module.exports = {
 		modules: [path.join(__dirname, 'node_modules')],
 	},
 	output: {
-		filename: `index.js`,
+		filename: `[name].js`,
 		path: path.resolve(__dirname, 'dist'),
+		library: {
+			name: 'java-edition-command-parser',
+			type: 'umd'
+		}
 	},
 	externalsType: 'node-commonjs',
 }

@@ -20,7 +20,11 @@ module.exports = {
 	output: {
 		filename: `[name].js`,
 		path: path.resolve(__dirname, 'dist'),
+		library: {
+			name: 'java-edition-command-parser',
+			type: 'umd',
+		},
 	},
 	externalsType: 'node-commonjs',
-	stats: {warnings:false}
+	stats: { warnings: false },
 }

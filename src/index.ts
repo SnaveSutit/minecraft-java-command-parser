@@ -1,4 +1,4 @@
-import * as lexer from './lexer'
-import * as vanillaCommands from './vanillaCommands'
 
-export { lexer, vanillaCommands }
+export * from './parser'
+export * as vanillaCommands from './vanillaCommands'
+export { CharacterStream } from './stream'

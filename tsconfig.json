@@ -6,6 +6,8 @@
 		"target": "ES2021",
 		"jsx": "react",
 		"allowJs": true,
-		"moduleResolution": "node"
+		"moduleResolution": "node",
+		"strict": true,
+		"declaration": true
 	}
 }

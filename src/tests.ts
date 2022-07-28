@@ -1,4 +1,4 @@
-import { tokenize } from './lexer'
+import { tokenize } from './parser'
 import { register as VanillaCommandRegister } from './vanillaCommands'
 
 // Object.fromEntries(Object.entries(test).filter(i => i[1] instanceof Command))

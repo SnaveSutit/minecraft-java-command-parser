@@ -1,38 +1,15 @@
+import type * as P from './parser'
+
 import {
 	CommandRegister,
 	Command as C,
-	TokenAnyNbt,
-	TokenBlock,
-	TokenBoolean,
 	TokenCollectors as Token,
-	TokenCommand,
-	TokenPosVec3,
-	TokenDouble,
-	TokenInt,
-	TokenItem,
-	TokenJson,
-	TokenNbtObject,
-	TokenNbtPath,
-	TokenResourceLocation,
-	TokenRotVec2,
-	TokenString,
-	TokenLiteral,
-	TokenSwizzle,
-	TokenEntity,
-	TokenUnquotedString,
-	TokenUuid,
 	GLOBALS as G,
 	Consumers as Consume,
 	throwSyntaxError,
 	CHARS,
-	TokenUnknownCommand,
-	TokenIntRange,
 	SETTINGS,
-	TokenPosVec2,
-	TokenArray,
-	TokenAny,
-	TokenEntitySelector,
-} from './lexer'
+} from './parser'
 
 const CR = new CommandRegister('minecraft:vanilla')
 export { CR as register }
@@ -56,17 +33,18 @@ export { CR as register }
  *     - <advancement: resourceLocation>
  * ```
  */
-interface TokenAdvancementCommand extends TokenCommand {
-	name: 'advancement'
+interface TokenAdvancementCommand extends P.TokenCommand {
+	keyword: 'advancement'
 	args: {
-		action: TokenLiteral
-		target: TokenEntity
-		operation: TokenLiteral
-		advancement?: TokenResourceLocation
-		criterion?: TokenUnquotedString
+		action: P.TokenLiteral
+		target: P.TokenEntity
+		operation: P.TokenLiteral
+		advancement?: P.TokenResourceLocation
+		criterion?: P.TokenUnquotedString
 	}
 }
 export const advancementCommand = CR.newCommand<TokenAdvancementCommand>(
+	'minecraft:advancement',
 	'advancement',
 	{
 		action: ['grant', 'revoke'],
@@ -107,22 +85,24 @@ export const advancementCommand = CR.newCommand<TokenAdvancementCommand>(
  *   - value get <uuid: uuid> [<scale: double>]
  * ```
  */
-interface TokenAttributeCommand extends TokenCommand {
-	name: 'attribute'
+interface TokenAttributeCommand extends P.TokenCommand {
+	id: 'minecraft:attribute'
+	keyword: 'attribute'
 	args: {
-		target: TokenEntity
-		attribute: TokenResourceLocation
-		action: TokenLiteral & { value: 'get' | 'base' | 'modifier' }
-		scale?: TokenDouble
-		operation?: TokenLiteral & { value: 'get' | 'set' }
-		value?: TokenDouble
-		uuid?: TokenUuid
-		name?: TokenString | TokenUnquotedString
-		modifierMode?: TokenLiteral & { value: 'add' | 'remove' | 'value get' }
-		modifierOperation?: TokenLiteral & { value: 'add' | 'multiply_base' | 'multiply' }
+		target: P.TokenEntity
+		attribute: P.TokenResourceLocation
+		action: P.TokenLiteral & { value: 'get' | 'base' | 'modifier' }
+		scale?: P.TokenDouble
+		operation?: P.TokenLiteral & { value: 'get' | 'set' }
+		value?: P.TokenDouble
+		uuid?: P.TokenUuid
+		name?: P.TokenString | P.TokenUnquotedString
+		modifierMode?: P.TokenLiteral & { value: 'add' | 'remove' | 'value get' }
+		modifierOperation?: P.TokenLiteral & { value: 'add' | 'multiply_base' | 'multiply' }
 	}
 }
 export const attributeCommand = CR.newCommand<TokenAttributeCommand>(
+	'minecraft:attribute',
 	'attribute',
 	{
 		action: ['get', 'base', 'modifier'],
@@ -203,29 +183,31 @@ export const attributeCommand = CR.newCommand<TokenAttributeCommand>(
  *   - visible <visible: boolean>
  * ```
  */
-interface TokenBossbarCommand extends TokenCommand {
-	name: 'bossbar'
+interface TokenBossbarCommand extends P.TokenCommand {
+	id: 'minecraft:bossbar'
+	keyword: 'bossbar'
 	args: {
-		mode: TokenLiteral & { value: 'add' | 'get' | 'list' | 'remove' | 'set' }
-		id?: TokenResourceLocation
-		name?: TokenJson
-		query?: TokenLiteral & { value: 'max' | 'players' | 'value' | 'visible' }
-		property?: TokenLiteral & {
+		mode: P.TokenLiteral & { value: 'add' | 'get' | 'list' | 'remove' | 'set' }
+		id?: P.TokenResourceLocation
+		name?: P.TokenJson
+		query?: P.TokenLiteral & { value: 'max' | 'players' | 'value' | 'visible' }
+		property?: P.TokenLiteral & {
 			value: 'color' | 'max' | 'name' | 'players' | 'style' | 'value' | 'visible'
 		}
-		color?: TokenLiteral & {
+		color?: P.TokenLiteral & {
 			value: 'blue' | 'green' | 'pink' | 'purple' | 'red' | 'white' | 'yellow'
 		}
-		max?: TokenInt
-		targets?: TokenEntity
-		style?: TokenLiteral & {
+		max?: P.TokenInt
+		targets?: P.TokenEntity
+		style?: P.TokenLiteral & {
 			value: 'notched_6' | 'notched_10' | 'notched_12' | 'notched_20' | 'progress'
 		}
-		value?: TokenInt
-		visible?: TokenBoolean
+		value?: P.TokenInt
+		visible?: P.TokenBoolean
 	}
 }
 export const bossbarCommand = CR.newCommand<TokenBossbarCommand>(
+	'minecraft:bossbar',
 	'bossbar',
 	{
 		mode: ['add', 'get', 'list', 'remove', 'set'],
@@ -315,24 +297,30 @@ export const bossbarCommand = CR.newCommand<TokenBossbarCommand>(
  * /clear [<targets: entity>] [<item: item>] [<maxCount: int>]
  * ```
  */
-interface TokenClearCommand extends TokenCommand {
-	name: 'clear'
+interface TokenClearCommand extends P.TokenCommand {
+	id: 'minecraft:clear'
+	keyword: 'clear'
 	args: {
-		targets?: TokenEntity
-		item?: TokenItem
-		maxCount?: TokenInt
+		targets?: P.TokenEntity
+		item?: P.TokenItem
+		maxCount?: P.TokenInt
 	}
 }
-export const clearCommand = CR.newCommand<TokenClearCommand>('clear', {}, (s, t, c) => {
-	// [<targets: entity>]
-	t.args.targets = C.optionalArg(s, Token.Entity)
-	// [<item: item>]
-	t.args.item = C.optionalArg(s, Token.Item)
-	// [<maxCount: int>]
-	t.args.maxCount = C.optionalArg(s, Token.Int)
+export const clearCommand = CR.newCommand<TokenClearCommand>(
+	'minecraft:clear',
+	'clear',
+	{},
+	(s, t, c) => {
+		// [<targets: entity>]
+		t.args.targets = C.optionalArg(s, Token.Entity)
+		// [<item: item>]
+		t.args.item = C.optionalArg(s, Token.Item)
+		// [<maxCount: int>]
+		t.args.maxCount = C.optionalArg(s, Token.Int)
 
-	return t
-})
+		return t
+	}
+)
 
 /**
  * ```html
@@ -343,18 +331,20 @@ export const clearCommand = CR.newCommand<TokenClearCommand>('clear', {}, (s, t,
  *   - [<cloneMode: (force|move|normal)>]
  * ```
  */
-interface TokenCloneCommand extends TokenCommand {
-	name: 'clone'
+interface TokenCloneCommand extends P.TokenCommand {
+	id: 'minecraft:clone'
+	keyword: 'clone'
 	args: {
-		from: TokenPosVec3
-		to: TokenPosVec3
-		destination: TokenPosVec3
-		maskMode?: TokenLiteral & { value: 'replace' | 'masked' | 'filtered' }
-		filter?: TokenBlock
-		cloneMode?: TokenLiteral & { value: 'force' | 'move' | 'normal' }
+		from: P.TokenPosVec3
+		to: P.TokenPosVec3
+		destination: P.TokenPosVec3
+		maskMode?: P.TokenLiteral & { value: 'replace' | 'masked' | 'filtered' }
+		filter?: P.TokenBlock
+		cloneMode?: P.TokenLiteral & { value: 'force' | 'move' | 'normal' }
 	}
 }
 export const cloneCommand = CR.newCommand<TokenCloneCommand>(
+	'minecraft:clone',
 	'clone',
 	{
 		maskMode: ['replace', 'masked', 'filtered'],
@@ -423,32 +413,34 @@ export const cloneCommand = CR.newCommand<TokenCloneCommand>(
  *     - <targetPath: nbtPath>
  * ```
  */
-interface TokenDataCommand extends TokenCommand {
-	name: 'data'
+interface TokenDataCommand extends P.TokenCommand {
+	id: 'minecraft:data'
+	keyword: 'data'
 	args: {
-		mode: TokenLiteral & { value: 'get' | 'merge' | 'modify' | 'remove' }
-		dataType: TokenLiteral & { value: 'block' | 'entity' | 'storage' }
-		targetPos?: TokenPosVec3
-		entity?: TokenEntity
-		targetStorage?: TokenResourceLocation
-		targetPath?: TokenNbtPath
-		sourcePos?: TokenPosVec3
-		sourceEntity?: TokenEntity
-		sourceStorage?: TokenResourceLocation
-		sourcePath?: TokenNbtPath
-		scale?: TokenDouble
-		nbt?: TokenNbtObject
-		modifyMode?: TokenLiteral & {
+		mode: P.TokenLiteral & { value: 'get' | 'merge' | 'modify' | 'remove' }
+		dataType: P.TokenLiteral & { value: 'block' | 'entity' | 'storage' }
+		targetPos?: P.TokenPosVec3
+		entity?: P.TokenEntity
+		targetStorage?: P.TokenResourceLocation
+		targetPath?: P.TokenNbtPath
+		sourcePos?: P.TokenPosVec3
+		sourceEntity?: P.TokenEntity
+		sourceStorage?: P.TokenResourceLocation
+		sourcePath?: P.TokenNbtPath
+		scale?: P.TokenDouble
+		nbt?: P.TokenNbtObject
+		modifyMode?: P.TokenLiteral & {
 			value: 'append' | 'insert' | 'merge' | 'prepend' | 'set'
 		}
-		setMode?: TokenLiteral & { value: 'value' | 'from' }
-		index?: TokenInt
-		fromDataType?: TokenLiteral & { value: 'block' | 'entity' | 'storage' }
-		fromPath?: TokenNbtPath
-		value?: TokenAnyNbt
+		setMode?: P.TokenLiteral & { value: 'value' | 'from' }
+		index?: P.TokenInt
+		fromDataType?: P.TokenLiteral & { value: 'block' | 'entity' | 'storage' }
+		fromPath?: P.TokenNbtPath
+		value?: P.TokenAnyNbt
 	}
 }
 export const dataCommand = CR.newCommand<TokenDataCommand>(
+	'minecraft:data',
 	'data',
 	{
 		mode: ['get', 'merge', 'modify', 'remove'],
@@ -605,17 +597,19 @@ export const dataCommand = CR.newCommand<TokenDataCommand>(
  * - list <listMode: (available|enabled)>
  * ```
  */
-interface TokenDatapackCommand extends TokenCommand {
-	name: 'datapack'
+interface TokenDatapackCommand extends P.TokenCommand {
+	id: 'minecraft:datapack'
+	keyword: 'datapack'
 	args: {
-		mode: TokenLiteral & { value: 'enable' | 'disable' | 'list' }
-		name?: TokenString | TokenUnquotedString
-		order?: TokenLiteral & { value: 'first' | 'last' | 'before' | 'after' }
-		existing?: TokenString | TokenUnquotedString
-		listMode?: TokenLiteral & { value: 'available' | 'enabled' }
+		mode: P.TokenLiteral & { value: 'enable' | 'disable' | 'list' }
+		name?: P.TokenString | P.TokenUnquotedString
+		order?: P.TokenLiteral & { value: 'first' | 'last' | 'before' | 'after' }
+		existing?: P.TokenString | P.TokenUnquotedString
+		listMode?: P.TokenLiteral & { value: 'available' | 'enabled' }
 	}
 }
 export const datapackCommand = CR.newCommand<TokenDatapackCommand>(
+	'minecraft:datapack',
 	'datapack',
 	{
 		mode: ['enable', 'disable', 'list'],
@@ -664,13 +658,15 @@ export const datapackCommand = CR.newCommand<TokenDatapackCommand>(
  * /difficulty [<mode: (easy|hard|normal|peaceful)>]
  * ```
  */
-interface TokenDifficultyCommand extends TokenCommand {
-	name: 'difficulty'
+interface TokenDifficultyCommand extends P.TokenCommand {
+	id: 'minecraft:difficulty'
+	keyword: 'difficulty'
 	args: {
-		mode: TokenLiteral & { value: 'easy' | 'hard' | 'normal' | 'peaceful' }
+		mode?: P.TokenLiteral & { value: 'easy' | 'hard' | 'normal' | 'peaceful' }
 	}
 }
 export const difficultyCommand = CR.newCommand<TokenDifficultyCommand>(
+	'minecraft:difficulty',
 	'difficulty',
 	{
 		mode: ['easy', 'hard', 'normal', 'peaceful'],
@@ -689,18 +685,20 @@ export const difficultyCommand = CR.newCommand<TokenDifficultyCommand>(
  * - give <targets: entity> <effect: resourceLocation> [<seconds: int>] [<amplifier: int>] [<hideParticles: boolean>]
  * ```
  */
-interface TokenEffectCommand extends TokenCommand {
-	name: 'effect'
+interface TokenEffectCommand extends P.TokenCommand {
+	id: 'minecraft:effect'
+	keyword: 'effect'
 	args: {
-		mode: TokenLiteral & { value: 'clear' | 'give' }
-		targets?: TokenEntity
-		effect?: TokenResourceLocation
-		seconds?: TokenInt
-		amplifier?: TokenInt
-		hideParticles?: TokenBoolean
+		mode: P.TokenLiteral & { value: 'clear' | 'give' }
+		targets?: P.TokenEntity
+		effect?: P.TokenResourceLocation
+		seconds?: P.TokenInt
+		amplifier?: P.TokenInt
+		hideParticles?: P.TokenBoolean
 	}
 }
 export const effectCommand = CR.newCommand<TokenEffectCommand>(
+	'minecraft:effect',
 	'effect',
 	{
 		mode: ['clear', 'give'],
@@ -737,125 +735,131 @@ export const effectCommand = CR.newCommand<TokenEffectCommand>(
  * /enchant <targets: entity> <enchantment: resourceLocation> [<level: int>]
  * ```
  */
-interface TokenEnchantCommand extends TokenCommand {
-	name: 'enchant'
+interface TokenEnchantCommand extends P.TokenCommand {
+	id: 'minecraft:enchant'
+	keyword: 'enchant'
 	args: {
-		targets: TokenEntity
-		enchantment: TokenResourceLocation
-		level?: TokenInt
+		targets: P.TokenEntity
+		enchantment: P.TokenResourceLocation
+		level?: P.TokenInt
 	}
 }
-export const enchantCommand = CR.newCommand<TokenEnchantCommand>('enchant', {}, (s, t, c) => {
-	// <targets: entity>
-	t.args.targets = C.requiredArg(s, Token.Entity)
-	// <enchantment: resourceLocation>
-	t.args.enchantment = C.requiredArg(s, Token.ResourceLocation)
-	// [<level: int>]
-	t.args.level = C.optionalArg(s, Token.Int)
-	return t
-})
+export const enchantCommand = CR.newCommand<TokenEnchantCommand>(
+	'minecraft:enchant',
+	'enchant',
+	{},
+	(s, t, c) => {
+		// <targets: entity>
+		t.args.targets = C.requiredArg(s, Token.Entity)
+		// <enchantment: resourceLocation>
+		t.args.enchantment = C.requiredArg(s, Token.ResourceLocation)
+		// [<level: int>]
+		t.args.level = C.optionalArg(s, Token.Int)
+		return t
+	}
+)
 
-interface ExecuteAlignSubCommand extends TokenCommand {
-	name: 'align'
+interface ExecuteAlignSubCommand extends P.TokenCommand {
+	keyword: 'align'
 	args: {
-		swizzle: TokenSwizzle
+		swizzle: P.TokenSwizzle
 	}
 }
-interface ExecuteAnchoredSubCommand extends TokenCommand {
-	name: 'anchored'
+interface ExecuteAnchoredSubCommand extends P.TokenCommand {
+	keyword: 'anchored'
 	args: {
-		part: TokenLiteral & { value: 'eyes' | 'feet' }
+		part: P.TokenLiteral & { value: 'eyes' | 'feet' }
 	}
 }
-interface ExecuteAsSubCommand extends TokenCommand {
-	name: 'as'
+interface ExecuteAsSubCommand extends P.TokenCommand {
+	keyword: 'as'
 	args: {
-		targets: TokenEntity
+		targets: P.TokenEntity
 	}
 }
-interface ExecuteAtSubCommand extends TokenCommand {
-	name: 'at'
+interface ExecuteAtSubCommand extends P.TokenCommand {
+	keyword: 'at'
 	args: {
-		targets: TokenEntity
+		targets: P.TokenEntity
 	}
 }
-interface ExecuteFacingSubCommand extends TokenCommand {
-	name: 'facing'
+interface ExecuteFacingSubCommand extends P.TokenCommand {
+	keyword: 'facing'
 	args: {
-		entity?: TokenLiteral & { value: 'entity' }
-		targets?: TokenEntity
-		anchor?: TokenLiteral & { value: 'eyes' | 'feet' }
-		pos?: TokenPosVec3
+		entity?: P.TokenLiteral & { value: 'entity' }
+		targets?: P.TokenEntity
+		anchor?: P.TokenLiteral & { value: 'eyes' | 'feet' }
+		pos?: P.TokenPosVec3
 	}
 }
-interface ExecuteInSubCommand extends TokenCommand {
-	name: 'in'
+interface ExecuteInSubCommand extends P.TokenCommand {
+	keyword: 'in'
 	args: {
-		dimension: TokenResourceLocation
+		dimension: P.TokenResourceLocation
 	}
 }
-interface ExecutePositionedSubCommand extends TokenCommand {
-	name: 'positioned'
+interface ExecutePositionedSubCommand extends P.TokenCommand {
+	keyword: 'positioned'
 	args: {
-		as?: TokenLiteral & { value: 'as' }
-		targets?: TokenEntity
-		pos?: TokenPosVec3
+		as?: P.TokenLiteral & { value: 'as' }
+		targets?: P.TokenEntity
+		pos?: P.TokenPosVec3
 	}
 }
-interface ExecuteRotatedSubCommand extends TokenCommand {
-	name: 'rotated'
+interface ExecuteRotatedSubCommand extends P.TokenCommand {
+	keyword: 'rotated'
 	args: {
-		as?: TokenLiteral & { value: 'as' }
-		targets?: TokenEntity
-		rot?: TokenRotVec2
+		as?: P.TokenLiteral & { value: 'as' }
+		targets?: P.TokenEntity
+		rot?: P.TokenRotVec2
 	}
 }
-interface ExecuteStoreSubCommand extends TokenCommand {
-	name: 'store'
+interface ExecuteStoreSubCommand extends P.TokenCommand {
+	keyword: 'store'
 	args: {
-		mode: TokenLiteral & { value: 'result' | 'success' }
-		location: TokenLiteral & { value: 'block' | 'bossbar' | 'entity' | 'score' | 'storage' }
-		pos?: TokenPosVec3
-		path?: TokenNbtPath | (TokenLiteral & { value: 'max' | 'value' })
-		type?: TokenLiteral & { value: 'byte' | 'short' | 'int' | 'long' | 'float' | 'double' }
-		scale?: TokenDouble
-		id?: TokenResourceLocation
-		target?: TokenEntity
-		targets?: TokenEntity
-		objective?: TokenUnquotedString
-		storage?: TokenResourceLocation
+		mode: P.TokenLiteral & { value: 'result' | 'success' }
+		location: P.TokenLiteral & { value: 'block' | 'bossbar' | 'entity' | 'score' | 'storage' }
+		pos?: P.TokenPosVec3
+		path?: P.TokenNbtPath | (P.TokenLiteral & { value: 'max' | 'value' })
+		type?: P.TokenLiteral & { value: 'byte' | 'short' | 'int' | 'long' | 'float' | 'double' }
+		scale?: P.TokenDouble
+		id?: P.TokenResourceLocation
+		target?: P.TokenEntity
+		targets?: P.TokenEntity
+		objective?: P.TokenUnquotedString
+		storage?: P.TokenResourceLocation
 	}
 }
-interface ExecuteConditionalSubCommand extends TokenCommand {
-	name: 'if' | 'unless'
+interface ExecuteConditionalSubCommand extends P.TokenCommand {
+	keyword: 'if' | 'unless'
 	args: {
-		check: TokenLiteral & {
+		check: P.TokenLiteral & {
 			value: 'blocks' | 'block' | 'data' | 'entity' | 'predicate' | 'score'
 		}
-		pos?: TokenPosVec3
-		block?: TokenBlock
-		from?: TokenPosVec3
-		to?: TokenPosVec3
-		destination?: TokenPosVec3
-		maskMode?: TokenLiteral & { value: 'all' | 'masked' }
-		type?: TokenLiteral & { value: 'block' | 'entity' | 'storage' }
-		path?: TokenNbtPath
-		targets?: TokenEntity
-		storage?: TokenResourceLocation
-		predicate?: TokenResourceLocation
-		target?: TokenEntity
-		targetObjective?: TokenUnquotedString
-		matches?: TokenLiteral & { value: 'matches' }
-		operator?: TokenLiteral & { value: '<=' | '<' | '=' | '>=' | '>' }
-		range?: TokenIntRange | TokenInt
-		source?: TokenEntity
-		sourceObjective?: TokenUnquotedString
+		pos?: P.TokenPosVec3
+		block?: P.TokenBlock
+		from?: P.TokenPosVec3
+		to?: P.TokenPosVec3
+		destination?: P.TokenPosVec3
+		maskMode?: P.TokenLiteral & { value: 'all' | 'masked' }
+		type?: P.TokenLiteral & { value: 'block' | 'entity' | 'storage' }
+		path?: P.TokenNbtPath
+		targets?: P.TokenEntity
+		storage?: P.TokenResourceLocation
+		predicate?: P.TokenResourceLocation
+		target?: P.TokenEntity
+		targetObjective?: P.TokenUnquotedString
+		matches?: P.TokenLiteral & { value: 'matches' }
+		operator?: P.TokenLiteral & { value: '<=' | '<' | '=' | '>=' | '>' }
+		range?: P.TokenIntRange | P.TokenInt
+		source?: P.TokenEntity
+		sourceObjective?: P.TokenUnquotedString
 	}
 }
-interface ExecuteRunSubCommand extends TokenCommand {
-	name: 'run'
+interface ExecuteRunSubCommand extends P.TokenCommand {
+	keyword: 'run'
 	args: {
-		command: TokenCommand | TokenUnknownCommand
+		command: P.TokenCommand | P.TokenUnknownCommand
 	}
 }
 function newSubCommand<T extends keyof ExecuteSubCommands>(
@@ -865,7 +869,7 @@ function newSubCommand<T extends keyof ExecuteSubCommands>(
 	// @ts-ignore
 	return {
 		type: 'command',
-		name: target,
+		keyword: target,
 		args,
 		raw: `${target} ${Object.entries(args)
 			.filter(i => i[1])
@@ -940,13 +944,15 @@ type AnyExecuteSubCommand =
  * - run <command: command>
  * ```
  */
-interface TokenExecuteCommand extends TokenCommand {
-	name: 'execute'
+interface TokenExecuteCommand extends P.TokenCommand {
+	id: 'minecraft:execute'
+	keyword: 'execute'
 	args: {
 		subCommands: AnyExecuteSubCommand[]
 	}
 }
 export const executeCommand = CR.newCommand<TokenExecuteCommand>(
+	'minecraft:execute',
 	'execute',
 	{
 		subCommands: [
@@ -976,7 +982,7 @@ export const executeCommand = CR.newCommand<TokenExecuteCommand>(
 		matches: ['matches'],
 		operators: ['<=', '<', '=', '>=', '>'],
 	},
-	(s, t, c) => {
+	(s, t, c, context) => {
 		t.args.subCommands = []
 
 		Consume.whitespace(s, !G.multiline)
@@ -1263,7 +1269,7 @@ export const executeCommand = CR.newCommand<TokenExecuteCommand>(
 							destination,
 							maskMode,
 							type: _type,
-							path: path as TokenNbtPath,
+							path: path as P.TokenNbtPath,
 							targets,
 							storage,
 							predicate,
@@ -1282,7 +1288,7 @@ export const executeCommand = CR.newCommand<TokenExecuteCommand>(
 					if (G.multiline && s.item !== '|') {
 						G.multiline = false
 						// <command: command>
-						command = Token.Command(s, [CR])
+						command = Token.Command(s, context)
 						G.multiline = true
 					} else {
 						if (!SETTINGS.multilineCommandsEnabled)
@@ -1295,7 +1301,7 @@ export const executeCommand = CR.newCommand<TokenExecuteCommand>(
 							Consume.whitespace(s, false)
 						}
 						// <command: command>
-						command = Token.Command(s, [CR])
+						command = Token.Command(s, context)
 					}
 					// return
 					t.args.subCommands.push(newSubCommand('run', { command }))
@@ -1320,16 +1326,18 @@ export const executeCommand = CR.newCommand<TokenExecuteCommand>(
  * - query <targets: entity> [<valueNode: (levels|points)>]
  * ```
  */
-interface TokenExperienceCommand extends TokenCommand {
-	name: 'experience' | 'xp'
+interface TokenExperienceCommand extends P.TokenCommand {
+	id: 'minecraft:experience' | 'minecraft:xp'
+	keyword: 'experience' | 'xp'
 	args: {
-		mode: TokenLiteral & { value: 'add' | 'set' | 'query' }
-		targets: TokenEntity
-		amount: TokenInt
-		valueMode: TokenLiteral & { value: 'levels' | 'points' }
+		mode: P.TokenLiteral & { value: 'add' | 'set' | 'query' }
+		targets: P.TokenEntity
+		amount: P.TokenInt
+		valueMode?: P.TokenLiteral & { value: 'levels' | 'points' }
 	}
 }
 export const experienceCommand = CR.newCommand<TokenExperienceCommand>(
+	'minecraft:experience',
 	'experience',
 	{
 		mode: ['add', 'set', 'query'],
@@ -1349,6 +1357,7 @@ export const experienceCommand = CR.newCommand<TokenExperienceCommand>(
 	}
 )
 export const xp = CR.newCommand<TokenExperienceCommand>(
+	'minecraft:xp',
 	'xp',
 	experienceCommand.meta,
 	experienceCommand.tokenizer
@@ -1364,17 +1373,19 @@ export const xp = CR.newCommand<TokenExperienceCommand>(
  * - replace [<filter: block>]
  * ```
  */
-interface TokenFillCommand extends TokenCommand {
-	name: 'fill'
+interface TokenFillCommand extends P.TokenCommand {
+	id: 'minecraft:fill'
+	keyword: 'fill'
 	args: {
-		from: TokenPosVec3
-		to: TokenPosVec3
-		block: TokenBlock
-		mode?: TokenLiteral & { value: 'destroy' | 'hollow' | 'keep' | 'outline' | 'replace' }
-		filter?: TokenBlock
+		from: P.TokenPosVec3
+		to: P.TokenPosVec3
+		block: P.TokenBlock
+		mode?: P.TokenLiteral & { value: 'destroy' | 'hollow' | 'keep' | 'outline' | 'replace' }
+		filter?: P.TokenBlock
 	}
 }
 export const fillCommand = CR.newCommand<TokenFillCommand>(
+	'minecraft:fill',
 	'fill',
 	{
 		mode: ['destroy', 'hollow', 'keep', 'outline', 'replace'],
@@ -1406,17 +1417,19 @@ export const fillCommand = CR.newCommand<TokenFillCommand>(
  *   - <from: PosVec2> [<to: PosVec2>]
  * ```
  */
-interface TokenForceloadCommand extends TokenCommand {
-	name: 'forceload'
+interface TokenForceloadCommand extends P.TokenCommand {
+	id: 'minecraft:forceload'
+	keyword: 'forceload'
 	args: {
-		mode: TokenLiteral & { value: 'add' | 'remove' | 'query' }
-		from: TokenPosVec2
-		to?: TokenPosVec2
-		all?: TokenLiteral & { value: 'all' }
-		pos?: TokenPosVec2
+		mode: P.TokenLiteral & { value: 'add' | 'remove' | 'query' }
+		from: P.TokenPosVec2
+		to?: P.TokenPosVec2
+		all?: P.TokenLiteral & { value: 'all' }
+		pos?: P.TokenPosVec2
 	}
 }
 export const forceloadCommand = CR.newCommand<TokenForceloadCommand>(
+	'minecraft:forceload',
 	'forceload',
 	{
 		mode: ['add', 'remove', 'query'],
@@ -1459,31 +1472,39 @@ export const forceloadCommand = CR.newCommand<TokenForceloadCommand>(
  * /function <name: resourceLocation>
  * ```
  */
-interface TokenFunctionCommand extends TokenCommand {
-	name: 'function'
+interface TokenFunctionCommand extends P.TokenCommand {
+	id: 'minecraft:function'
+	keyword: 'function'
 	args: {
-		name: TokenResourceLocation
+		name: P.TokenResourceLocation
 	}
 }
-export const functionCommand = CR.newCommand<TokenFunctionCommand>('function', {}, (s, t, c) => {
-	// <name: resourceLocation>
-	t.args.name = C.requiredArg(s, Token.ResourceLocation)
-	return t
-})
+export const functionCommand = CR.newCommand<TokenFunctionCommand>(
+	'minecraft:function',
+	'function',
+	{},
+	(s, t, c) => {
+		// <name: resourceLocation>
+		t.args.name = C.requiredArg(s, Token.ResourceLocation)
+		return t
+	}
+)
 
 /**
  * ```html
  * /gamemode <gamemode: (adventure|creative|spectator|survival)> [<targets: entity>]
  * ```
  */
-interface TokenGamemodeCommand extends TokenCommand {
-	name: 'gamemode'
+interface TokenGamemodeCommand extends P.TokenCommand {
+	id: 'minecraft:gamemode'
+	keyword: 'gamemode'
 	args: {
-		gamemode: TokenLiteral & { value: 'adventure' | 'creative' | 'spectator' | 'survival' }
-		targets?: TokenEntity
+		gamemode: P.TokenLiteral & { value: 'adventure' | 'creative' | 'spectator' | 'survival' }
+		targets?: P.TokenEntity
 	}
 }
 export const gamemodeCommand = CR.newCommand<TokenGamemodeCommand>(
+	'minecraft:gamemode',
 	'gamemode',
 	{
 		gamemode: ['adventure', 'creative', 'spectator', 'survival'],
@@ -1504,45 +1525,57 @@ export const gamemodeCommand = CR.newCommand<TokenGamemodeCommand>(
  * - [<value: int>]
  * ```
  */
-interface TokenGameruleCommand extends TokenCommand {
-	name: 'gamerule'
+interface TokenGameruleCommand extends P.TokenCommand {
+	id: 'minecraft:gamerule'
+	keyword: 'gamerule'
 	args: {
-		gamerule: TokenUnquotedString
-		value?: TokenInt | TokenBoolean
+		gamerule: P.TokenUnquotedString
+		value?: P.TokenInt | P.TokenBoolean
 	}
 }
-export const gameruleCommand = CR.newCommand<TokenGameruleCommand>('gamerule', {}, (s, t, c) => {
-	// <gamerule: unquotedString>
-	t.args.gamerule = C.requiredArg(s, Token.UnquotedString)
-	// - [<value: boolean>]
-	t.args.value = C.optionalArg(s, Token.Boolean, undefined, true)
-	// - [<value: int>]
-	t.args.value = C.optionalArg(s, Token.Int)
-	return t
-})
+export const gameruleCommand = CR.newCommand<TokenGameruleCommand>(
+	'minecraft:gamerule',
+	'gamerule',
+	{},
+	(s, t, c) => {
+		// <gamerule: unquotedString>
+		t.args.gamerule = C.requiredArg(s, Token.UnquotedString)
+		// - [<value: boolean>]
+		t.args.value = C.optionalArg(s, Token.Boolean, undefined, true)
+		// - [<value: int>]
+		t.args.value = C.optionalArg(s, Token.Int)
+		return t
+	}
+)
 
 /**
  * ```html
  * /give <targets: entity> <item: item> [<count: int>]
  * ```
  */
-interface TokenGiveCommand extends TokenCommand {
-	name: 'give'
+interface TokenGiveCommand extends P.TokenCommand {
+	id: 'minecraft:give'
+	keyword: 'give'
 	args: {
-		targets: TokenEntity
-		item: TokenItem
-		count?: TokenInt
+		targets: P.TokenEntity
+		item: P.TokenItem
+		count?: P.TokenInt
 	}
 }
-export const giveCommand = CR.newCommand<TokenGiveCommand>('give', {}, (s, t, c) => {
-	// <targets: entity>
-	t.args.targets = C.requiredArg(s, Token.Entity)
-	// <item: item>
-	t.args.item = C.requiredArg(s, Token.Item)
-	// [<count: int>]
-	t.args.count = C.optionalArg(s, Token.Int)
-	return t
-})
+export const giveCommand = CR.newCommand<TokenGiveCommand>(
+	'minecraft:give',
+	'give',
+	{},
+	(s, t, c) => {
+		// <targets: entity>
+		t.args.targets = C.requiredArg(s, Token.Entity)
+		// <item: item>
+		t.args.item = C.requiredArg(s, Token.Item)
+		// [<count: int>]
+		t.args.count = C.optionalArg(s, Token.Int)
+		return t
+	}
+)
 
 /**
  * ```html
@@ -1562,25 +1595,27 @@ export const giveCommand = CR.newCommand<TokenGiveCommand>('give', {}, (s, t, c)
  *           - <sourceSlot: unquotedString> [<modifier: resourceLocation>]
  * ```
  */
-interface TokenItemCommand extends TokenCommand {
-	name: 'item'
+interface TokenItemCommand extends P.TokenCommand {
+	id: 'minecraft:item'
+	keyword: 'item'
 	args: {
-		mode: TokenLiteral & { value: 'modify' | 'replace' }
-		targetType: TokenLiteral & { value: 'block' | 'entity' }
-		pos?: TokenPosVec3
-		target?: TokenEntity
-		slot?: TokenUnquotedString
-		modifier?: TokenResourceLocation
-		replaceMode?: TokenLiteral & { value: 'with' | 'from' }
-		item?: TokenItem
-		count?: TokenInt
-		sourceType?: TokenLiteral & { value: 'block' | 'entity' }
-		sourceTarget?: TokenEntity
-		sourcePosition?: TokenPosVec3
-		sourceSlot?: TokenUnquotedString
+		mode: P.TokenLiteral & { value: 'modify' | 'replace' }
+		targetType: P.TokenLiteral & { value: 'block' | 'entity' }
+		pos?: P.TokenPosVec3
+		target?: P.TokenEntity
+		slot?: P.TokenUnquotedString
+		modifier?: P.TokenResourceLocation
+		replaceMode?: P.TokenLiteral & { value: 'with' | 'from' }
+		item?: P.TokenItem
+		count?: P.TokenInt
+		sourceType?: P.TokenLiteral & { value: 'block' | 'entity' }
+		sourceTarget?: P.TokenEntity
+		sourcePosition?: P.TokenPosVec3
+		sourceSlot?: P.TokenUnquotedString
 	}
 }
 export const itemCommand = CR.newCommand<TokenItemCommand>(
+	'minecraft:item',
 	'item',
 	{
 		mode: ['modify', 'replace'],
@@ -1659,30 +1694,38 @@ export const itemCommand = CR.newCommand<TokenItemCommand>(
  * /kill [<targets: entity>]
  * ```
  */
-interface TokenKillCommand extends TokenCommand {
-	name: 'kill'
+interface TokenKillCommand extends P.TokenCommand {
+	id: 'minecraft:kill'
+	keyword: 'kill'
 	args: {
-		targets?: TokenEntity
+		targets?: P.TokenEntity
 	}
 }
-export const killCommand = CR.newCommand<TokenKillCommand>('kill', {}, (s, t, c) => {
-	// [<targets: entity>]
-	t.args.targets = C.optionalArg(s, Token.Entity)
-	return t
-})
+export const killCommand = CR.newCommand<TokenKillCommand>(
+	'minecraft:kill',
+	'kill',
+	{},
+	(s, t, c) => {
+		// [<targets: entity>]
+		t.args.targets = C.optionalArg(s, Token.Entity)
+		return t
+	}
+)
 
 /**
  * ```html
  * /list [<uuids: (uuids)>]
  * ```
  */
-interface TokenListCommand extends TokenCommand {
-	name: 'list'
+interface TokenListCommand extends P.TokenCommand {
+	id: 'minecraft:list'
+	keyword: 'list'
 	args: {
-		uuids?: TokenLiteral & { value: 'uuids' }
+		uuids?: P.TokenLiteral & { value: 'uuids' }
 	}
 }
 export const listCommand = CR.newCommand<TokenListCommand>(
+	'minecraft:list',
 	'list',
 	{
 		uuids: ['uuids'],
@@ -1699,30 +1742,38 @@ export const listCommand = CR.newCommand<TokenListCommand>(
  * /locate <feature: resourceLocation>
  * ```
  */
-interface TokenLocateCommand extends TokenCommand {
-	name: 'locate'
+interface TokenLocateCommand extends P.TokenCommand {
+	id: 'minecraft:locate'
+	keyword: 'locate'
 	args: {
-		feature: TokenResourceLocation
+		feature: P.TokenResourceLocation
 	}
 }
-export const locateCommand = CR.newCommand<TokenLocateCommand>('locate', {}, (s, t, c) => {
-	// <feature: resourceLocation>
-	t.args.feature = C.requiredArg(s, Token.ResourceLocation)
-	return t
-})
+export const locateCommand = CR.newCommand<TokenLocateCommand>(
+	'minecraft:locate',
+	'locate',
+	{},
+	(s, t, c) => {
+		// <feature: resourceLocation>
+		t.args.feature = C.requiredArg(s, Token.ResourceLocation)
+		return t
+	}
+)
 
 /**
  * ```html
  * /locatebiome <biome: resourceLocation>
  * ```
  */
-interface TokenLocatebiomeCommand extends TokenCommand {
-	name: 'locatebiome'
+interface TokenLocatebiomeCommand extends P.TokenCommand {
+	id: 'minecraft:locatebiome'
+	keyword: 'locatebiome'
 	args: {
-		biome: TokenResourceLocation
+		biome: P.TokenResourceLocation
 	}
 }
 export const locatebiomeCommand = CR.newCommand<TokenLocatebiomeCommand>(
+	'minecraft:locatebiome',
 	'locatebiome',
 	{},
 	(s, t, c) => {
@@ -1750,23 +1801,25 @@ export const locatebiomeCommand = CR.newCommand<TokenLocatebiomeCommand>(
  * - mine <sourcePos: posVec3> [<tool: item|(mainhand|offhand)>]
  * ```
  */
-interface TokenLootCommand extends TokenCommand {
-	name: 'loot'
+interface TokenLootCommand extends P.TokenCommand {
+	id: 'minecraft:loot'
+	keyword: 'loot'
 	args: {
-		targetMode: TokenLiteral & { value: 'give' | 'insert' | 'replace' | 'spawn' }
-		targets?: TokenEntity
-		targetPos?: TokenPosVec3
-		replaceMode?: TokenLiteral & { value: 'block' | 'entity' }
-		slot?: TokenUnquotedString
-		count?: TokenInt
-		sourceMode?: TokenLiteral & { value: 'fish' | 'loot' | 'kill' | 'mine' }
-		lootTable?: TokenResourceLocation
-		sourcePos?: TokenPosVec3
-		tool?: TokenItem | (TokenLiteral & { value: 'mainhand' | 'offhand' })
-		sourceTarget?: TokenEntity
+		targetMode: P.TokenLiteral & { value: 'give' | 'insert' | 'replace' | 'spawn' }
+		targets?: P.TokenEntity
+		targetPos?: P.TokenPosVec3
+		replaceMode?: P.TokenLiteral & { value: 'block' | 'entity' }
+		slot?: P.TokenUnquotedString
+		count?: P.TokenInt
+		sourceMode?: P.TokenLiteral & { value: 'fish' | 'loot' | 'kill' | 'mine' }
+		lootTable?: P.TokenResourceLocation
+		sourcePos?: P.TokenPosVec3
+		tool?: P.TokenItem | (P.TokenLiteral & { value: 'mainhand' | 'offhand' })
+		sourceTarget?: P.TokenEntity
 	}
 }
 export const lootCommand = CR.newCommand<TokenLootCommand>(
+	'minecraft:loot',
 	'loot',
 	{
 		targetMode: ['give', 'insert', 'replace', 'spawn'],
@@ -1857,20 +1910,22 @@ export const lootCommand = CR.newCommand<TokenLootCommand>(
  * - <pos: posVec3> <delta: posVec3> <speed: double> <count: int> [<viewingMode: (force|normal)>] [<viewers: entity>]
  * ```
  */
-interface TokenParticleCommand extends TokenCommand {
-	name: 'particle'
+interface TokenParticleCommand extends P.TokenCommand {
+	id: 'minecraft:particle'
+	keyword: 'particle'
 	args: {
-		particle: TokenResourceLocation
-		particleArgs: TokenAny[]
-		pos?: TokenPosVec3
-		delta?: TokenPosVec3
-		speed?: TokenDouble
-		count?: TokenInt
-		viewingMode?: TokenLiteral & { value: 'force' | 'normal' }
-		viewers?: TokenEntity
+		particle: P.TokenResourceLocation
+		particleArgs: P.Token[]
+		pos?: P.TokenPosVec3
+		delta?: P.TokenPosVec3
+		speed?: P.TokenDouble
+		count?: P.TokenInt
+		viewingMode?: P.TokenLiteral & { value: 'force' | 'normal' }
+		viewers?: P.TokenEntity
 	}
 }
 export const particleCommand = CR.newCommand<TokenParticleCommand>(
+	'minecraft:particle',
 	'particle',
 	{
 		viewingMode: ['force', 'normal'],
@@ -1935,14 +1990,16 @@ export const particleCommand = CR.newCommand<TokenParticleCommand>(
  * /placefeature <feature: resourceLocation> [<pos: posVec3>]
  * ```
  */
-interface TokenPlacefeatureCommand extends TokenCommand {
-	name: 'placefeature'
+interface TokenPlacefeatureCommand extends P.TokenCommand {
+	id: 'minecraft:placefeature'
+	keyword: 'placefeature'
 	args: {
-		feature: TokenResourceLocation
-		pos?: TokenPosVec3
+		feature: P.TokenResourceLocation
+		pos?: P.TokenPosVec3
 	}
 }
 export const placefeatureCommand = CR.newCommand<TokenPlacefeatureCommand>(
+	'minecraft:placefeature',
 	'placefeature',
 	{},
 	(s, t, c) => {
@@ -1960,11 +2017,12 @@ export const placefeatureCommand = CR.newCommand<TokenPlacefeatureCommand>(
  * <SOURCE>: <source: (master|music|record|weather|block|hostile|neutral|player|ambient|voice)>
  * ```
  */
-interface TokenPlaysoundCommand extends TokenCommand {
-	name: 'playsound'
+interface TokenPlaysoundCommand extends P.TokenCommand {
+	id: 'minecraft:playsound'
+	keyword: 'playsound'
 	args: {
-		sound: TokenResourceLocation
-		source: TokenLiteral & {
+		sound: P.TokenResourceLocation
+		source: P.TokenLiteral & {
 			value:
 				| 'master'
 				| 'music'
@@ -1977,14 +2035,15 @@ interface TokenPlaysoundCommand extends TokenCommand {
 				| 'ambient'
 				| 'voice'
 		}
-		targets: TokenEntity
-		pos?: TokenPosVec3
-		volume?: TokenDouble
-		pitch?: TokenDouble
-		minVolume?: TokenDouble
+		targets: P.TokenEntity
+		pos?: P.TokenPosVec3
+		volume?: P.TokenDouble
+		pitch?: P.TokenDouble
+		minVolume?: P.TokenDouble
 	}
 }
 export const playsoundCommand = CR.newCommand<TokenPlaysoundCommand>(
+	'minecraft:playsound',
 	'playsound',
 	{
 		source: [
@@ -2024,15 +2083,17 @@ export const playsoundCommand = CR.newCommand<TokenPlaysoundCommand>(
  * /recipe <mode: (give|take)> <targets: entity> <recipe: (*)|resourceLocation>
  * ```
  */
-interface TokenRecipeCommand extends TokenCommand {
-	name: 'recipe'
+interface TokenRecipeCommand extends P.TokenCommand {
+	id: 'minecraft:recipe'
+	keyword: 'recipe'
 	args: {
-		mode: TokenLiteral & { value: 'give' | 'take' }
-		targets: TokenEntity
-		recipe: TokenResourceLocation | (TokenLiteral & { value: '*' })
+		mode: P.TokenLiteral & { value: 'give' | 'take' }
+		targets: P.TokenEntity
+		recipe?: P.TokenResourceLocation | (P.TokenLiteral & { value: '*' })
 	}
 }
 export const recipeCommand = CR.newCommand<TokenRecipeCommand>(
+	'minecraft:recipe',
 	'recipe',
 	{
 		mode: ['give', 'take'],
@@ -2055,13 +2116,14 @@ export const recipeCommand = CR.newCommand<TokenRecipeCommand>(
  * /say <message: unquotedString>
  * ```
  */
-interface TokenSayCommand extends TokenCommand {
-	name: 'say'
+interface TokenSayCommand extends P.TokenCommand {
+	id: 'minecraft:say'
+	keyword: 'say'
 	args: {
-		message: TokenUnquotedString
+		message?: P.TokenUnquotedString
 	}
 }
-export const sayCommand = CR.newCommand<TokenSayCommand>('say', {}, (s, t, c) => {
+export const sayCommand = CR.newCommand<TokenSayCommand>('minecraft:say', 'say', {}, (s, t, c) => {
 	// <message: unquotedString>
 	t.args.message = C.optionalArg(s, Token.UnquotedString, [CHARS.NEWLINES, true])
 	return t
@@ -2074,16 +2136,18 @@ export const sayCommand = CR.newCommand<TokenSayCommand>('say', {}, (s, t, c) =>
  * - clear <function: resourceLocation>
  * ```
  */
-interface TokenScheduleCommand extends TokenCommand {
-	name: 'schedule'
+interface TokenScheduleCommand extends P.TokenCommand {
+	id: 'minecraft:shedule'
+	keyword: 'schedule'
 	args: {
-		mode: TokenLiteral & { value: 'function' | 'clear' }
-		function: TokenResourceLocation
-		time?: TokenInt & { indicator?: 't' | 's' | 'd' }
-		pushMode?: TokenLiteral & { value: 'append' | 'replace' }
+		mode: P.TokenLiteral & { value: 'function' | 'clear' }
+		function: P.TokenResourceLocation
+		time?: P.TokenInt & { indicator?: 't' | 's' | 'd' }
+		pushMode?: P.TokenLiteral & { value: 'append' | 'replace' }
 	}
 }
 export const scheduleCommand = CR.newCommand<TokenScheduleCommand>(
+	'minecraft:shedule',
 	'schedule',
 	{
 		mode: ['function', 'clear'],
@@ -2132,34 +2196,36 @@ export const scheduleCommand = CR.newCommand<TokenScheduleCommand>(
  *   - set <targets: entity> <objective: unquotedString> <score: int>
  * ```
  */
-interface TokenScoreboardCommand extends TokenCommand {
-	name: 'scoreboard'
+interface TokenScoreboardCommand extends P.TokenCommand {
+	id: 'minecraft:scoreboard'
+	keyword: 'scoreboard'
 	args: {
-		mode: TokenLiteral & { value: 'objectives' | 'players' }
-		objectivesMode?: TokenLiteral & {
+		mode: P.TokenLiteral & { value: 'objectives' | 'players' }
+		objectivesMode?: P.TokenLiteral & {
 			value: 'add' | 'list' | 'modify' | 'remove' | 'setdisplay'
 		}
-		objective?: TokenUnquotedString
-		objectiveCriteria?: TokenResourceLocation
-		displayName?: TokenJson
-		property?: TokenLiteral & { value: 'displayname' | 'rendertype' }
-		renderType?: TokenLiteral & { value: 'hearts' | 'integer' }
-		slot?: TokenResourceLocation
-		playersMode?: TokenLiteral & {
+		objective?: P.TokenUnquotedString
+		objectiveCriteria?: P.TokenResourceLocation
+		displayName?: P.TokenJson
+		property?: P.TokenLiteral & { value: 'displayname' | 'rendertype' }
+		renderType?: P.TokenLiteral & { value: 'hearts' | 'integer' }
+		slot?: P.TokenResourceLocation
+		playersMode?: P.TokenLiteral & {
 			value: 'add' | 'enable' | 'get' | 'list' | 'operation' | 'remove' | 'reset' | 'set'
 		}
-		targets?: TokenEntity
-		score?: TokenInt
-		targetObjective?: TokenUnquotedString
-		operator?: TokenLiteral & {
+		targets?: P.TokenEntity
+		score?: P.TokenInt
+		targetObjective?: P.TokenUnquotedString
+		operator?: P.TokenLiteral & {
 			value: '=' | '-=' | '+=' | '*=' | '/=' | '%=' | '><' | '<' | '>'
 		}
-		source?: TokenEntity
-		sourceObjective?: TokenUnquotedString
-		resetTargets?: TokenEntity | (TokenLiteral & { value: '*' })
+		source?: P.TokenEntity
+		sourceObjective?: P.TokenUnquotedString
+		resetTargets?: P.TokenEntity | (P.TokenLiteral & { value: '*' })
 	}
 }
 export const scoreboardCommand = CR.newCommand<TokenScoreboardCommand>(
+	'minecraft:scoreboard',
 	'scoreboard',
 	{
 		mode: ['objectives', 'players'],
@@ -2306,15 +2372,17 @@ export const scoreboardCommand = CR.newCommand<TokenScoreboardCommand>(
  * /setblock <pos: posVec3> <block: block> [<mode: (destroy|keep|replace)>]
  * ```
  */
-interface TokenSetblockCommand extends TokenCommand {
-	name: 'setblock'
+interface TokenSetblockCommand extends P.TokenCommand {
+	id: 'minecraft:setblock'
+	keyword: 'setblock'
 	args: {
-		pos: TokenPosVec3
-		block: TokenBlock
-		mode: TokenLiteral & { value: 'destroy' | 'keep' | 'replace' }
+		pos: P.TokenPosVec3
+		block: P.TokenBlock
+		mode?: P.TokenLiteral & { value: 'destroy' | 'keep' | 'replace' }
 	}
 }
 export const setblockCommand = CR.newCommand<TokenSetblockCommand>(
+	'minecraft:setblock',
 	'setblock',
 	{
 		mode: ['destroy', 'keep', 'replace'],
@@ -2335,14 +2403,16 @@ export const setblockCommand = CR.newCommand<TokenSetblockCommand>(
  * /setworldspawn [<pos: posVec3>] [<angle: rotVec2>]
  * ```
  */
-interface TokenSetworldspawnCommand extends TokenCommand {
-	name: 'setworldspawn'
+interface TokenSetworldspawnCommand extends P.TokenCommand {
+	id: 'minecraft:setworldspawn'
+	keyword: 'setworldspawn'
 	args: {
-		pos: TokenPosVec3
-		angle: TokenRotVec2
+		pos?: P.TokenPosVec3
+		angle?: P.TokenRotVec2
 	}
 }
 export const setworldspawnCommand = CR.newCommand<TokenSetworldspawnCommand>(
+	'minecraft:setworldspawn',
 	'setworldspawn',
 	{},
 	(s, t, c) => {
@@ -2359,15 +2429,17 @@ export const setworldspawnCommand = CR.newCommand<TokenSetworldspawnCommand>(
  * /spawnpoint [<targets: entity>] [<pos: posVec3>] [<angle: rotVec2>]
  * ```
  */
-interface TokenSpawnpointCommand extends TokenCommand {
-	name: 'spawnpoint'
+interface TokenSpawnpointCommand extends P.TokenCommand {
+	id: 'minecraft:spawnpoint'
+	keyword: 'spawnpoint'
 	args: {
-		targets?: TokenEntity
-		pos?: TokenPosVec3
-		angle?: TokenRotVec2
+		targets?: P.TokenEntity
+		pos?: P.TokenPosVec3
+		angle?: P.TokenRotVec2
 	}
 }
 export const spawnpointCommand = CR.newCommand<TokenSpawnpointCommand>(
+	'minecraft:spawnpoint',
 	'spawnpoint',
 	{},
 	(s, t, c) => {
@@ -2386,20 +2458,26 @@ export const spawnpointCommand = CR.newCommand<TokenSpawnpointCommand>(
  * /spectate [<target: entity>] [<player: entity>]
  * ```
  */
-interface TokenSpectateCommand extends TokenCommand {
-	name: 'spectate'
+interface TokenSpectateCommand extends P.TokenCommand {
+	id: 'minecraft:spectate'
+	keyword: 'spectate'
 	args: {
-		target?: TokenEntity
-		player?: TokenEntity
+		target?: P.TokenEntity
+		player?: P.TokenEntity
 	}
 }
-export const spectateCommand = CR.newCommand<TokenSpectateCommand>('spectate', {}, (s, t, c) => {
-	// [<target: entity>]
-	t.args.target = C.optionalArg(s, Token.Entity)
-	// [<player: entity>]
-	t.args.player = C.optionalArg(s, Token.Entity)
-	return t
-})
+export const spectateCommand = CR.newCommand<TokenSpectateCommand>(
+	'minecraft:spectate',
+	'spectate',
+	{},
+	(s, t, c) => {
+		// [<target: entity>]
+		t.args.target = C.optionalArg(s, Token.Entity)
+		// [<player: entity>]
+		t.args.player = C.optionalArg(s, Token.Entity)
+		return t
+	}
+)
 
 /**
  * ```html
@@ -2408,19 +2486,21 @@ export const spectateCommand = CR.newCommand<TokenSpectateCommand>('spectate', {
  * - <respectTeams: boolean> <targets: entity>
  * ```
  */
-interface TokenSpreadplayersCommand extends TokenCommand {
-	name: 'spreadplayers'
+interface TokenSpreadplayersCommand extends P.TokenCommand {
+	id: 'minecraft:spreadplayers'
+	keyword: 'spreadplayers'
 	args: {
-		center: TokenPosVec2
-		spreadDistance: TokenDouble
-		maxRange: TokenDouble
-		under?: TokenLiteral & { value: 'under' }
-		maxHeight?: TokenInt
-		respectTeams: TokenBoolean
-		targets: TokenEntity
+		center: P.TokenPosVec2
+		spreadDistance: P.TokenDouble
+		maxRange: P.TokenDouble
+		under?: P.TokenLiteral & { value: 'under' }
+		maxHeight?: P.TokenInt
+		respectTeams: P.TokenBoolean
+		targets: P.TokenEntity
 	}
 }
 export const spreadplayersCommand = CR.newCommand<TokenSpreadplayersCommand>(
+	'minecraft:spreadplayers',
 	'spreadplayers',
 	{
 		under: ['under'],
@@ -2452,11 +2532,12 @@ export const spreadplayersCommand = CR.newCommand<TokenSpreadplayersCommand>(
  * <SOURCE>: <source: (master|music|record|weather|block|hostile|neutral|player|ambient|voice)>
  * ```
  */
-interface TokenStopsoundCommand extends TokenCommand {
-	name: 'stopsound'
+interface TokenStopsoundCommand extends P.TokenCommand {
+	id: 'minecraft:stopsound'
+	keyword: 'stopsound'
 	args: {
-		targets: TokenEntity
-		source?: TokenLiteral & {
+		targets: P.TokenEntity
+		source?: P.TokenLiteral & {
 			value:
 				| 'master'
 				| 'music'
@@ -2470,10 +2551,11 @@ interface TokenStopsoundCommand extends TokenCommand {
 				| 'voice'
 				| '*'
 		}
-		sound?: TokenResourceLocation
+		sound?: P.TokenResourceLocation
 	}
 }
 export const stopsoundCommand = CR.newCommand<TokenStopsoundCommand>(
+	'minecraft:stopsound',
 	'stopsound',
 	{
 		source: [
@@ -2506,23 +2588,29 @@ export const stopsoundCommand = CR.newCommand<TokenStopsoundCommand>(
  * /summon <entity: resourceLocation> [<pos: posVec3>] [<nbt: nbtObject>]
  * ```
  */
-interface TokenSummonCommand extends TokenCommand {
-	name: 'summon'
+interface TokenSummonCommand extends P.TokenCommand {
+	id: 'minecraft:summon'
+	keyword: 'summon'
 	args: {
-		entity: TokenResourceLocation
-		pos?: TokenPosVec3
-		nbt?: TokenNbtObject
+		entity: P.TokenResourceLocation
+		pos?: P.TokenPosVec3
+		nbt?: P.TokenNbtObject
 	}
 }
-export const summonCommand = CR.newCommand<TokenSummonCommand>('summon', {}, (s, t, c) => {
-	// <entity: resourceLocation>
-	t.args.entity = C.requiredArg(s, Token.ResourceLocation)
-	// [<pos: posVec3>]
-	t.args.pos = C.optionalArg(s, Token.PosVec3)
-	// [<nbt: nbtObject>]
-	t.args.nbt = C.optionalArg(s, Token.NBTObject)
-	return t
-})
+export const summonCommand = CR.newCommand<TokenSummonCommand>(
+	'minecraft:summon',
+	'summon',
+	{},
+	(s, t, c) => {
+		// <entity: resourceLocation>
+		t.args.entity = C.requiredArg(s, Token.ResourceLocation)
+		// [<pos: posVec3>]
+		t.args.pos = C.optionalArg(s, Token.PosVec3)
+		// [<nbt: nbtObject>]
+		t.args.nbt = C.optionalArg(s, Token.NBTObject)
+		return t
+	}
+)
 
 /**
  * ```html
@@ -2532,15 +2620,17 @@ export const summonCommand = CR.newCommand<TokenSummonCommand>('summon', {}, (s,
  * - list
  * ```
  */
-interface TokenTagCommand extends TokenCommand {
-	name: 'tag'
+interface TokenTagCommand extends P.TokenCommand {
+	id: 'minecraft:tag'
+	keyword: 'tag'
 	args: {
-		targets: TokenEntity
-		mode: TokenLiteral & { value: 'add' | 'list' | 'remove' }
-		name?: TokenUnquotedString
+		targets: P.TokenEntity
+		mode: P.TokenLiteral & { value: 'add' | 'list' | 'remove' }
+		name?: P.TokenUnquotedString
 	}
 }
 export const tagCommand = CR.newCommand<TokenTagCommand>(
+	'minecraft:tag',
 	'tag',
 	{
 		mode: ['add', 'list', 'remove'],
@@ -2582,16 +2672,17 @@ export const tagCommand = CR.newCommand<TokenTagCommand>(
  * - remove <team: unquotedString>
  * ```
  */
-interface TokenTeamCommand extends TokenCommand {
-	name: 'team'
+interface TokenTeamCommand extends P.TokenCommand {
+	id: 'minecraft:team'
+	keyword: 'team'
 	args: {
-		mode: TokenLiteral & {
+		mode: P.TokenLiteral & {
 			value: 'add' | 'empty' | 'join' | 'leave' | 'list' | 'modify' | 'remove'
 		}
-		team?: TokenUnquotedString
-		displayName?: TokenJson
-		members?: TokenEntity
-		property?: TokenLiteral & {
+		team?: P.TokenUnquotedString
+		displayName?: P.TokenJson
+		members?: P.TokenEntity
+		property?: P.TokenLiteral & {
 			value:
 				| 'collisionRule'
 				| 'color'
@@ -2603,10 +2694,10 @@ interface TokenTeamCommand extends TokenCommand {
 				| 'seeFriendlyInvisibles'
 				| 'suffix'
 		}
-		collisionRule?: TokenLiteral & {
+		collisionRule?: P.TokenLiteral & {
 			value: 'always' | 'never' | 'pushOtherTeams' | 'pushOwnTeam'
 		}
-		color: TokenLiteral & {
+		color: P.TokenLiteral & {
 			value:
 				| 'aqua'
 				| 'black'
@@ -2625,18 +2716,19 @@ interface TokenTeamCommand extends TokenCommand {
 				| 'white'
 				| 'yellow'
 		}
-		deathMessageVisibility?: TokenLiteral & {
+		deathMessageVisibility?: P.TokenLiteral & {
 			value: 'always' | 'never' | 'hideForOtherTeams' | 'hideForOwnTeam'
 		}
-		allowed?: TokenBoolean
-		nametagVisibility?: TokenLiteral & {
+		allowed?: P.TokenBoolean
+		nametagVisibility?: P.TokenLiteral & {
 			value: 'always' | 'never' | 'hideForOtherTeams' | 'hideForOwnTeam'
 		}
-		prefix?: TokenJson
-		suffix?: TokenJson
+		prefix?: P.TokenJson
+		suffix?: P.TokenJson
 	}
 }
 export const teamCommand = CR.newCommand<TokenTeamCommand>(
+	'minecraft:team',
 	'team',
 	{
 		mode: ['add', 'empty', 'join', 'leave', 'list', 'modify', 'remove'],
@@ -2790,21 +2882,23 @@ export const teamCommand = CR.newCommand<TokenTeamCommand>(
  *     - <rotation: rotVec2>
  * ```
  */
-interface TokenTeleportCommand extends TokenCommand {
-	name: 'teleport' | 'tp'
+interface TokenTeleportCommand extends P.TokenCommand {
+	id: 'minecraft:teleport' | 'minecraft:tp'
+	keyword: 'teleport' | 'tp'
 	args: {
-		destination?: TokenEntity
-		location?: TokenPosVec3
-		targets?: TokenEntity
-		facing?: TokenLiteral & { value: 'facing' }
-		entity?: TokenLiteral & { value: 'entity' }
-		facingEntity?: TokenEntity
-		facingAnchor?: TokenLiteral & { value: 'eyes' | 'feet' }
-		facingLocation?: TokenPosVec3
-		rotation?: TokenRotVec2
+		destination?: P.TokenEntity
+		location?: P.TokenPosVec3
+		targets?: P.TokenEntity
+		facing?: P.TokenLiteral & { value: 'facing' }
+		entity?: P.TokenLiteral & { value: 'entity' }
+		facingEntity?: P.TokenEntity
+		facingAnchor?: P.TokenLiteral & { value: 'eyes' | 'feet' }
+		facingLocation?: P.TokenPosVec3
+		rotation?: P.TokenRotVec2
 	}
 }
 export const teleportCommand = CR.newCommand<TokenTeleportCommand>(
+	'minecraft:teleport',
 	'teleport',
 	{
 		facing: ['facing'],
@@ -2813,18 +2907,18 @@ export const teleportCommand = CR.newCommand<TokenTeleportCommand>(
 	},
 	(s, t, c) => {
 		const [arg1, error1] = C.choiceArg(s, [[Token.PosVec3], [Token.Entity]])
-		if (arg1.type === 'posVec3') {
+		if (arg1?.type === 'posVec3') {
 			// <location: posVec3>
-			t.args.location = arg1
-		} else if (arg1.type === 'entity') {
+			t.args.location = arg1 as P.TokenPosVec3
+		} else if (arg1?.type === 'entity') {
 			// <destination: entity> || <targets: entity>
 			// Check what arg2 is
 			const [arg2, error2] = C.choiceArg(s, [[Token.PosVec3], [Token.Entity]])
 			if (arg2?.type === 'posVec3') {
 				// <targets: entity>
-				t.args.targets = arg1
+				t.args.targets = arg1 as P.TokenEntity
 				// <location: posVec3>
-				t.args.location = arg2
+				t.args.location = arg2 as P.TokenPosVec3
 				// [<facing: (facing)>]
 				t.args.facing = C.optionalArg(s, Token.Literal, [c.meta.facing], true)
 				if (t.args.facing) {
@@ -2845,18 +2939,19 @@ export const teleportCommand = CR.newCommand<TokenTeleportCommand>(
 				}
 			} else if (arg2?.type === 'entity') {
 				// <targets: entity>
-				t.args.targets = arg1
+				t.args.targets = arg1 as P.TokenEntity
 				// <destination: entity>
-				t.args.destination = arg2
+				t.args.destination = arg2 as P.TokenEntity
 			} else {
 				// <destination: entity>
-				t.args.destination = arg1
+				t.args.destination = arg1 as P.TokenEntity
 			}
 		}
 		return t
 	}
 )
 export const tp = CR.newCommand<TokenTeleportCommand>(
+	'minecraft:tp',
 	'tp',
 	teleportCommand.meta,
 	teleportCommand.tokenizer
@@ -2867,14 +2962,17 @@ export const tp = CR.newCommand<TokenTeleportCommand>(
  * /tellraw <targets: entity> <message: json>
  * ```
  */
-interface TokenTellrawCommand extends TokenCommand {
-	name: 'tellraw'
+interface TokenTellrawCommand extends P.TokenCommand {
+	id: 'minecraft:tellraw'
+	keyword: 'tellraw'
 	args: {
-		targets: TokenEntity
-		message: TokenJson
+		targets: P.TokenEntity
+		message: P.TokenJson
 	}
 }
-export const tellrawCommand = CR.newCommand<TokenTellrawCommand>('tellraw', {}, (s, t, c) => {
+export const tellrawCommand = CR.newCommand<TokenTellrawCommand>(
+	'minecraft:tellraw',
+	'tellraw', {}, (s, t, c) => {
 	// <targets: entity>
 	t.args.targets = C.requiredArg(s, Token.Entity)
 	// <message: json>
@@ -2890,16 +2988,18 @@ export const tellrawCommand = CR.newCommand<TokenTellrawCommand>('tellraw', {}, 
  * - set <setTime: int|(day|night|noon|midnight)>
  * ```
  */
-interface TokenTimeCommand extends TokenCommand {
-	name: 'time'
+interface TokenTimeCommand extends P.TokenCommand {
+	id: 'minecraft:time'
+	keyword: 'time'
 	args: {
-		mode: TokenLiteral & { value: 'add' | 'query' | 'set' }
-		addTime?: TokenInt & { indicator?: 't' | 's' | 'd' }
-		query?: TokenLiteral & { value: 'daytime' | 'gametime' | 'day' }
-		setTime?: TokenInt | (TokenLiteral & { value: 'day' | 'night' | 'noon' | 'midnight' })
+		mode: P.TokenLiteral & { value: 'add' | 'query' | 'set' }
+		addTime?: P.TokenInt & { indicator?: 't' | 's' | 'd' }
+		query?: P.TokenLiteral & { value: 'daytime' | 'gametime' | 'day' }
+		setTime?: P.TokenInt | (P.TokenLiteral & { value: 'day' | 'night' | 'noon' | 'midnight' })
 	}
 }
 export const timeCommand = CR.newCommand<TokenTimeCommand>(
+	'minecraft:time',
 	'time',
 	{
 		mode: ['add', 'query', 'set'],
@@ -2944,20 +3044,22 @@ export const timeCommand = CR.newCommand<TokenTimeCommand>(
  * - times <fadeIn: int> <stay: int> <fadeOut: int>
  * ```
  */
-interface TokenTitleCommand extends TokenCommand {
-	name: 'title'
+interface TokenTitleCommand extends P.TokenCommand {
+	id: 'minecraft:title'
+	keyword: 'title'
 	args: {
-		targets: TokenEntity
-		mode: TokenLiteral & {
+		targets: P.TokenEntity
+		mode: P.TokenLiteral & {
 			value: 'actionbar' | 'clear' | 'reset' | 'subtitle' | 'times' | 'title'
 		}
-		title?: TokenJson
-		fadeIn?: TokenInt
-		stay?: TokenInt
-		fadeOut?: TokenInt
+		title?: P.TokenJson
+		fadeIn?: P.TokenInt
+		stay?: P.TokenInt
+		fadeOut?: P.TokenInt
 	}
 }
 export const titleCommand = CR.newCommand<TokenTitleCommand>(
+	'minecraft:title',
 	'title',
 	{
 		mode: ['actionbar', 'clear', 'reset', 'subtitle', 'times', 'title'],
@@ -2996,15 +3098,17 @@ export const titleCommand = CR.newCommand<TokenTitleCommand>(
  * /trigger <objective: unquotedString> [<mode: (add|set)>] <value: int>
  * ```
  */
-interface TokenTriggerCommand extends TokenCommand {
-	name: 'trigger'
+interface TokenTriggerCommand extends P.TokenCommand {
+	id: 'minecraft:trigger'
+	keyword: 'trigger'
 	args: {
-		objective: TokenUnquotedString
-		mode?: TokenLiteral & { value: 'add' | 'set' }
-		value?: TokenInt
+		objective: P.TokenUnquotedString
+		mode?: P.TokenLiteral & { value: 'add' | 'set' }
+		value?: P.TokenInt
 	}
 }
 export const triggerCommand = CR.newCommand<TokenTriggerCommand>(
+	'minecraft:trigger',
 	'trigger',
 	{
 		mode: ['add', 'set'],
@@ -3027,14 +3131,16 @@ export const triggerCommand = CR.newCommand<TokenTriggerCommand>(
  * /weather <mode: (clear|rain|thunder)> [<duration: int>]
  * ```
  */
-interface TokenWeatherCommand extends TokenCommand {
-	name: 'weather'
+interface TokenWeatherCommand extends P.TokenCommand {
+	id: 'minecraft:weather'
+	keyword: 'weather'
 	args: {
-		mode: TokenLiteral & { value: 'clear' | 'rain' | 'thunder' }
-		duration?: TokenInt
+		mode: P.TokenLiteral & { value: 'clear' | 'rain' | 'thunder' }
+		duration?: P.TokenInt
 	}
 }
 export const weatherCommand = CR.newCommand<TokenWeatherCommand>(
+	'minecraft:weather',
 	'weather',
 	{
 		mode: ['clear', 'rain', 'thunder'],
@@ -3063,19 +3169,21 @@ export const weatherCommand = CR.newCommand<TokenWeatherCommand>(
  *   - time <time: int>
  * ```
  */
-interface TokenWorldborderCommand extends TokenCommand {
-	name: 'worldborder'
+interface TokenWorldborderCommand extends P.TokenCommand {
+	id: 'minecraft:worldborder'
+	keyword: 'worldborder'
 	args: {
-		mode: TokenLiteral & { value: 'add' | 'center' | 'damage' | 'get' | 'set' | 'warning' }
-		distance?: TokenDouble | TokenInt
-		damageType?: TokenLiteral & { value: 'amount' | 'buffer' }
-		damagePerBlock?: TokenDouble
-		time?: TokenInt
-		pos?: TokenPosVec3
-		warningMode?: TokenLiteral & { value: 'distance' | 'time' }
+		mode: P.TokenLiteral & { value: 'add' | 'center' | 'damage' | 'get' | 'set' | 'warning' }
+		distance?: P.TokenDouble | P.TokenInt
+		damageType?: P.TokenLiteral & { value: 'amount' | 'buffer' }
+		damagePerBlock?: P.TokenDouble
+		time?: P.TokenInt
+		pos?: P.TokenPosVec3
+		warningMode?: P.TokenLiteral & { value: 'distance' | 'time' }
 	}
 }
 export const worldborderCommand = CR.newCommand<TokenWorldborderCommand>(
+	'minecraft:worldborder',
 	'worldborder',
 	{
 		mode: ['add', 'center', 'damage', 'get', 'set', 'warning'],
@@ -3146,7 +3254,7 @@ export const worldborderCommand = CR.newCommand<TokenWorldborderCommand>(
  * /
  * ```
  */
-// interface Token_Command extends TokenCommand {
+// interface Token_Command extends  P.TokenCommand {
 // 	name: '_'
 // 	args: {}
 // }

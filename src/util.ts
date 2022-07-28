@@ -36,7 +36,7 @@ export function genComparison(str: string) {
 	return new Function(
 		'char',
 		`if (char===undefined) return false; const c = char.charCodeAt(0); return ${operations}`
-	) as (c: string) => boolean
+	) as (c?: string) => boolean
 }
 
 export function roundToN(v: number, n: number) {

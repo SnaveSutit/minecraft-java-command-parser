@@ -1,30 +1,26 @@
 interface Line {
 	number: number
 	startIndex: number
+	content: string
 }
 
 /**
  * A simple text stream class.
  * Useful for language parsing
  */
-export class Stream {
+export class CharacterStream {
 	string: string
-	index: number
+	index: number = -1
 	item?: string
-	line: number
-	lineStart: number
-	column: number
+	line: number = 0
+	lineStart: number = 0
+	column: number = 1
 	length: number
-	lines: Line[]
+	lines: Line[] = []
 
 	constructor(str: string) {
 		this.string = str
-		this.index = -1
-		this.line = 1
-		this.lineStart = 0
-		this.column = 0
 		this.length = str.length
-		this.lines = [{ number: 1, startIndex: 0 }]
 		this.consume()
 	}
 
@@ -66,7 +62,7 @@ export class Stream {
 	 * @param condition
 	 * @returns
 	 */
-	collect(condition: (stream: Stream) => any) {
+	collect(condition: (stream: CharacterStream) => any) {
 		let str = ''
 		while (this.item && condition(this)) {
 			str += this.item
@@ -104,7 +100,8 @@ export class Stream {
 	 * @param lineNumber The ID of the line
 	 */
 	lineNumberToIndex(lineNumber: number) {
-		const line = this.lines.find(l => l.number === lineNumber)
+		// const line = this.lines.find(l => l.number === lineNumber)
+		const line = this.lines.at(lineNumber - 1)
 		if (!line) throw new Error(`Tried to access line ${lineNumber} before stream reached it.`)
 		return line.startIndex
 	}
@@ -116,7 +113,10 @@ export class Stream {
 		return Math.min(this.index / this.string.length, 1)
 	}
 
-	consumeWhile(condition: (stream: Stream) => any) {
+	/**
+	 * Consumes while a condition is true
+	 */
+	consumeWhile(condition: (stream: CharacterStream) => any) {
 		while (this.item && condition(this)) this.consume()
 	}
 
@@ -128,11 +128,18 @@ export class Stream {
 		this.item = this.string.at(this.index + n)
 		this.column += n
 		this.index += n
-		if (this.item === '\n') {
-			this.line += n
-			this.lineStart = this.index + 1
-			this.lines.push({ number: this.line, startIndex: this.lineStart })
-			this.column = 0
-		}
+		if (this.string.at(this.index - 1) === '\n') this.addLine()
+	}
+
+	private addLine() {
+		this.line++
+		this.lineStart = this.index
+		const i = this.seek('\n')
+		this.lines.push({
+			number: this.line,
+			startIndex: this.lineStart,
+			content: this.string.slice(this.lineStart, i ? i + 1 : this.string.length),
+		})
+		this.column = 1
 	}
 }
