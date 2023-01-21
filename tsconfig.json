@@ -2,13 +2,11 @@
 	"compilerOptions": {
 		"outDir": "./dist/",
 		"noImplicitAny": true,
-		"module": "es2020",
-		"target": "ES2021",
-		"jsx": "react",
-		"allowJs": true,
-		"moduleResolution": "node",
+		"module": "ES2022",
+		"target": "ES2022",
+		"sourceMap": true,
 		"strict": true,
-		"resolveJsonModule": true
+		"moduleResolution": "Node"
 		// "declaration": true,
 		// "emitDeclarationOnly": true
 	}

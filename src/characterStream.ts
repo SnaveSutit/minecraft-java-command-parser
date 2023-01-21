@@ -12,6 +12,7 @@ export class CharacterStream {
 	string: string
 	index: number = -1
 	item?: string
+	itemCode?: number
 	line: number = 0
 	lineStart: number = 0
 	column: number = 1
@@ -22,7 +23,6 @@ export class CharacterStream {
 		this.string = str
 		this.length = str.length
 		this.consume()
-		this.addLine()
 	}
 
 	/**
@@ -32,6 +32,15 @@ export class CharacterStream {
 	 */
 	next() {
 		return this.string.at(this.index + 1)
+	}
+
+	/**
+	 * Returns the character code of the next item in the stream.
+
+	 * Does not consume
+	 */
+	nextCode() {
+		return this.string.charCodeAt(this.index + 1)
 	}
 
 	/**
@@ -123,12 +132,18 @@ export class CharacterStream {
 	/**
 	 * Consumes the next character(s) in the stream
 	 * @param n How many caracters to consume
+	 * @returns The consumed character
 	 */
 	consume(n = 1) {
+		const last = this.item
 		this.item = this.string.at(this.index + n)
+		this.itemCode = this.item?.charCodeAt(0)
 		this.column += n
 		this.index += n
+		// This won't catch newlines if more than 1 is passed to n. Might be an issue?
+		// Most usecases for consuming multiple characters have context as to what the consumed characters are however. So probably a non-issue.
 		if (this.string.at(this.index - 1) === '\n') this.addLine()
+		return last
 	}
 
 	private addLine() {

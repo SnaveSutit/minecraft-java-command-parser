@@ -1,3 +1,5 @@
+/// <reference types="esbuild"/>
+
 const fs = require('fs')
 const esbuild = require('esbuild')
 const PACKAGE = require('../package.json')
@@ -75,9 +77,9 @@ function createBanner(dev) {
 	}
 }
 
-function buildDev() {
+async function buildDev() {
 	esbuild.transformSync('function devlog(message) {console.log(message)}')
-	esbuild.build({
+	const ctx = await esbuild.context({
 		entryPoints: ['./src/index.ts'],
 		outfile: `./dist/${PACKAGE.name}.js`,
 		bundle: true,
@@ -85,9 +87,11 @@ function buildDev() {
 		platform: 'node',
 		sourcemap: true,
 		plugins: [infoPlugin],
-		watch: true,
 		format: 'iife',
+		packages: 'external',
 	})
+	await ctx.watch()
+	// esbuild.build()
 }
 
 function buildProd() {
@@ -102,16 +106,17 @@ function buildProd() {
 		plugins: [infoPlugin],
 		banner: createBanner(),
 		drop: ['debugger'],
+		packages: 'external',
 		format: 'iife',
 	})
 }
 
-function main() {
+async function main() {
 	if (process.argv.includes('--mode=dev')) {
-		buildDev()
+		await buildDev()
 		return
 	}
-	buildProd()
+	await buildProd()
 }
 
 main()
