@@ -1,8 +1,8 @@
 import { CharacterStream } from './characterStream'
 // import * as mcbuild from './mcbuildTokenizer'
-import * as vanillaTokenizer from './vanillaTokenizer'
+import * as vanillaTokenizer from './tokenizers/vanillaTokenizer'
 import * as fs from 'fs'
-import * as vanillaParser from './vanillaParser'
+import * as vanillaParser from './parsers/vanillaParser'
 import { terminal as term } from 'terminal-kit'
 import { colorToken, highlightSyntaxTree } from './syntaxHighlighter'
 

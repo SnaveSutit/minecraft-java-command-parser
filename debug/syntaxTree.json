@@ -1,660 +1,128 @@
 [
 	{
-		"type": "unknownCommand",
-		"name": "say",
-		"content": "-awd .awd",
-		"line": 0,
-		"column": 2
-	},
-	{
-		"type": "unknownCommand",
-		"name": "say",
-		"content": "<%awd%>",
-		"line": 1,
-		"column": 1
-	},
-	{
-		"type": "unknownCommand",
-		"name": "data",
-		"content": "remove entity 2d12be42-52a9-4a91-a8a1-11c01849e498 data.path.nodes[]",
+		"type": "command",
+		"name": "execute",
+		"subCommands": [],
 		"line": 2,
 		"column": 1
 	},
 	{
-		"type": "unknownCommand",
-		"name": "tellraw",
-		"content": "@a [{storage: bonnie:text, nbt: log.state_change, interpret: true}, {text: AGGRO_WAITING_FOR_PATH, color: red},  -> , {text: AGGRO_FOLLOWING_PATH, color: green}]",
+		"type": "command",
+		"name": "unknown",
+		"content": "as@e[tag=foo,tag=b, x=,y=-1,z=0.2, distance=..1, distance=1.., distance=5..10, dx=1,dy=2,dz=3]",
+		"line": 2,
+		"column": 9
+	},
+	{
+		"type": "command",
+		"name": "execute",
+		"subCommands": [],
 		"line": 3,
 		"column": 1
 	},
 	{
-		"type": "unknownCommand",
-		"name": "data",
-		"content": "modify entity @s data.path set from storage astar:ram this.path",
+		"type": "command",
+		"name": "unknown",
+		"content": "as@e[scores={a=2, bar=2.., baz=1..2, bif=..1}, type=minecraft:creeper, x_rotation=2,y_rotation = 1..2]",
+		"line": 3,
+		"column": 9
+	},
+	{
+		"type": "command",
+		"name": "execute",
+		"subCommands": [],
 		"line": 4,
 		"column": 1
 	},
 	{
-		"type": "unknownCommand",
-		"name": "data",
-		"content": "modify entity @s data set value {Name:{\\\"text\\\":\\\"Start\\\",\\\"color\\\":\\\"green\\\",\\\"italic\\\":false}\\\"]}}",
+		"type": "command",
+		"name": "unknown",
+		"content": "as@e[ tag=!foo,tag=!b,tag=,tag=!, distance=1..2, distance=.1..2.3, distance=2]",
+		"line": 4,
+		"column": 9
+	},
+	{
+		"type": "command",
+		"name": "execute",
+		"subCommands": [],
+		"line": 5,
+		"column": 1
+	},
+	{
+		"type": "command",
+		"name": "unknown",
+		"content": "as@e[type=!minecraft:creeper, type=#minecraft:explosive, predicate=foo:bar, predicate=#foo:bar, level =2, level= 1..2]",
+		"line": 5,
+		"column": 9
+	},
+	{
+		"type": "command",
+		"name": "execute",
+		"subCommands": [],
 		"line": 6,
 		"column": 1
 	},
 	{
-		"type": "unknownCommand",
+		"type": "command",
+		"name": "unknown",
+		"content": "as@e[nbt={ foo :{bar: [{baz: 2s}, {bif:true}] }, boz:fib}, gamemode=survival, gamemode=creative, gamemode=spectator, gamemode=adventure]",
+		"line": 6,
+		"column": 9
+	},
+	{
+		"type": "command",
 		"name": "execute",
-		"content": "as @e[tag=foo,tag=b, x=0,y=-1,z=0.2, distance=..1, distance=1.., distance=5..10, dx=1,dy=2,dz=3]",
+		"subCommands": [],
+		"line": 7,
+		"column": 1
+	},
+	{
+		"type": "command",
+		"name": "unknown",
+		"content": "as@e[advancements = {}, limit=2, sort=nearest, sort=arbitrary, sort=random, sort=furthest]",
+		"line": 7,
+		"column": 9
+	},
+	{
+		"type": "command",
+		"name": "unknown",
+		"content": "say-awd .awd",
 		"line": 9,
 		"column": 1
 	},
 	{
-		"type": "unknownCommand",
-		"name": "execute",
-		"content": "as @e[scores={a=2, bar=2.., baz=1..2, bif=..1}, type=minecraft:creeper, x_rotation=2,y_rotation = 1..2]",
+		"type": "command",
+		"name": "unknown",
+		"content": "say<%awd%>",
 		"line": 10,
 		"column": 1
 	},
 	{
-		"type": "unknownCommand",
-		"name": "execute",
-		"content": "as @e[ tag=!foo,tag=!b,tag=,tag=!, distance=1...2, distance=.1..2.3, distance=2]",
+		"type": "command",
+		"name": "unknown",
+		"content": "dataremove entity 2d12be42-52a9-4a91-a8a1-11c01849e498 data.path.nodes[]",
 		"line": 11,
 		"column": 1
 	},
 	{
-		"type": "unknownCommand",
-		"name": "execute",
-		"content": "as @e[type=!minecraft:creeper, type=#minecraft:explosive, predicate=foo:bar, predicate=#foo:bar, level =2, level= 1..2]",
+		"type": "command",
+		"name": "unknown",
+		"content": "tellraw@a [{storage: bonnie:text, nbt: log.state_change, interpret: true}, {text: AGGRO_WAITING_FOR_PATH, color: red},  -> , {text: AGGRO_FOLLOWING_PATH, color: green}]",
 		"line": 12,
 		"column": 1
 	},
 	{
-		"type": "unknownCommand",
-		"name": "execute",
-		"content": "as @e[nbt={ foo :{bar: [{baz: 2s}, {bif:true}] }, boz:fib}, gamemode=survival, gamemode=creative, gamemode=spectator, gamemode=adventure]",
+		"type": "command",
+		"name": "unknown",
+		"content": "datamodify entity @s data.path set from storage astar:ram this.path",
 		"line": 13,
 		"column": 1
 	},
 	{
-		"type": "unknownCommand",
-		"name": "execute",
-		"content": "as @e[advancements = {}, limit=2, sort=nearest, sort=arbitrary, sort=random, sort=furthest]",
-		"line": 14,
-		"column": 1
-	},
-	{
-		"type": "unknownCommand",
-		"name": "execute",
-		"content": "align xyz",
-		"line": 16,
-		"column": 1
-	},
-	{
-		"type": "unknownCommand",
-		"name": "execute",
-		"content": "anchored feet",
-		"line": 17,
-		"column": 1
-	},
-	{
-		"type": "unknownCommand",
-		"name": "execute",
-		"content": "as @s",
-		"line": 18,
-		"column": 1
-	},
-	{
-		"type": "unknownCommand",
-		"name": "execute",
-		"content": "at @s",
-		"line": 19,
-		"column": 1
-	},
-	{
-		"type": "unknownCommand",
-		"name": "execute",
-		"content": "facing entity @s feet",
-		"line": 20,
-		"column": 1
-	},
-	{
-		"type": "unknownCommand",
-		"name": "execute",
-		"content": "facing   ",
-		"line": 21,
-		"column": 1
-	},
-	{
-		"type": "unknownCommand",
-		"name": "execute",
-		"content": "if block ~ ~ ~ minecraft:stone",
-		"line": 22,
-		"column": 1
-	},
-	{
-		"type": "unknownCommand",
-		"name": "execute",
-		"content": "if blocks ~-1 ~ ~-1 ~1 ~ ~1 ~ ~ ~ all",
-		"line": 23,
-		"column": 1
-	},
-	{
-		"type": "unknownCommand",
-		"name": "execute",
-		"content": "if blocks ~-1 ~ ~-1 ~1 ~ ~1 ~ ~ ~ masked",
-		"line": 24,
-		"column": 1
-	},
-	{
-		"type": "unknownCommand",
-		"name": "execute",
-		"content": "if data block    test.path.A",
-		"line": 25,
-		"column": 1
-	},
-	{
-		"type": "unknownCommand",
-		"name": "execute",
-		"content": "if data entity @s test.path.A",
-		"line": 26,
-		"column": 1
-	},
-	{
-		"type": "unknownCommand",
-		"name": "execute",
-		"content": "if data storage foo:bar test.path.A",
-		"line": 27,
-		"column": 1
-	},
-	{
-		"type": "unknownCommand",
-		"name": "execute",
-		"content": "if entity @s",
-		"line": 28,
-		"column": 1
-	},
-	{
-		"type": "unknownCommand",
-		"name": "execute",
-		"content": "if predicate namespace:my_predicate",
-		"line": 29,
-		"column": 1
-	},
-	{
-		"type": "unknownCommand",
-		"name": "execute",
-		"content": "if score .a i < .b i",
-		"line": 30,
-		"column": 1
-	},
-	{
-		"type": "unknownCommand",
-		"name": "execute",
-		"content": "if score .a i <= .b i",
-		"line": 31,
-		"column": 1
-	},
-	{
-		"type": "unknownCommand",
-		"name": "execute",
-		"content": "if score .a i = .b i",
-		"line": 32,
-		"column": 1
-	},
-	{
-		"type": "unknownCommand",
-		"name": "execute",
-		"content": "if score .a i > .b i",
-		"line": 33,
-		"column": 1
-	},
-	{
-		"type": "unknownCommand",
-		"name": "execute",
-		"content": "if score .a i >= .b i",
-		"line": 34,
-		"column": 1
-	},
-	{
-		"type": "unknownCommand",
-		"name": "execute",
-		"content": "if score .a i matches 0..2",
-		"line": 35,
-		"column": 1
-	},
-	{
-		"type": "unknownCommand",
-		"name": "execute",
-		"content": "in minecraft:overworld",
-		"line": 36,
-		"column": 1
-	},
-	{
-		"type": "unknownCommand",
-		"name": "execute",
-		"content": "positioned as @s",
-		"line": 37,
-		"column": 1
-	},
-	{
-		"type": "unknownCommand",
-		"name": "execute",
-		"content": "positioned   ",
-		"line": 38,
-		"column": 1
-	},
-	{
-		"type": "unknownCommand",
-		"name": "execute",
-		"content": "rotated as @s",
-		"line": 39,
-		"column": 1
-	},
-	{
-		"type": "unknownCommand",
-		"name": "execute",
-		"content": "rotated ~ ",
-		"line": 40,
-		"column": 1
-	},
-	{
-		"type": "unknownCommand",
-		"name": "execute",
-		"content": "run clear",
-		"line": 41,
-		"column": 1
-	},
-	{
-		"type": "unknownCommand",
-		"name": "execute",
-		"content": "store result block  1  test.path.A byte 1",
-		"line": 42,
-		"column": 1
-	},
-	{
-		"type": "unknownCommand",
-		"name": "execute",
-		"content": "store result block  1  test.path.A double 1",
-		"line": 43,
-		"column": 1
-	},
-	{
-		"type": "unknownCommand",
-		"name": "execute",
-		"content": "store result block  1  test.path.A float 1",
-		"line": 44,
-		"column": 1
-	},
-	{
-		"type": "unknownCommand",
-		"name": "execute",
-		"content": "store result block  1  test.path.A int 1",
-		"line": 45,
-		"column": 1
-	},
-	{
-		"type": "unknownCommand",
-		"name": "execute",
-		"content": "store result block  1  test.path.A long 1",
-		"line": 46,
-		"column": 1
-	},
-	{
-		"type": "unknownCommand",
-		"name": "execute",
-		"content": "store result block  1  test.path.A short 1",
-		"line": 47,
-		"column": 1
-	},
-	{
-		"type": "unknownCommand",
-		"name": "execute",
-		"content": "store result bossbar ex:bossbar max",
-		"line": 48,
-		"column": 1
-	},
-	{
-		"type": "unknownCommand",
-		"name": "execute",
-		"content": "store result bossbar ex:bossbar value",
-		"line": 49,
-		"column": 1
-	},
-	{
-		"type": "unknownCommand",
-		"name": "execute",
-		"content": "store result entity @s test.path.A byte 1",
-		"line": 50,
-		"column": 1
-	},
-	{
-		"type": "unknownCommand",
-		"name": "execute",
-		"content": "store result entity @s test.path.A double 1",
-		"line": 51,
-		"column": 1
-	},
-	{
-		"type": "unknownCommand",
-		"name": "execute",
-		"content": "store result entity @s test.path.A float 1",
-		"line": 52,
-		"column": 1
-	},
-	{
-		"type": "unknownCommand",
-		"name": "execute",
-		"content": "store result entity @s test.path.A int 1",
-		"line": 53,
-		"column": 1
-	},
-	{
-		"type": "unknownCommand",
-		"name": "execute",
-		"content": "store result entity @s test.path.A long 1",
-		"line": 54,
-		"column": 1
-	},
-	{
-		"type": "unknownCommand",
-		"name": "execute",
-		"content": "store result entity @s test.path.A short 1",
-		"line": 55,
-		"column": 1
-	},
-	{
-		"type": "unknownCommand",
-		"name": "execute",
-		"content": "store result score .c v",
-		"line": 56,
-		"column": 1
-	},
-	{
-		"type": "unknownCommand",
-		"name": "execute",
-		"content": "store result storage foo:bar test.path.A byte 1",
-		"line": 57,
-		"column": 1
-	},
-	{
-		"type": "unknownCommand",
-		"name": "execute",
-		"content": "store result storage foo:bar test.path.A double 1",
-		"line": 58,
-		"column": 1
-	},
-	{
-		"type": "unknownCommand",
-		"name": "execute",
-		"content": "store result storage foo:bar test.path.A float 1",
-		"line": 59,
-		"column": 1
-	},
-	{
-		"type": "unknownCommand",
-		"name": "execute",
-		"content": "store result storage foo:bar test.path.A int 1",
-		"line": 60,
-		"column": 1
-	},
-	{
-		"type": "unknownCommand",
-		"name": "execute",
-		"content": "store result storage foo:bar test.path.A long 1",
-		"line": 61,
-		"column": 1
-	},
-	{
-		"type": "unknownCommand",
-		"name": "execute",
-		"content": "store result storage foo:bar test.path.A short 1",
-		"line": 62,
-		"column": 1
-	},
-	{
-		"type": "unknownCommand",
-		"name": "execute",
-		"content": "store success block  1  test.path.A byte 1",
-		"line": 63,
-		"column": 1
-	},
-	{
-		"type": "unknownCommand",
-		"name": "execute",
-		"content": "store success block  1  test.path.A double 1",
-		"line": 64,
-		"column": 1
-	},
-	{
-		"type": "unknownCommand",
-		"name": "execute",
-		"content": "store success block  1  test.path.A float 1",
-		"line": 65,
-		"column": 1
-	},
-	{
-		"type": "unknownCommand",
-		"name": "execute",
-		"content": "store success block  1  test.path.A int 1",
-		"line": 66,
-		"column": 1
-	},
-	{
-		"type": "unknownCommand",
-		"name": "execute",
-		"content": "store success block  1  test.path.A long 1",
-		"line": 67,
-		"column": 1
-	},
-	{
-		"type": "unknownCommand",
-		"name": "execute",
-		"content": "store success block  1  test.path.A short 1",
-		"line": 68,
-		"column": 1
-	},
-	{
-		"type": "unknownCommand",
-		"name": "execute",
-		"content": "store success bossbar ex:bossbar max",
-		"line": 69,
-		"column": 1
-	},
-	{
-		"type": "unknownCommand",
-		"name": "execute",
-		"content": "store success bossbar ex:bossbar value",
-		"line": 70,
-		"column": 1
-	},
-	{
-		"type": "unknownCommand",
-		"name": "execute",
-		"content": "store success entity @s test.path.A byte 1",
-		"line": 71,
-		"column": 1
-	},
-	{
-		"type": "unknownCommand",
-		"name": "execute",
-		"content": "store success entity @s test.path.A double 1",
-		"line": 72,
-		"column": 1
-	},
-	{
-		"type": "unknownCommand",
-		"name": "execute",
-		"content": "store success entity @s test.path.A float 1",
-		"line": 73,
-		"column": 1
-	},
-	{
-		"type": "unknownCommand",
-		"name": "execute",
-		"content": "store success entity @s test.path.A int 1",
-		"line": 74,
-		"column": 1
-	},
-	{
-		"type": "unknownCommand",
-		"name": "execute",
-		"content": "store success entity @s test.path.A long 1",
-		"line": 75,
-		"column": 1
-	},
-	{
-		"type": "unknownCommand",
-		"name": "execute",
-		"content": "store success entity @s test.path.A short 1",
-		"line": 76,
-		"column": 1
-	},
-	{
-		"type": "unknownCommand",
-		"name": "execute",
-		"content": "store success score .c v",
-		"line": 77,
-		"column": 1
-	},
-	{
-		"type": "unknownCommand",
-		"name": "execute",
-		"content": "store success storage foo:bar test.path.A byte 1",
-		"line": 78,
-		"column": 1
-	},
-	{
-		"type": "unknownCommand",
-		"name": "execute",
-		"content": "store success storage foo:bar test.path.A double 1",
-		"line": 79,
-		"column": 1
-	},
-	{
-		"type": "unknownCommand",
-		"name": "execute",
-		"content": "store success storage foo:bar test.path.A float 1",
-		"line": 80,
-		"column": 1
-	},
-	{
-		"type": "unknownCommand",
-		"name": "execute",
-		"content": "store success storage foo:bar test.path.A int 1",
-		"line": 81,
-		"column": 1
-	},
-	{
-		"type": "unknownCommand",
-		"name": "execute",
-		"content": "store success storage foo:bar test.path.A long 1",
-		"line": 82,
-		"column": 1
-	},
-	{
-		"type": "unknownCommand",
-		"name": "execute",
-		"content": "store success storage foo:bar test.path.A short 1",
-		"line": 83,
-		"column": 1
-	},
-	{
-		"type": "unknownCommand",
-		"name": "execute",
-		"content": "unless block ~ ~ ~ minecraft:stone",
-		"line": 84,
-		"column": 1
-	},
-	{
-		"type": "unknownCommand",
-		"name": "execute",
-		"content": "unless blocks ~-1 ~ ~-1 ~1 ~ ~1 ~ ~ ~ all",
-		"line": 85,
-		"column": 1
-	},
-	{
-		"type": "unknownCommand",
-		"name": "execute",
-		"content": "unless blocks ~-1 ~ ~-1 ~1 ~ ~1 ~ ~ ~ masked",
-		"line": 86,
-		"column": 1
-	},
-	{
-		"type": "unknownCommand",
-		"name": "execute",
-		"content": "unless data block    test.path.A",
-		"line": 87,
-		"column": 1
-	},
-	{
-		"type": "unknownCommand",
-		"name": "execute",
-		"content": "unless data entity @s test.path.A",
-		"line": 88,
-		"column": 1
-	},
-	{
-		"type": "unknownCommand",
-		"name": "execute",
-		"content": "unless data storage foo:bar test.path.A",
-		"line": 89,
-		"column": 1
-	},
-	{
-		"type": "unknownCommand",
-		"name": "execute",
-		"content": "unless entity @s",
-		"line": 90,
-		"column": 1
-	},
-	{
-		"type": "unknownCommand",
-		"name": "execute",
-		"content": "unless predicate namespace:my_predicate",
-		"line": 91,
-		"column": 1
-	},
-	{
-		"type": "unknownCommand",
-		"name": "execute",
-		"content": "unless score .a i < .b i",
-		"line": 92,
-		"column": 1
-	},
-	{
-		"type": "unknownCommand",
-		"name": "execute",
-		"content": "unless score .a i <= .b i",
-		"line": 93,
-		"column": 1
-	},
-	{
-		"type": "unknownCommand",
-		"name": "execute",
-		"content": "unless score .a i = .b i",
-		"line": 94,
-		"column": 1
-	},
-	{
-		"type": "unknownCommand",
-		"name": "execute",
-		"content": "unless score .a i > .b i",
-		"line": 95,
-		"column": 1
-	},
-	{
-		"type": "unknownCommand",
-		"name": "execute",
-		"content": "unless score .a i >= .b i",
-		"line": 96,
-		"column": 1
-	},
-	{
-		"type": "unknownCommand",
-		"name": "execute",
-		"content": "unless score .a i matches 0..2",
-		"line": 97,
+		"type": "command",
+		"name": "unknown",
+		"content": "datamodify entity @s data set value {Name:{\\\"text\\\":\\\"Start\\\",\\\"color\\\":\\\"green\\\",\\\"italic\\\":false}\\\"]}}",
+		"line": 15,
 		"column": 1
 	}
 ]

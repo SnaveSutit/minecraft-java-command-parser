@@ -1,5 +1,5 @@
 import { CharacterStream } from './characterStream'
-import { AnyToken } from './vanillaTokenizer'
+import { AnyToken } from './tokenizers/vanillaTokenizer'
 
 export class MinecraftSyntaxError extends Error {
 	constructor(message: string) {
@@ -29,18 +29,32 @@ function createPointerErrorMessage(s: CharacterStream, line: number, column: num
 	return `${start}${end}\n${spacing}^`
 }
 
-export function throwTokenError(s: CharacterStream, message: string, line?: number, column?: number): never {
+export function throwTokenError(
+	s: CharacterStream,
+	message: string,
+	line?: number,
+	column?: number
+): never {
 	if (!line) line = s.line
 	if (!column) column = s.column
 	throw new MinecraftTokenError(
 		`${message
 			.replaceAll('\r', '\\r')
 			.replaceAll('\n', '\\n')
-			.replaceAll('\t', '\\t')} at ${line}:${column}\n${createPointerErrorMessage(s, line, column - 1)}`
+			.replaceAll('\t', '\\t')} at ${line}:${column}\n${createPointerErrorMessage(
+			s,
+			line,
+			column - 1
+		)}`
 	)
 }
 
-export function throwSyntaxError(token: AnyToken, message: string, line?: number, column?: number): never {
+export function throwSyntaxError(
+	token: AnyToken,
+	message: string,
+	line?: number,
+	column?: number
+): never {
 	if (!line) line = token.line
 	if (!column) column = token.column
 	throw new MinecraftSyntaxError(

@@ -1,8 +1,13 @@
-import { CharacterStream } from './characterStream'
-import { throwTokenError } from './errors'
+import { CharacterStream } from '../characterStream'
+import { throwTokenError } from '../errors'
 import * as vanilla from './vanillaTokenizer'
 
-export type Tokens = vanilla.Tokens | ITokenInlineJS | ITokenMultilineJS | ITokenCompileIf | ITokenCompileLoop
+export type Tokens =
+	| vanilla.Tokens
+	| ITokenInlineJS
+	| ITokenMultilineJS
+	| ITokenCompileIf
+	| ITokenCompileLoop
 
 export interface ITokenInlineJS extends vanilla.IToken {
 	type: 'inlineJS'
@@ -70,7 +75,8 @@ function collectCompileIf(s: CharacterStream): ITokenCompileIf {
 	let value = ''
 	let depth = 1
 	while (depth > 0) {
-		if (s.item == undefined) throwTokenError(s, `Expected closing bracket for compileIf Condition`)
+		if (s.item == undefined)
+			throwTokenError(s, `Expected closing bracket for compileIf Condition`)
 		else if (s.item === '(') depth += 1
 		else if (s.item === ')') depth -= 1
 		if (depth == 0) break
@@ -95,7 +101,8 @@ function collectCompileLoop(s: CharacterStream): ITokenCompileLoop {
 	let value = ''
 	let depth = 1
 	while (depth > 0) {
-		if (s.item == undefined) throwTokenError(s, `Expected closing bracket for compileLoop Condition`, line, column)
+		if (s.item == undefined)
+			throwTokenError(s, `Expected closing bracket for compileLoop Condition`, line, column)
 		else if (s.item === '(') depth += 1
 		else if (s.item === ')') depth -= 1
 		if (depth == 0) break

@@ -1,6 +1,6 @@
-import { AnySyntaxToken } from './vanillaParser'
+import { AnySyntaxToken } from './parsers/vanillaParser'
 import { terminal as term } from 'terminal-kit'
-import { AnyToken } from './vanillaTokenizer'
+import { AnyToken } from './tokenizers/vanillaTokenizer'
 
 function escape(str: string) {
 	return str.replace(/\%/g, '%%')

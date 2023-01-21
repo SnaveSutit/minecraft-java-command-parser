@@ -1,6 +1,6 @@
-import { CharacterStream } from './characterStream'
-import { throwTokenError } from './errors'
-import { genComparison } from './util'
+import { CharacterStream } from '../characterStream'
+import { throwTokenError } from '../errors'
+import { genComparison } from '../util'
 
 export interface IToken<T, V> {
 	type: T
@@ -181,6 +181,7 @@ export function tokenize(
 ): AnyToken[] {
 	const tokens: AnyToken[] = []
 
+	if (s.item === '#') tokens.push(collectComment(s))
 	while (s.item) {
 		if (customTokenizer && customTokenizer(s, tokens)) {
 		} else if (s.item === ' ') {
