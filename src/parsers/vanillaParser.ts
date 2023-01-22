@@ -1,10 +1,11 @@
-import { throwSyntaxError } from '../errors'
+import { throwSyntaxError, throwTokenError } from '../errors'
 import {
 	AnyCommandSyntaxToken,
 	ICommandSyntaxTokens,
 	parseExecuteCommand,
 } from '../commands/vanillaCommands'
 import { AnyToken, ITokens } from '../tokenizers/vanillaTokenizer'
+import { GenericStream } from '../util/genericStream'
 
 export type SelectorChar = 'a' | 'e' | 'r' | 's' | 'p'
 export type NumberTypeIdentifier = 's' | 'b' | 't' | 'f' | 'd' | 'l'
@@ -96,7 +97,6 @@ export interface ISyntaxTokens {
 		states: Record<string, ISyntaxTokens['literal']>
 	}
 	nbtObject: ISyntaxToken<'nbtObject'> & {
-		// TODO Add all nbt SyntaxTokens
 		value: Record<string, AnyNBTSyntaxToken>
 	}
 	nbtList: ISyntaxToken<'nbtList'> & {
@@ -110,24 +110,7 @@ export interface ISyntaxTokens {
 	}
 }
 
-export class TokenStream {
-	item?: AnyToken
-	index: number = -1
-	tokens: AnyToken[]
-	constructor(tokens: AnyToken[]) {
-		this.tokens = tokens
-		this.consume()
-	}
-	consume(n = 1) {
-		const old = this.item
-		this.index += n
-		this.item = this.tokens.at(this.index)
-		return old
-	}
-	next() {
-		return this.tokens.at(this.index + 1)
-	}
-}
+export class TokenStream extends GenericStream<AnyToken> {}
 
 export function consumeAll<T extends AnyToken>(s: TokenStream, tokenType: T['type']): void {
 	while (s.item?.type === tokenType) s.consume()
@@ -135,7 +118,7 @@ export function consumeAll<T extends AnyToken>(s: TokenStream, tokenType: T['typ
 
 export function collectAll<T extends AnyToken>(s: TokenStream, tokenType: T['type']): T[] {
 	const tokens: T[] = []
-	while (s.item?.type === tokenType) tokens.push(s.consume() as T)
+	while (s.item?.type === tokenType) tokens.push(s.consume()! as T)
 	return tokens
 }
 
@@ -144,7 +127,7 @@ export function expectAndConsume<T extends AnyToken>(
 	expectedType: T['type'],
 	expectedValue?: T['value']
 ): T {
-	const token = s.consume()
+	const token = s.collect()
 	if (token?.type !== expectedType)
 		throwSyntaxError(
 			token!,
@@ -189,38 +172,51 @@ export function parseGenericCommand(s: TokenStream): AnySyntaxToken {
 	}
 }
 
-function combineRepeatedAdjacentControlsIntoLiteral(s: TokenStream): ITokens['literal'] {
+function combineRepeatedAdjacentControlsIntoLiteral(s: TokenStream, newTokens: AnyToken[]): void {
 	const { line, column } = s.item!
-	let value = (s.consume() as ITokens['control']).value
+	let value = (s.collect() as ITokens['control']).value
 
 	while (s.item?.type === 'control' || s.item?.type === 'literal') {
 		value += s.item.value
 		s.consume()
 	}
 
-	return {
+	newTokens.push({
 		type: 'literal',
 		value,
 		line,
 		column,
-	}
+	})
 }
 
-function combineAdjacentControlAndIntIntoLiteral(s: TokenStream): ITokens['literal'] {
+// TODO (number) => int | float | literal
+function combineNumbersIntoIntFloatOrLiteral(s: TokenStream, newTokens: AnyToken[]): void {
 	const { line, column } = s.item!
-	let value = (s.consume() as ITokens['control']).value
+	let value = ''
+	let signed = false
+	let type: 'int' | 'float' = 'int'
 
-	value += String((s.item as ITokens['int']).value)
-	s.consume()
+	if (s.item?.type === 'control' && s.item.value === '-') {
+		s.consume()
+		signed = true
+		value += '-'
+	}
 
-	// console.log(value)
+	if (s.item?.type === 'number') {
+		value += String(s.item.value)
+	}
 
-	return {
-		type: 'literal',
-		value,
+	if (s.item?.type === 'control' && s.item.value === '.') {
+		type = 'float'
+		value += '.'
+	}
+
+	newTokens.push({
+		type,
+		value: Number(value),
 		line,
 		column,
-	}
+	})
 }
 
 function firstPass(
@@ -232,15 +228,16 @@ function firstPass(
 
 	while (s.item) {
 		if (customFirstPass && customFirstPass(s, newTokens)) {
+		} else if (s.item.type === 'number') {
+			combineNumbersIntoIntFloatOrLiteral(s, newTokens)
 		} else if (s.item.type === 'control') {
-			switch (s.next()?.type) {
-				case 'control':
-					newTokens.push(combineRepeatedAdjacentControlsIntoLiteral(s))
+			switch (s.next?.type) {
+				case 'number':
+					combineNumbersIntoIntFloatOrLiteral(s, newTokens)
 					break
-				// case 'int':
-				// case 'float':
-				// 	newTokens.push(combineAdjacentControlAndIntIntoLiteral(s))
-				// 	break
+				case 'control':
+					combineRepeatedAdjacentControlsIntoLiteral(s, newTokens)
+					break
 				default:
 					newTokens.push(s.item)
 					s.consume()

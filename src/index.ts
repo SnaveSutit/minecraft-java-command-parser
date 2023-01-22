@@ -1,4 +1,4 @@
-import { CharacterStream } from './characterStream'
+import { StringStream } from './util/stringStream'
 // import * as mcbuild from './mcbuildTokenizer'
 import * as vanillaTokenizer from './tokenizers/vanillaTokenizer'
 import * as fs from 'fs'
@@ -13,7 +13,7 @@ async function main() {
 
 	let tokens: vanillaTokenizer.AnyToken[] | undefined
 	try {
-		tokens = vanillaTokenizer.tokenize(new CharacterStream(code))
+		tokens = vanillaTokenizer.tokenize(new StringStream(code))
 	} catch (e: any) {
 		if (e.name === 'MinecraftTokenError') {
 			console.log(e.message)

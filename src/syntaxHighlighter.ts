@@ -15,12 +15,15 @@ export function colorToken(token: AnyToken) {
 			term.gray(escape('#' + token.value))
 			break
 		case 'control':
-			term.brightCyan(token.value)
+			term.cyan(token.value)
 			break
-		case 'float':
+		case 'number':
 			term.brightGreen(String(token.value))
 			break
 		case 'int':
+			term.brightGreen(String(token.value))
+			break
+		case 'float':
 			term.brightGreen(String(token.value))
 			break
 		case 'literal':
@@ -30,11 +33,14 @@ export function colorToken(token: AnyToken) {
 			term('\n')
 			break
 		case 'quotedString':
-			term.green(escape(token.bracket + token.value + token.bracket))
+			term.brightBlue(escape(token.bracket + token.value + token.bracket))
 			break
 		case 'space':
 			term(' ')
 			break
+		default:
+			// @ts-ignore
+			throw Error(`Unexpected token type '${token.type}' when highlighting tokens`)
 	}
 }
 
@@ -42,19 +48,21 @@ export function highlightSyntaxTree(syntaxTree: AnySyntaxToken[]) {
 	function recurse(syntax: AnySyntaxToken) {
 		switch (syntax.type) {
 			case 'command':
-				term('\n').brightCyan(escape(syntax.name))(' ')
-				switch (syntax.name) {
-					default:
-						break
+				if (syntax.name === 'unknown') {
+					term('\n').cyan(escape(syntax.name))(' ')
+					term(escape(syntax.content))
+				} else {
+					term('\n').brightCyan(escape(syntax.name))(' ')
+					switch (syntax.name) {
+						default:
+							break
+					}
+					// if (syntax)
+					// 	for (const child of syntax) {
+					// 		colorToken(child)
+					// 	}
 				}
-				// if (syntax)
-				// 	for (const child of syntax) {
-				// 		colorToken(child)
-				// 	}
 				break
-			case 'unknownCommand':
-				term('\n').cyan(escape(syntax.name))(' ')
-				term(escape(syntax.content))
 		}
 	}
 	syntaxTree.forEach(v => recurse(v))

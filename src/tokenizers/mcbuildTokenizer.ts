@@ -1,4 +1,4 @@
-import { CharacterStream } from '../characterStream'
+import { StringStream } from '../util/stringStream'
 import { throwTokenError } from '../errors'
 import * as vanilla from './vanillaTokenizer'
 
@@ -29,7 +29,7 @@ export interface ITokenCompileLoop extends vanilla.IToken {
 	js: string
 }
 
-function collectInlineJS(s: CharacterStream): ITokenInlineJS {
+function collectInlineJS(s: StringStream): ITokenInlineJS {
 	const { line, column } = s
 	s.consume(2)
 	let value = ''
@@ -48,7 +48,7 @@ function collectInlineJS(s: CharacterStream): ITokenInlineJS {
 	}
 }
 
-function collectMultilineJS(s: CharacterStream): ITokenMultilineJS {
+function collectMultilineJS(s: StringStream): ITokenMultilineJS {
 	const { line, column } = s
 	s.consume(2)
 	let value = ''
@@ -67,7 +67,7 @@ function collectMultilineJS(s: CharacterStream): ITokenMultilineJS {
 	}
 }
 
-function collectCompileIf(s: CharacterStream): ITokenCompileIf {
+function collectCompileIf(s: StringStream): ITokenCompileIf {
 	const { line, column } = s
 	s.consume(2) // Consume IF
 	s.consumeWhile(s => vanilla.COMP.whitespace(s.itemCode)) // Consume whitespace between IF and (
@@ -93,7 +93,7 @@ function collectCompileIf(s: CharacterStream): ITokenCompileIf {
 	}
 }
 
-function collectCompileLoop(s: CharacterStream): ITokenCompileLoop {
+function collectCompileLoop(s: StringStream): ITokenCompileLoop {
 	const { line, column } = s
 	s.consume(4) // Consume LOOP
 	s.consumeWhile(s => vanilla.COMP.whitespace(s.itemCode)) // Consume whitespace between LOOP and (
@@ -119,7 +119,7 @@ function collectCompileLoop(s: CharacterStream): ITokenCompileLoop {
 	}
 }
 
-export function tokenize(s: CharacterStream): Tokens[] {
+export function tokenize(s: StringStream): Tokens[] {
 	return vanilla.tokenize(s, (s, tokens: Tokens[]) => {
 		if (s.look(0, 2) === '<%') {
 			tokens.push(collectInlineJS(s))

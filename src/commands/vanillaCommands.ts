@@ -194,8 +194,8 @@ function parseScoreObject(s: TokenStream): ISyntaxTokens['scoreObject'] {
 		const key = expectAndConsume(s, 'literal')
 		expectAndConsume(s, 'control', '=')
 		// TODO Finish this
-		if (s.item.type === 'int') {
-		}
+		// if (s.item.type === 'int') {
+		// }
 	}
 	expectAndConsume(s, 'bracket', '}')
 
@@ -209,8 +209,7 @@ function parseScoreObject(s: TokenStream): ISyntaxTokens['scoreObject'] {
 
 function parseTargetSelectorArgumentValue(s: TokenStream, token: AnyToken): AnySyntaxToken {
 	switch (token.type) {
-		case 'int':
-		case 'float':
+		case 'number':
 		case 'literal':
 		case 'quotedString':
 			return token as AnySyntaxToken
@@ -234,11 +233,11 @@ function parseTargetSelectorArguments(s: TokenStream): Record<string, AnySyntaxT
 	while (s.item) {
 		consumeAll(s, 'space')
 		if (s.item.type === 'literal') {
-			const key = s.consume()! as ISyntaxTokens['literal']
+			const key = s.collect()! as ISyntaxTokens['literal']
 			consumeAll(s, 'space')
 			expectAndConsume(s, 'control', '=')
 			consumeAll(s, 'space')
-			const value = s.consume()!
+			const value = s.collect()!
 			consumeAll(s, 'space')
 			args[key.value] = parseTargetSelectorArgumentValue(s, value)
 			s.item = s.item as AnyToken
@@ -291,7 +290,7 @@ function parseTargetSelector(s: TokenStream): ISyntaxTokens['targetSelector'] {
 }
 
 export function parseExecuteCommand(s: TokenStream): ICommandSyntaxTokens['execute'] {
-	const { line, column } = s.consume()!
+	const { line, column } = s.collect()!
 	const subCommands: AnyExecuteSubCommands[] = []
 	expectAndConsume(s, 'space')
 

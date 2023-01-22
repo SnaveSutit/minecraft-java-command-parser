@@ -1,4 +1,4 @@
-import { CharacterStream } from '../characterStream'
+import { StringStream } from '../util/stringStream'
 import { throwTokenError } from '../errors'
 import { genComparison } from '../util'
 
@@ -12,10 +12,30 @@ export interface IToken<T, V> {
 export interface ITokens {
 	space: IToken<'space', string>
 	literal: IToken<'literal', string>
-	control: IToken<'control', string>
-	bracket: IToken<'bracket', string>
+	control: IToken<
+		'control',
+		| ':'
+		| ','
+		| '$'
+		| '#'
+		| '@'
+		| '/'
+		| '\\'
+		| '='
+		| '*'
+		| '<'
+		| '>'
+		| '%'
+		| '+'
+		| '~'
+		| '^'
+		| '-'
+		| '.'
+	>
+	bracket: IToken<'bracket', '[' | ']' | '{' | '}' | '(' | ')'>
 	comment: IToken<'comment', string>
 	newline: IToken<'newline', '\n'>
+	number: IToken<'number', number>
 	int: IToken<'int', number>
 	float: IToken<'float', number>
 	quotedString: IToken<'quotedString', string> & {
@@ -45,9 +65,9 @@ CHARS.quotes = `'"`
 CHARS.newline = '\n\r'
 CHARS.number = numbers
 CHARS.bracket = '[]{}()'
-CHARS.control = `:,$#@/\\=*<>%+~^`
+CHARS.control = `:,$#@/\\=*<>%+~^-.`
 CHARS.whitespace = `\t\r\n `
-CHARS.numberStart = `-.${numbers}`
+// CHARS.numberStart = `-.${numbers}`
 CHARS.word = `${alphabet}${alphabet.toUpperCase()}${numbers}!._-`
 // CHARS.notWord = `${CHARS.quotes}${CHARS.newline}${CHARS.whitespace}`
 
@@ -58,15 +78,15 @@ export const COMP = {
 	bracket: genComparison(CHARS.bracket),
 	control: genComparison(CHARS.control),
 	whitespace: genComparison(CHARS.whitespace),
-	numberStart: genComparison(CHARS.numberStart),
+	// numberStart: genComparison(CHARS.numberStart),
 	word: genComparison(CHARS.word),
 	// notWord: genComparison(CHARS.notWord),
 }
 
-function collectComment(s: CharacterStream): ITokens['comment'] {
+function collectComment(s: StringStream): ITokens['comment'] {
 	const { line, column } = s
 	s.consume()
-	const value = s.collect(s => !COMP.newline(s.itemCode))
+	const value = s.collectWhile(s => !COMP.newline(s.itemCode))
 	return {
 		type: 'comment',
 		value,
@@ -75,9 +95,9 @@ function collectComment(s: CharacterStream): ITokens['comment'] {
 	}
 }
 
-function collectSpace(s: CharacterStream): ITokens['space'] {
+function collectSpace(s: StringStream): ITokens['space'] {
 	const { line, column } = s
-	const value = s.collect(s => s.item === ' ')
+	const value = s.collectWhile(s => s.item === ' ')
 	return {
 		type: 'space',
 		value,
@@ -86,9 +106,9 @@ function collectSpace(s: CharacterStream): ITokens['space'] {
 	}
 }
 
-function collectLiteral(s: CharacterStream, startValue: string = ''): ITokens['literal'] {
+function collectLiteral(s: StringStream, startValue: string = ''): ITokens['literal'] {
 	const { line, column } = s
-	const value = startValue + s.collect(s => COMP.word(s.itemCode))
+	const value = startValue + s.collectWhile(s => COMP.word(s.itemCode))
 	if (COMP.word(s.itemCode)) throwTokenError(s, `Expected word to end but found ${s.item}`)
 	return {
 		type: 'literal',
@@ -98,41 +118,42 @@ function collectLiteral(s: CharacterStream, startValue: string = ''): ITokens['l
 	}
 }
 
-function collectNumber(s: CharacterStream): ITokens['float'] | ITokens['int'] | ITokens['literal'] {
+function collectNumber(
+	s: StringStream
+): ITokens['number'] | ITokens['literal'] | ITokens['control'] {
 	const { line, column } = s
-	let type: 'int' | 'float' = 'int'
-	let value = s.consume()!
-	if (value === '.') type = 'float'
+	let value = s.collectWhile(s => COMP.number(s.itemCode))
 
-	value += s.collect(s => COMP.number(s.itemCode))
-	if (type != 'float' && s.item === '.') {
-		type = 'float'
-		s.consume()
-		value += '.' + s.collect(s => COMP.number(s.itemCode))
+	if (COMP.control(s.itemCode)) {
+		// End of number reached.
+	} else if (COMP.word(s.itemCode)) {
+		// Number is actually the beginning of a literal.
+		return collectLiteral(s, value)
 	}
-	if (value === '-') return collectLiteral(s, value)
-	else if (value === '.') return collectLiteral(s, value)
-	else if (COMP.word(s.itemCode)) return collectLiteral(s, value)
-	else if (COMP.number(s.itemCode))
-		throwTokenError(s, `Expected number to end but found '${s.item}'`)
 
 	return {
-		type,
+		type: 'number',
 		value: Number(value),
 		line,
 		column,
 	}
 }
 
-function collectNewline(s: CharacterStream): ITokens['newline'] {
+function collectNewline(s: StringStream): ITokens['newline'] {
 	const { line, column } = s
 	s.consumeWhile(s => COMP.newline(s.itemCode))
 	return { type: 'newline', value: '\n', line, column }
 }
 
-function collectControl(s: CharacterStream): ITokens['control'] | ITokens['literal'] {
+function collectControl(s: StringStream): ITokens['control'] | ITokens['literal'] {
 	const { line, column } = s
-	const value = s.consume()!
+	const value = s.collect()! as ITokens['control']['value']
+	if (COMP.control(s.itemCode)) {
+		// Next character is a control, So return this control.
+	} else if (COMP.word(s.nextCode)) {
+		// Control is actually the beginning of a literal.
+		return collectLiteral(s, value)
+	}
 	return {
 		type: 'control',
 		value,
@@ -141,9 +162,9 @@ function collectControl(s: CharacterStream): ITokens['control'] | ITokens['liter
 	}
 }
 
-function collectBracket(s: CharacterStream): ITokens['bracket'] {
+function collectBracket(s: StringStream): ITokens['bracket'] {
 	const { line, column } = s
-	const value = s.consume()!
+	const value = s.collect()! as ITokens['bracket']['value']
 	return {
 		type: 'bracket',
 		value,
@@ -152,9 +173,9 @@ function collectBracket(s: CharacterStream): ITokens['bracket'] {
 	}
 }
 
-function collectQuotedString(s: CharacterStream): ITokens['quotedString'] {
+function collectQuotedString(s: StringStream): ITokens['quotedString'] {
 	const { line, column } = s
-	const bracket = s.consume()! as ITokens['quotedString']['bracket']
+	const bracket = s.collect()! as ITokens['quotedString']['bracket']
 	let value = ''
 	while (s.item) {
 		if (s.item == undefined || COMP.newline(s.itemCode))
@@ -176,8 +197,8 @@ function collectQuotedString(s: CharacterStream): ITokens['quotedString'] {
 }
 
 export function tokenize(
-	s: CharacterStream,
-	customTokenizer?: (s: CharacterStream, tokens: AnyToken[]) => boolean | undefined
+	s: StringStream,
+	customTokenizer?: (s: StringStream, tokens: AnyToken[]) => boolean | undefined
 ): AnyToken[] {
 	const tokens: AnyToken[] = []
 
@@ -196,10 +217,7 @@ export function tokenize(
 			tokens.push(collectControl(s))
 		} else if (COMP.bracket(s.itemCode)) {
 			tokens.push(collectBracket(s))
-		} else if (
-			COMP.numberStart(s.itemCode) &&
-			!(s.item === '.' && !COMP.number(s.next()?.charCodeAt(0)))
-		) {
+		} else if (COMP.number(s.itemCode)) {
 			tokens.push(collectNumber(s))
 		} else if (COMP.word(s.itemCode)) {
 			tokens.push(collectLiteral(s))
