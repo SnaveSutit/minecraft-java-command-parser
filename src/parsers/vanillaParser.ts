@@ -1,6 +1,7 @@
 import { throwSyntaxError, throwTokenError } from '../errors'
 import {
 	AnyCommandSyntaxToken,
+	AnyExecuteSubCommand,
 	ICommandSyntaxTokens,
 	parseExecuteCommand,
 } from '../commands/vanillaCommands'
@@ -16,7 +17,10 @@ export interface ISyntaxToken<T> {
 	column: number
 }
 
-export type AnySyntaxToken = ISyntaxTokens[keyof ISyntaxTokens] | AnyCommandSyntaxToken
+export type AnySyntaxToken =
+	| ISyntaxTokens[keyof ISyntaxTokens]
+	| AnyCommandSyntaxToken
+	| AnyExecuteSubCommand
 
 export type AnyNBTSyntaxToken =
 	| ISyntaxTokens['nbtList']
@@ -38,11 +42,11 @@ export interface ISyntaxTokens {
 		value: string
 	}
 	int: ISyntaxToken<'int'> & {
-		value: number
+		value: string
 		identifier?: NumberTypeIdentifier
 	}
 	float: ISyntaxToken<'float'> & {
-		value: number
+		value: string
 		identifier?: NumberTypeIdentifier
 	}
 	intRange: ISyntaxToken<'intRange'> & {
@@ -62,13 +66,25 @@ export interface ISyntaxTokens {
 			| {
 					targetType: 'selector'
 					selectorChar: SelectorChar
-					args: Record<string, AnySyntaxToken>
+					args: ISyntaxTokens['targetSelectorArgument'][]
 			  }
 			| {
 					targetType: 'uuid'
 					value: ISyntaxTokens['uuid']
 			  }
 		)
+	targetSelectorArgument: ISyntaxToken<'targetSelectorArgument'> & {
+		// TODO Add all known selector arguments to this type
+		key: string
+		value: AnySyntaxToken | undefined
+		inverted: boolean
+	}
+	boolean: ISyntaxToken<'boolean'> & {
+		value: boolean
+	}
+	advancementObject: ISyntaxToken<'advancementObject'> & {
+		advancements: Map<ISyntaxTokens['resourceLocation'], ISyntaxTokens['boolean']>
+	}
 	vec2: ISyntaxToken<'vec2'> & {
 		x: ISyntaxTokens['int'] | ISyntaxTokens['float']
 		xSpaceMod?: '~' | '^'
@@ -131,7 +147,7 @@ export function expectAndConsume<T extends AnyToken>(
 	if (token?.type !== expectedType)
 		throwSyntaxError(
 			token!,
-			`Expected '${expectedType}' at %POS but found ${token?.type}:${token?.value} instead`
+			`Expected '${expectedType}' at %POS but found ${token?.type}:'${token?.value}' instead`
 		)
 	else if (expectedValue != undefined && token.value != expectedValue) {
 		throwSyntaxError(
@@ -153,7 +169,8 @@ export function parseGenericCommand(s: TokenStream): AnySyntaxToken {
 
 	// Unknown command
 	const { line, column } = s.item!
-	const tokens: AnyToken[] = [s.consume()!] // Consume command name and add it to the token list
+	const commandName = s.collect()!
+	const tokens: AnyToken[] = []
 	expectAndConsume(s, 'space')
 
 	while (s.item) {
@@ -166,27 +183,11 @@ export function parseGenericCommand(s: TokenStream): AnySyntaxToken {
 	return {
 		type: 'command',
 		name: 'unknown',
-		content: tokens.map(v => String(v.value)).join(''),
+		commandName: commandName.value,
+		tokens: tokens,
 		line,
 		column,
 	}
-}
-
-function combineRepeatedAdjacentControlsIntoLiteral(s: TokenStream, newTokens: AnyToken[]): void {
-	const { line, column } = s.item!
-	let value = (s.collect() as ITokens['control']).value
-
-	while (s.item?.type === 'control' || s.item?.type === 'literal') {
-		value += s.item.value
-		s.consume()
-	}
-
-	newTokens.push({
-		type: 'literal',
-		value,
-		line,
-		column,
-	})
 }
 
 // TODO (number) => int | float | literal
@@ -203,17 +204,41 @@ function combineNumbersIntoIntFloatOrLiteral(s: TokenStream, newTokens: AnyToken
 	}
 
 	if (s.item?.type === 'number') {
-		value += String(s.item.value)
+		value += s.item.value
+		s.consume()
 	}
 
 	if (s.item?.type === 'control' && s.item.value === '.') {
-		type = 'float'
-		value += '.'
+		if (s.next?.type === 'control' && s.next?.value === '.') {
+			// This is an int in front of a range operator.
+		} else {
+			type = 'float'
+			value += '.'
+			s.consume()
+
+			if ((s.item as AnyToken)?.type === 'number') {
+				value += s.item.value
+				s.consume()
+			}
+		}
 	}
 
 	newTokens.push({
 		type,
-		value: Number(value),
+		value: value,
+		line,
+		column,
+	})
+}
+
+function parseRangeOperator(s: TokenStream, newTokens: AnyToken[]) {
+	const { line, column } = s.item!
+	s.consume()
+	s.consume()
+
+	newTokens.push({
+		type: 'control',
+		value: '..',
 		line,
 		column,
 	})
@@ -231,17 +256,16 @@ function firstPass(
 		} else if (s.item.type === 'number') {
 			combineNumbersIntoIntFloatOrLiteral(s, newTokens)
 		} else if (s.item.type === 'control') {
-			switch (s.next?.type) {
-				case 'number':
-					combineNumbersIntoIntFloatOrLiteral(s, newTokens)
-					break
-				case 'control':
-					combineRepeatedAdjacentControlsIntoLiteral(s, newTokens)
-					break
-				default:
-					newTokens.push(s.item)
-					s.consume()
-					break
+			if (s.item.value === '.' && s.next?.type === 'control' && s.next?.value === '.') {
+				parseRangeOperator(s, newTokens)
+			} else if (
+				(s.item.value === '-' || s.item.value === '.') &&
+				s.next?.type === 'number'
+			) {
+				combineNumbersIntoIntFloatOrLiteral(s, newTokens)
+			} else {
+				newTokens.push(s.item)
+				s.consume()
 			}
 		} else {
 			newTokens.push(s.item)
@@ -267,12 +291,13 @@ function secondPass(
 			s.consume()
 		} else if (s.item?.type === 'literal') {
 			syntaxTree.push(parseGenericCommand(s))
-		} else
-			throwSyntaxError(s.item, `Unexpected Token '${s.item.value}'(${s.item.type}) at %POS`)
+		} else throwSyntaxError(s.item, `Unexpected Token ${s.item.type}:'${s.item.value}' at %POS`)
 	}
 
 	return syntaxTree
 }
+
+import * as fs from 'fs'
 
 export function parse(
 	tokens: AnyToken[],
@@ -280,5 +305,7 @@ export function parse(
 	customSecondPass?: (stream: TokenStream, syntaxTree: AnySyntaxToken[]) => boolean
 ): AnySyntaxToken[] {
 	let tree = firstPass(tokens, customFirstPass)
+	// TODO Remove this debug line
+	fs.writeFileSync('./debug/firstPassSyntaxTree.json', JSON.stringify(tree, null, '\t'))
 	return secondPass(tree, customSecondPass)
 }

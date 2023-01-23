@@ -120,7 +120,7 @@
 		"column": 31
 	},
 	{
-		"type": "number",
+		"type": "int",
 		"value": "0",
 		"line": 1,
 		"column": 32
@@ -144,28 +144,10 @@
 		"column": 35
 	},
 	{
-		"type": "control",
-		"value": "-",
+		"type": "float",
+		"value": "-1.0",
 		"line": 1,
 		"column": 36
-	},
-	{
-		"type": "number",
-		"value": "1",
-		"line": 1,
-		"column": 37
-	},
-	{
-		"type": "control",
-		"value": ".",
-		"line": 1,
-		"column": 38
-	},
-	{
-		"type": "number",
-		"value": "0",
-		"line": 1,
-		"column": 39
 	},
 	{
 		"type": "control",
@@ -186,16 +168,10 @@
 		"column": 42
 	},
 	{
-		"type": "control",
-		"value": ".",
+		"type": "float",
+		"value": ".2",
 		"line": 1,
 		"column": 43
-	},
-	{
-		"type": "number",
-		"value": "2",
-		"line": 1,
-		"column": 44
 	},
 	{
 		"type": "control",
@@ -223,18 +199,12 @@
 	},
 	{
 		"type": "control",
-		"value": ".",
+		"value": "..",
 		"line": 1,
 		"column": 56
 	},
 	{
-		"type": "control",
-		"value": ".",
-		"line": 1,
-		"column": 57
-	},
-	{
-		"type": "number",
+		"type": "int",
 		"value": "1",
 		"line": 1,
 		"column": 58
@@ -264,22 +234,16 @@
 		"column": 69
 	},
 	{
-		"type": "number",
+		"type": "int",
 		"value": "1",
 		"line": 1,
 		"column": 70
 	},
 	{
 		"type": "control",
-		"value": ".",
+		"value": "..",
 		"line": 1,
 		"column": 71
-	},
-	{
-		"type": "control",
-		"value": ".",
-		"line": 1,
-		"column": 72
 	},
 	{
 		"type": "control",
@@ -306,25 +270,19 @@
 		"column": 83
 	},
 	{
-		"type": "number",
+		"type": "int",
 		"value": "5",
 		"line": 1,
 		"column": 84
 	},
 	{
 		"type": "control",
-		"value": ".",
+		"value": "..",
 		"line": 1,
 		"column": 85
 	},
 	{
-		"type": "control",
-		"value": ".",
-		"line": 1,
-		"column": 86
-	},
-	{
-		"type": "number",
+		"type": "int",
 		"value": "10",
 		"line": 1,
 		"column": 87
@@ -354,7 +312,7 @@
 		"column": 93
 	},
 	{
-		"type": "number",
+		"type": "int",
 		"value": "1",
 		"line": 1,
 		"column": 94
@@ -378,7 +336,7 @@
 		"column": 98
 	},
 	{
-		"type": "number",
+		"type": "int",
 		"value": "2",
 		"line": 1,
 		"column": 99
@@ -402,7 +360,7 @@
 		"column": 103
 	},
 	{
-		"type": "number",
+		"type": "int",
 		"value": "3",
 		"line": 1,
 		"column": 104
@@ -492,7 +450,7 @@
 		"column": 24
 	},
 	{
-		"type": "number",
+		"type": "int",
 		"value": "2",
 		"line": 2,
 		"column": 25
@@ -522,22 +480,16 @@
 		"column": 31
 	},
 	{
-		"type": "number",
+		"type": "int",
 		"value": "2",
 		"line": 2,
 		"column": 32
 	},
 	{
 		"type": "control",
-		"value": ".",
+		"value": "..",
 		"line": 2,
 		"column": 33
-	},
-	{
-		"type": "control",
-		"value": ".",
-		"line": 2,
-		"column": 34
 	},
 	{
 		"type": "control",
@@ -564,25 +516,19 @@
 		"column": 40
 	},
 	{
-		"type": "number",
+		"type": "int",
 		"value": "1",
 		"line": 2,
 		"column": 41
 	},
 	{
 		"type": "control",
-		"value": ".",
+		"value": "..",
 		"line": 2,
 		"column": 42
 	},
 	{
-		"type": "control",
-		"value": ".",
-		"line": 2,
-		"column": 43
-	},
-	{
-		"type": "number",
+		"type": "int",
 		"value": "2",
 		"line": 2,
 		"column": 44
@@ -613,18 +559,12 @@
 	},
 	{
 		"type": "control",
-		"value": ".",
+		"value": "..",
 		"line": 2,
 		"column": 51
 	},
 	{
-		"type": "control",
-		"value": ".",
-		"line": 2,
-		"column": 52
-	},
-	{
-		"type": "number",
+		"type": "int",
 		"value": "1",
 		"line": 2,
 		"column": 53
@@ -702,7 +642,7 @@
 		"column": 91
 	},
 	{
-		"type": "number",
+		"type": "int",
 		"value": "2",
 		"line": 2,
 		"column": 92
@@ -738,25 +678,19 @@
 		"column": 106
 	},
 	{
-		"type": "number",
+		"type": "int",
 		"value": "1",
 		"line": 2,
 		"column": 107
 	},
 	{
 		"type": "control",
-		"value": ".",
+		"value": "..",
 		"line": 2,
 		"column": 108
 	},
 	{
-		"type": "control",
-		"value": ".",
-		"line": 2,
-		"column": 109
-	},
-	{
-		"type": "number",
+		"type": "int",
 		"value": "2",
 		"line": 2,
 		"column": 110
@@ -942,25 +876,19 @@
 		"column": 52
 	},
 	{
-		"type": "number",
+		"type": "int",
 		"value": "1",
 		"line": 3,
 		"column": 53
 	},
 	{
 		"type": "control",
-		"value": ".",
+		"value": "..",
 		"line": 3,
 		"column": 54
 	},
 	{
-		"type": "control",
-		"value": ".",
-		"line": 3,
-		"column": 55
-	},
-	{
-		"type": "number",
+		"type": "int",
 		"value": "2",
 		"line": 3,
 		"column": 56
@@ -990,46 +918,22 @@
 		"column": 67
 	},
 	{
-		"type": "control",
-		"value": ".",
+		"type": "float",
+		"value": ".1",
 		"line": 3,
 		"column": 68
 	},
 	{
-		"type": "number",
-		"value": "1",
-		"line": 3,
-		"column": 69
-	},
-	{
 		"type": "control",
-		"value": ".",
+		"value": "..",
 		"line": 3,
 		"column": 70
 	},
 	{
-		"type": "control",
-		"value": ".",
-		"line": 3,
-		"column": 71
-	},
-	{
-		"type": "number",
-		"value": "2",
+		"type": "float",
+		"value": "2.3",
 		"line": 3,
 		"column": 72
-	},
-	{
-		"type": "control",
-		"value": ".",
-		"line": 3,
-		"column": 73
-	},
-	{
-		"type": "number",
-		"value": "3",
-		"line": 3,
-		"column": 74
 	},
 	{
 		"type": "control",
@@ -1056,7 +960,7 @@
 		"column": 85
 	},
 	{
-		"type": "number",
+		"type": "int",
 		"value": "2",
 		"line": 3,
 		"column": 86
@@ -1434,7 +1338,7 @@
 		"column": 111
 	},
 	{
-		"type": "number",
+		"type": "int",
 		"value": "2",
 		"line": 4,
 		"column": 112
@@ -1470,25 +1374,19 @@
 		"column": 121
 	},
 	{
-		"type": "number",
+		"type": "int",
 		"value": "1",
 		"line": 4,
 		"column": 122
 	},
 	{
 		"type": "control",
-		"value": ".",
+		"value": "..",
 		"line": 4,
 		"column": 123
 	},
 	{
-		"type": "control",
-		"value": ".",
-		"line": 4,
-		"column": 124
-	},
-	{
-		"type": "number",
+		"type": "int",
 		"value": "2",
 		"line": 4,
 		"column": 125
@@ -1764,7 +1662,7 @@
 		"column": 102
 	},
 	{
-		"type": "number",
+		"type": "int",
 		"value": "2",
 		"line": 6,
 		"column": 103
@@ -2034,7 +1932,7 @@
 		"column": 19
 	},
 	{
-		"type": "number",
+		"type": "int",
 		"value": "2",
 		"line": 10,
 		"column": 20
@@ -2064,7 +1962,7 @@
 		"column": 72
 	},
 	{
-		"type": "number",
+		"type": "int",
 		"value": "0",
 		"line": 10,
 		"column": 73

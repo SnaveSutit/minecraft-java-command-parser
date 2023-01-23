@@ -31,13 +31,15 @@ export interface ITokens {
 		| '^'
 		| '-'
 		| '.'
+		| '..'
+		| '!'
 	>
 	bracket: IToken<'bracket', '[' | ']' | '{' | '}' | '(' | ')'>
 	comment: IToken<'comment', string>
 	newline: IToken<'newline', '\n'>
-	number: IToken<'number', number>
-	int: IToken<'int', number>
-	float: IToken<'float', number>
+	number: IToken<'number', string>
+	int: IToken<'int', string>
+	float: IToken<'float', string>
 	quotedString: IToken<'quotedString', string> & {
 		bracket: '"' | "'"
 	}
@@ -65,10 +67,10 @@ CHARS.quotes = `'"`
 CHARS.newline = '\n\r'
 CHARS.number = numbers
 CHARS.bracket = '[]{}()'
-CHARS.control = `:,$#@/\\=*<>%+~^-.`
+CHARS.control = `:,$#@/\\=*<>%+~^-.!`
 CHARS.whitespace = `\t\r\n `
 // CHARS.numberStart = `-.${numbers}`
-CHARS.word = `${alphabet}${alphabet.toUpperCase()}${numbers}!._-`
+CHARS.word = `${alphabet}${alphabet.toUpperCase()}${numbers}._-`
 // CHARS.notWord = `${CHARS.quotes}${CHARS.newline}${CHARS.whitespace}`
 
 export const COMP = {
@@ -124,16 +126,9 @@ function collectNumber(
 	const { line, column } = s
 	let value = s.collectWhile(s => COMP.number(s.itemCode))
 
-	if (COMP.control(s.itemCode)) {
-		// End of number reached.
-	} else if (COMP.word(s.itemCode)) {
-		// Number is actually the beginning of a literal.
-		return collectLiteral(s, value)
-	}
-
 	return {
 		type: 'number',
-		value: Number(value),
+		value: value,
 		line,
 		column,
 	}
@@ -148,12 +143,7 @@ function collectNewline(s: StringStream): ITokens['newline'] {
 function collectControl(s: StringStream): ITokens['control'] | ITokens['literal'] {
 	const { line, column } = s
 	const value = s.collect()! as ITokens['control']['value']
-	if (COMP.control(s.itemCode)) {
-		// Next character is a control, So return this control.
-	} else if (COMP.word(s.nextCode)) {
-		// Control is actually the beginning of a literal.
-		return collectLiteral(s, value)
-	}
+
 	return {
 		type: 'control',
 		value,
@@ -165,6 +155,7 @@ function collectControl(s: StringStream): ITokens['control'] | ITokens['literal'
 function collectBracket(s: StringStream): ITokens['bracket'] {
 	const { line, column } = s
 	const value = s.collect()! as ITokens['bracket']['value']
+
 	return {
 		type: 'bracket',
 		value,

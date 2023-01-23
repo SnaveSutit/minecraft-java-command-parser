@@ -1,5 +1,6 @@
 import { StringStream } from './util/stringStream'
 import { AnyToken } from './tokenizers/vanillaTokenizer'
+import { tokenToString } from './util'
 
 export class MinecraftSyntaxError extends Error {
 	constructor(message: string) {
@@ -45,25 +46,28 @@ export function throwTokenError(
 			.replaceAll('\n', '\\n')
 			.replaceAll('\t', '\\t')} at ${line}:${column}\n${createPointerErrorMessage(
 			s,
-			line,
-			column - 1
+			line + 1,
+			column
 		)}`
 	)
 }
 
 export function throwSyntaxError(
-	token: AnyToken,
+	token: AnyToken | undefined,
 	message: string,
 	line?: number,
 	column?: number
 ): never {
-	if (!line) line = token.line
-	if (!column) column = token.column
+	if (!line) line = token!.line
+	if (!column) column = token!.column
 	throw new MinecraftSyntaxError(
 		message
 			.replaceAll('\r', '\\r')
 			.replaceAll('\n', '\\n')
 			.replaceAll('\t', '\\t')
-			.replaceAll('%POS', `${line}:${column - 1}`)
+			.replaceAll('%POS', `${line + 1}:${column}`)
+			.replaceAll('%TOKEN', `${tokenToString(token)}`)
+			.replaceAll('%n', '\n')
+			.replaceAll('%t', '\t')
 	)
 }

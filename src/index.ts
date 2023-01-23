@@ -4,7 +4,7 @@ import * as vanillaTokenizer from './tokenizers/vanillaTokenizer'
 import * as fs from 'fs'
 import * as vanillaParser from './parsers/vanillaParser'
 import { terminal as term } from 'terminal-kit'
-import { colorToken, highlightSyntaxTree } from './syntaxHighlighter'
+import { highlightToken, highlightSyntaxTree } from './syntaxHighlighter'
 
 async function main() {
 	const code = fs.readFileSync('./tests/debug.mcfunction', 'utf-8')
@@ -25,7 +25,7 @@ async function main() {
 	if (!tokens) process.exit()
 	term('\n')('--- Tokens ---')('\n')
 	for (const token of tokens) {
-		colorToken(token)
+		highlightToken(token)
 	}
 	term('--------------')('\n')
 

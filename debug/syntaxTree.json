@@ -1,1 +1,1463 @@
-[]
+[
+	{
+		"type": "command",
+		"name": "execute",
+		"subCommands": [
+			{
+				"type": "executeSubCommand",
+				"name": "as",
+				"target": {
+					"type": "targetSelector",
+					"targetType": "selector",
+					"selectorChar": "e",
+					"args": [
+						{
+							"type": "targetSelectorArgument",
+							"key": "tag",
+							"value": {
+								"type": "literal",
+								"value": "foo",
+								"line": 1,
+								"column": 19
+							},
+							"inverted": false,
+							"line": 1,
+							"column": 15
+						},
+						{
+							"type": "targetSelectorArgument",
+							"key": "tag",
+							"value": {
+								"type": "literal",
+								"value": "b",
+								"line": 1,
+								"column": 27
+							},
+							"inverted": false,
+							"line": 1,
+							"column": 23
+						},
+						{
+							"type": "targetSelectorArgument",
+							"key": "x",
+							"value": {
+								"type": "int",
+								"value": "0",
+								"line": 1,
+								"column": 32
+							},
+							"inverted": false,
+							"line": 1,
+							"column": 30
+						},
+						{
+							"type": "targetSelectorArgument",
+							"key": "y",
+							"value": {
+								"type": "float",
+								"value": "-1.0",
+								"line": 1,
+								"column": 36
+							},
+							"inverted": false,
+							"line": 1,
+							"column": 34
+						},
+						{
+							"type": "targetSelectorArgument",
+							"key": "z",
+							"value": {
+								"type": "float",
+								"value": ".2",
+								"line": 1,
+								"column": 43
+							},
+							"inverted": false,
+							"line": 1,
+							"column": 41
+						},
+						{
+							"type": "targetSelectorArgument",
+							"key": "distance",
+							"value": {
+								"type": "floatRange",
+								"max": {
+									"type": "int",
+									"value": "1",
+									"line": 1,
+									"column": 58
+								},
+								"line": 1,
+								"column": 56
+							},
+							"inverted": false,
+							"line": 1,
+							"column": 47
+						},
+						{
+							"type": "targetSelectorArgument",
+							"key": "distance",
+							"value": {
+								"type": "floatRange",
+								"min": {
+									"type": "int",
+									"value": "1",
+									"line": 1,
+									"column": 70
+								},
+								"line": 1,
+								"column": 70
+							},
+							"inverted": false,
+							"line": 1,
+							"column": 61
+						},
+						{
+							"type": "targetSelectorArgument",
+							"key": "distance",
+							"value": {
+								"type": "floatRange",
+								"min": {
+									"type": "int",
+									"value": "5",
+									"line": 1,
+									"column": 84
+								},
+								"max": {
+									"type": "int",
+									"value": "10",
+									"line": 1,
+									"column": 87
+								},
+								"line": 1,
+								"column": 84
+							},
+							"inverted": false,
+							"line": 1,
+							"column": 75
+						},
+						{
+							"type": "targetSelectorArgument",
+							"key": "dx",
+							"value": {
+								"type": "int",
+								"value": "1",
+								"line": 1,
+								"column": 94
+							},
+							"inverted": false,
+							"line": 1,
+							"column": 91
+						},
+						{
+							"type": "targetSelectorArgument",
+							"key": "dy",
+							"value": {
+								"type": "int",
+								"value": "2",
+								"line": 1,
+								"column": 99
+							},
+							"inverted": false,
+							"line": 1,
+							"column": 96
+						},
+						{
+							"type": "targetSelectorArgument",
+							"key": "dz",
+							"value": {
+								"type": "int",
+								"value": "3",
+								"line": 1,
+								"column": 104
+							},
+							"inverted": false,
+							"line": 1,
+							"column": 101
+						}
+					],
+					"line": 1,
+					"column": 12
+				},
+				"line": 1,
+				"column": 9
+			}
+		],
+		"line": 1,
+		"column": 1
+	},
+	{
+		"type": "command",
+		"name": "execute",
+		"subCommands": [
+			{
+				"type": "executeSubCommand",
+				"name": "as",
+				"target": {
+					"type": "targetSelector",
+					"targetType": "selector",
+					"selectorChar": "e",
+					"args": [
+						{
+							"type": "targetSelectorArgument",
+							"key": "scores",
+							"value": {
+								"type": "scoreObject",
+								"scores": {
+									"a": {
+										"type": "int",
+										"value": "2",
+										"line": 2,
+										"column": 25
+									},
+									"bar": {
+										"type": "intRange",
+										"min": {
+											"type": "int",
+											"value": "2",
+											"line": 2,
+											"column": 32
+										},
+										"line": 2,
+										"column": 32
+									},
+									"baz": {
+										"type": "intRange",
+										"min": {
+											"type": "int",
+											"value": "1",
+											"line": 2,
+											"column": 41
+										},
+										"max": {
+											"type": "int",
+											"value": "2",
+											"line": 2,
+											"column": 44
+										},
+										"line": 2,
+										"column": 41
+									},
+									"bif": {
+										"type": "intRange",
+										"max": {
+											"type": "int",
+											"value": "1",
+											"line": 2,
+											"column": 53
+										},
+										"line": 2,
+										"column": 51
+									}
+								},
+								"line": 2,
+								"column": 22
+							},
+							"inverted": false,
+							"line": 2,
+							"column": 15
+						},
+						{
+							"type": "targetSelectorArgument",
+							"key": "type",
+							"value": {
+								"type": "resourceLocation",
+								"namespace": "minecraft",
+								"path": "creeper",
+								"line": 2,
+								"column": 62
+							},
+							"inverted": false,
+							"line": 2,
+							"column": 57
+						},
+						{
+							"type": "targetSelectorArgument",
+							"key": "x_rotation",
+							"value": {
+								"type": "float",
+								"value": "2",
+								"line": 2,
+								"column": 92
+							},
+							"inverted": false,
+							"line": 2,
+							"column": 81
+						},
+						{
+							"type": "targetSelectorArgument",
+							"key": "y_rotation",
+							"value": {
+								"type": "floatRange",
+								"min": {
+									"type": "int",
+									"value": "1",
+									"line": 2,
+									"column": 107
+								},
+								"max": {
+									"type": "int",
+									"value": "2",
+									"line": 2,
+									"column": 110
+								},
+								"line": 2,
+								"column": 107
+							},
+							"inverted": false,
+							"line": 2,
+							"column": 94
+						}
+					],
+					"line": 2,
+					"column": 12
+				},
+				"line": 2,
+				"column": 9
+			}
+		],
+		"line": 2,
+		"column": 1
+	},
+	{
+		"type": "command",
+		"name": "execute",
+		"subCommands": [
+			{
+				"type": "executeSubCommand",
+				"name": "as",
+				"target": {
+					"type": "targetSelector",
+					"targetType": "selector",
+					"selectorChar": "e",
+					"args": [
+						{
+							"type": "targetSelectorArgument",
+							"key": "tag",
+							"value": {
+								"type": "literal",
+								"value": "foo",
+								"line": 3,
+								"column": 21
+							},
+							"inverted": true,
+							"line": 3,
+							"column": 16
+						},
+						{
+							"type": "targetSelectorArgument",
+							"key": "tag",
+							"value": {
+								"type": "literal",
+								"value": "b",
+								"line": 3,
+								"column": 30
+							},
+							"inverted": true,
+							"line": 3,
+							"column": 25
+						},
+						{
+							"type": "targetSelectorArgument",
+							"key": "tag",
+							"inverted": false,
+							"line": 3,
+							"column": 32
+						},
+						{
+							"type": "targetSelectorArgument",
+							"key": "tag",
+							"inverted": true,
+							"line": 3,
+							"column": 37
+						},
+						{
+							"type": "targetSelectorArgument",
+							"key": "distance",
+							"value": {
+								"type": "floatRange",
+								"min": {
+									"type": "int",
+									"value": "1",
+									"line": 3,
+									"column": 53
+								},
+								"max": {
+									"type": "int",
+									"value": "2",
+									"line": 3,
+									"column": 56
+								},
+								"line": 3,
+								"column": 53
+							},
+							"inverted": false,
+							"line": 3,
+							"column": 44
+						},
+						{
+							"type": "targetSelectorArgument",
+							"key": "distance",
+							"value": {
+								"type": "floatRange",
+								"min": {
+									"type": "float",
+									"value": ".1",
+									"line": 3,
+									"column": 68
+								},
+								"max": {
+									"type": "float",
+									"value": "2.3",
+									"line": 3,
+									"column": 72
+								},
+								"line": 3,
+								"column": 68
+							},
+							"inverted": false,
+							"line": 3,
+							"column": 59
+						},
+						{
+							"type": "targetSelectorArgument",
+							"key": "distance",
+							"value": {
+								"type": "float",
+								"value": "2",
+								"line": 3,
+								"column": 86
+							},
+							"inverted": false,
+							"line": 3,
+							"column": 77
+						},
+						{
+							"type": "targetSelectorArgument",
+							"key": "team",
+							"value": {
+								"type": "literal",
+								"value": "bob",
+								"line": 3,
+								"column": 94
+							},
+							"inverted": false,
+							"line": 3,
+							"column": 89
+						},
+						{
+							"type": "targetSelectorArgument",
+							"key": "team",
+							"value": {
+								"type": "literal",
+								"value": "jim",
+								"line": 3,
+								"column": 105
+							},
+							"inverted": true,
+							"line": 3,
+							"column": 99
+						},
+						{
+							"type": "targetSelectorArgument",
+							"key": "team",
+							"inverted": false,
+							"line": 3,
+							"column": 110
+						},
+						{
+							"type": "targetSelectorArgument",
+							"key": "team",
+							"inverted": true,
+							"line": 3,
+							"column": 117
+						}
+					],
+					"line": 3,
+					"column": 12
+				},
+				"line": 3,
+				"column": 9
+			}
+		],
+		"line": 3,
+		"column": 1
+	},
+	{
+		"type": "command",
+		"name": "execute",
+		"subCommands": [
+			{
+				"type": "executeSubCommand",
+				"name": "as",
+				"target": {
+					"type": "targetSelector",
+					"targetType": "selector",
+					"selectorChar": "e",
+					"args": [
+						{
+							"type": "targetSelectorArgument",
+							"key": "type",
+							"value": {
+								"type": "resourceLocation",
+								"namespace": "minecraft",
+								"path": "creeper",
+								"line": 4,
+								"column": 21
+							},
+							"inverted": true,
+							"line": 4,
+							"column": 15
+						},
+						{
+							"type": "targetSelectorArgument",
+							"key": "type",
+							"value": {
+								"type": "resourceLocation",
+								"namespace": "#minecraft",
+								"path": "explosive",
+								"line": 4,
+								"column": 45
+							},
+							"inverted": false,
+							"line": 4,
+							"column": 40
+						},
+						{
+							"type": "targetSelectorArgument",
+							"key": "predicate",
+							"value": {
+								"type": "resourceLocation",
+								"namespace": "foo",
+								"path": "bar",
+								"line": 4,
+								"column": 77
+							},
+							"inverted": false,
+							"line": 4,
+							"column": 67
+						},
+						{
+							"type": "targetSelectorArgument",
+							"key": "predicate",
+							"value": {
+								"type": "resourceLocation",
+								"namespace": "foo",
+								"path": "bar",
+								"line": 4,
+								"column": 96
+							},
+							"inverted": false,
+							"line": 4,
+							"column": 86
+						},
+						{
+							"type": "targetSelectorArgument",
+							"key": "level",
+							"value": {
+								"type": "int",
+								"value": "2",
+								"line": 4,
+								"column": 112
+							},
+							"inverted": false,
+							"line": 4,
+							"column": 105
+						},
+						{
+							"type": "targetSelectorArgument",
+							"key": "level",
+							"value": {
+								"type": "intRange",
+								"min": {
+									"type": "int",
+									"value": "1",
+									"line": 4,
+									"column": 122
+								},
+								"max": {
+									"type": "int",
+									"value": "2",
+									"line": 4,
+									"column": 125
+								},
+								"line": 4,
+								"column": 122
+							},
+							"inverted": false,
+							"line": 4,
+							"column": 115
+						}
+					],
+					"line": 4,
+					"column": 12
+				},
+				"line": 4,
+				"column": 9
+			}
+		],
+		"line": 4,
+		"column": 1
+	},
+	{
+		"type": "command",
+		"name": "execute",
+		"subCommands": [
+			{
+				"type": "executeSubCommand",
+				"name": "as",
+				"target": {
+					"type": "targetSelector",
+					"targetType": "selector",
+					"selectorChar": "e",
+					"args": [
+						{
+							"type": "targetSelectorArgument",
+							"key": "scores",
+							"value": {
+								"type": "scoreObject",
+								"scores": {},
+								"line": 6,
+								"column": 24
+							},
+							"inverted": false,
+							"line": 6,
+							"column": 15
+						},
+						{
+							"type": "targetSelectorArgument",
+							"key": "advancements",
+							"value": {
+								"type": "advancementObject",
+								"advancements": {},
+								"line": 6,
+								"column": 43
+							},
+							"inverted": false,
+							"line": 6,
+							"column": 28
+						},
+						{
+							"type": "targetSelectorArgument",
+							"key": "limit",
+							"value": {
+								"type": "int",
+								"value": "2",
+								"line": 6,
+								"column": 103
+							},
+							"inverted": false,
+							"line": 6,
+							"column": 97
+						},
+						{
+							"type": "targetSelectorArgument",
+							"key": "sort",
+							"value": {
+								"type": "literal",
+								"value": "nearest",
+								"line": 6,
+								"column": 111
+							},
+							"inverted": false,
+							"line": 6,
+							"column": 106
+						},
+						{
+							"type": "targetSelectorArgument",
+							"key": "sort",
+							"value": {
+								"type": "literal",
+								"value": "arbitrary",
+								"line": 6,
+								"column": 125
+							},
+							"inverted": false,
+							"line": 6,
+							"column": 120
+						},
+						{
+							"type": "targetSelectorArgument",
+							"key": "sort",
+							"value": {
+								"type": "literal",
+								"value": "random",
+								"line": 6,
+								"column": 141
+							},
+							"inverted": false,
+							"line": 6,
+							"column": 136
+						},
+						{
+							"type": "targetSelectorArgument",
+							"key": "sort",
+							"value": {
+								"type": "literal",
+								"value": "furthest",
+								"line": 6,
+								"column": 154
+							},
+							"inverted": false,
+							"line": 6,
+							"column": 149
+						}
+					],
+					"line": 6,
+					"column": 12
+				},
+				"line": 6,
+				"column": 9
+			}
+		],
+		"line": 6,
+		"column": 1
+	},
+	{
+		"type": "command",
+		"name": "unknown",
+		"commandName": "say",
+		"tokens": [
+			{
+				"type": "control",
+				"value": "-",
+				"line": 8,
+				"column": 5
+			},
+			{
+				"type": "literal",
+				"value": "awd",
+				"line": 8,
+				"column": 6
+			},
+			{
+				"type": "space",
+				"value": " ",
+				"line": 8,
+				"column": 9
+			},
+			{
+				"type": "control",
+				"value": ".",
+				"line": 8,
+				"column": 10
+			},
+			{
+				"type": "literal",
+				"value": "awd",
+				"line": 8,
+				"column": 11
+			}
+		],
+		"line": 8,
+		"column": 1
+	},
+	{
+		"type": "command",
+		"name": "unknown",
+		"commandName": "say",
+		"tokens": [
+			{
+				"type": "control",
+				"value": "<",
+				"line": 9,
+				"column": 5
+			},
+			{
+				"type": "control",
+				"value": "%",
+				"line": 9,
+				"column": 6
+			},
+			{
+				"type": "literal",
+				"value": "awd",
+				"line": 9,
+				"column": 7
+			},
+			{
+				"type": "control",
+				"value": "%",
+				"line": 9,
+				"column": 10
+			},
+			{
+				"type": "control",
+				"value": ">",
+				"line": 9,
+				"column": 11
+			}
+		],
+		"line": 9,
+		"column": 1
+	},
+	{
+		"type": "command",
+		"name": "unknown",
+		"commandName": "data",
+		"tokens": [
+			{
+				"type": "literal",
+				"value": "remove",
+				"line": 10,
+				"column": 6
+			},
+			{
+				"type": "space",
+				"value": " ",
+				"line": 10,
+				"column": 12
+			},
+			{
+				"type": "literal",
+				"value": "entity",
+				"line": 10,
+				"column": 13
+			},
+			{
+				"type": "space",
+				"value": " ",
+				"line": 10,
+				"column": 19
+			},
+			{
+				"type": "int",
+				"value": "2",
+				"line": 10,
+				"column": 20
+			},
+			{
+				"type": "literal",
+				"value": "d12be42-52a9-4a91-a8a1-11c01849e498",
+				"line": 10,
+				"column": 21
+			},
+			{
+				"type": "space",
+				"value": " ",
+				"line": 10,
+				"column": 56
+			},
+			{
+				"type": "literal",
+				"value": "data.path.nodes",
+				"line": 10,
+				"column": 57
+			},
+			{
+				"type": "bracket",
+				"value": "[",
+				"line": 10,
+				"column": 72
+			},
+			{
+				"type": "int",
+				"value": "0",
+				"line": 10,
+				"column": 73
+			},
+			{
+				"type": "bracket",
+				"value": "]",
+				"line": 10,
+				"column": 74
+			}
+		],
+		"line": 10,
+		"column": 1
+	},
+	{
+		"type": "command",
+		"name": "unknown",
+		"commandName": "tellraw",
+		"tokens": [
+			{
+				"type": "control",
+				"value": "@",
+				"line": 11,
+				"column": 9
+			},
+			{
+				"type": "literal",
+				"value": "a",
+				"line": 11,
+				"column": 10
+			},
+			{
+				"type": "space",
+				"value": " ",
+				"line": 11,
+				"column": 11
+			},
+			{
+				"type": "bracket",
+				"value": "[",
+				"line": 11,
+				"column": 12
+			},
+			{
+				"type": "bracket",
+				"value": "{",
+				"line": 11,
+				"column": 13
+			},
+			{
+				"type": "quotedString",
+				"bracket": "\"",
+				"value": "storage",
+				"line": 11,
+				"column": 14
+			},
+			{
+				"type": "control",
+				"value": ":",
+				"line": 11,
+				"column": 23
+			},
+			{
+				"type": "space",
+				"value": " ",
+				"line": 11,
+				"column": 24
+			},
+			{
+				"type": "quotedString",
+				"bracket": "\"",
+				"value": "bonnie:text",
+				"line": 11,
+				"column": 25
+			},
+			{
+				"type": "control",
+				"value": ",",
+				"line": 11,
+				"column": 38
+			},
+			{
+				"type": "space",
+				"value": " ",
+				"line": 11,
+				"column": 39
+			},
+			{
+				"type": "quotedString",
+				"bracket": "\"",
+				"value": "nbt",
+				"line": 11,
+				"column": 40
+			},
+			{
+				"type": "control",
+				"value": ":",
+				"line": 11,
+				"column": 45
+			},
+			{
+				"type": "space",
+				"value": " ",
+				"line": 11,
+				"column": 46
+			},
+			{
+				"type": "quotedString",
+				"bracket": "\"",
+				"value": "log.state_change",
+				"line": 11,
+				"column": 47
+			},
+			{
+				"type": "control",
+				"value": ",",
+				"line": 11,
+				"column": 65
+			},
+			{
+				"type": "space",
+				"value": " ",
+				"line": 11,
+				"column": 66
+			},
+			{
+				"type": "quotedString",
+				"bracket": "\"",
+				"value": "interpret",
+				"line": 11,
+				"column": 67
+			},
+			{
+				"type": "control",
+				"value": ":",
+				"line": 11,
+				"column": 78
+			},
+			{
+				"type": "space",
+				"value": " ",
+				"line": 11,
+				"column": 79
+			},
+			{
+				"type": "literal",
+				"value": "true",
+				"line": 11,
+				"column": 80
+			},
+			{
+				"type": "bracket",
+				"value": "}",
+				"line": 11,
+				"column": 84
+			},
+			{
+				"type": "control",
+				"value": ",",
+				"line": 11,
+				"column": 85
+			},
+			{
+				"type": "space",
+				"value": " ",
+				"line": 11,
+				"column": 86
+			},
+			{
+				"type": "bracket",
+				"value": "{",
+				"line": 11,
+				"column": 87
+			},
+			{
+				"type": "quotedString",
+				"bracket": "\"",
+				"value": "text",
+				"line": 11,
+				"column": 88
+			},
+			{
+				"type": "control",
+				"value": ":",
+				"line": 11,
+				"column": 94
+			},
+			{
+				"type": "space",
+				"value": " ",
+				"line": 11,
+				"column": 95
+			},
+			{
+				"type": "quotedString",
+				"bracket": "\"",
+				"value": "AGGRO_WAITING_FOR_PATH",
+				"line": 11,
+				"column": 96
+			},
+			{
+				"type": "control",
+				"value": ",",
+				"line": 11,
+				"column": 120
+			},
+			{
+				"type": "space",
+				"value": " ",
+				"line": 11,
+				"column": 121
+			},
+			{
+				"type": "quotedString",
+				"bracket": "\"",
+				"value": "color",
+				"line": 11,
+				"column": 122
+			},
+			{
+				"type": "control",
+				"value": ":",
+				"line": 11,
+				"column": 129
+			},
+			{
+				"type": "space",
+				"value": " ",
+				"line": 11,
+				"column": 130
+			},
+			{
+				"type": "quotedString",
+				"bracket": "\"",
+				"value": "red",
+				"line": 11,
+				"column": 131
+			},
+			{
+				"type": "bracket",
+				"value": "}",
+				"line": 11,
+				"column": 136
+			},
+			{
+				"type": "control",
+				"value": ",",
+				"line": 11,
+				"column": 137
+			},
+			{
+				"type": "space",
+				"value": " ",
+				"line": 11,
+				"column": 138
+			},
+			{
+				"type": "quotedString",
+				"bracket": "\"",
+				"value": " -> ",
+				"line": 11,
+				"column": 139
+			},
+			{
+				"type": "control",
+				"value": ",",
+				"line": 11,
+				"column": 145
+			},
+			{
+				"type": "space",
+				"value": " ",
+				"line": 11,
+				"column": 146
+			},
+			{
+				"type": "bracket",
+				"value": "{",
+				"line": 11,
+				"column": 147
+			},
+			{
+				"type": "quotedString",
+				"bracket": "\"",
+				"value": "text",
+				"line": 11,
+				"column": 148
+			},
+			{
+				"type": "control",
+				"value": ":",
+				"line": 11,
+				"column": 154
+			},
+			{
+				"type": "space",
+				"value": " ",
+				"line": 11,
+				"column": 155
+			},
+			{
+				"type": "quotedString",
+				"bracket": "\"",
+				"value": "AGGRO_FOLLOWING_PATH",
+				"line": 11,
+				"column": 156
+			},
+			{
+				"type": "control",
+				"value": ",",
+				"line": 11,
+				"column": 178
+			},
+			{
+				"type": "space",
+				"value": " ",
+				"line": 11,
+				"column": 179
+			},
+			{
+				"type": "quotedString",
+				"bracket": "\"",
+				"value": "color",
+				"line": 11,
+				"column": 180
+			},
+			{
+				"type": "control",
+				"value": ":",
+				"line": 11,
+				"column": 187
+			},
+			{
+				"type": "space",
+				"value": " ",
+				"line": 11,
+				"column": 188
+			},
+			{
+				"type": "quotedString",
+				"bracket": "\"",
+				"value": "green",
+				"line": 11,
+				"column": 189
+			},
+			{
+				"type": "bracket",
+				"value": "}",
+				"line": 11,
+				"column": 196
+			},
+			{
+				"type": "bracket",
+				"value": "]",
+				"line": 11,
+				"column": 197
+			}
+		],
+		"line": 11,
+		"column": 1
+	},
+	{
+		"type": "command",
+		"name": "unknown",
+		"commandName": "data",
+		"tokens": [
+			{
+				"type": "literal",
+				"value": "modify",
+				"line": 12,
+				"column": 6
+			},
+			{
+				"type": "space",
+				"value": " ",
+				"line": 12,
+				"column": 12
+			},
+			{
+				"type": "literal",
+				"value": "entity",
+				"line": 12,
+				"column": 13
+			},
+			{
+				"type": "space",
+				"value": " ",
+				"line": 12,
+				"column": 19
+			},
+			{
+				"type": "control",
+				"value": "@",
+				"line": 12,
+				"column": 20
+			},
+			{
+				"type": "literal",
+				"value": "s",
+				"line": 12,
+				"column": 21
+			},
+			{
+				"type": "space",
+				"value": " ",
+				"line": 12,
+				"column": 22
+			},
+			{
+				"type": "literal",
+				"value": "data.path",
+				"line": 12,
+				"column": 23
+			},
+			{
+				"type": "space",
+				"value": " ",
+				"line": 12,
+				"column": 32
+			},
+			{
+				"type": "literal",
+				"value": "set",
+				"line": 12,
+				"column": 33
+			},
+			{
+				"type": "space",
+				"value": " ",
+				"line": 12,
+				"column": 36
+			},
+			{
+				"type": "literal",
+				"value": "from",
+				"line": 12,
+				"column": 37
+			},
+			{
+				"type": "space",
+				"value": " ",
+				"line": 12,
+				"column": 41
+			},
+			{
+				"type": "literal",
+				"value": "storage",
+				"line": 12,
+				"column": 42
+			},
+			{
+				"type": "space",
+				"value": " ",
+				"line": 12,
+				"column": 49
+			},
+			{
+				"type": "literal",
+				"value": "astar",
+				"line": 12,
+				"column": 50
+			},
+			{
+				"type": "control",
+				"value": ":",
+				"line": 12,
+				"column": 55
+			},
+			{
+				"type": "literal",
+				"value": "ram",
+				"line": 12,
+				"column": 56
+			},
+			{
+				"type": "space",
+				"value": " ",
+				"line": 12,
+				"column": 59
+			},
+			{
+				"type": "literal",
+				"value": "this.path",
+				"line": 12,
+				"column": 60
+			}
+		],
+		"line": 12,
+		"column": 1
+	},
+	{
+		"type": "command",
+		"name": "unknown",
+		"commandName": "data",
+		"tokens": [
+			{
+				"type": "literal",
+				"value": "modify",
+				"line": 14,
+				"column": 6
+			},
+			{
+				"type": "space",
+				"value": " ",
+				"line": 14,
+				"column": 12
+			},
+			{
+				"type": "literal",
+				"value": "entity",
+				"line": 14,
+				"column": 13
+			},
+			{
+				"type": "space",
+				"value": " ",
+				"line": 14,
+				"column": 19
+			},
+			{
+				"type": "control",
+				"value": "@",
+				"line": 14,
+				"column": 20
+			},
+			{
+				"type": "literal",
+				"value": "s",
+				"line": 14,
+				"column": 21
+			},
+			{
+				"type": "space",
+				"value": " ",
+				"line": 14,
+				"column": 22
+			},
+			{
+				"type": "literal",
+				"value": "data",
+				"line": 14,
+				"column": 23
+			},
+			{
+				"type": "space",
+				"value": " ",
+				"line": 14,
+				"column": 27
+			},
+			{
+				"type": "literal",
+				"value": "set",
+				"line": 14,
+				"column": 28
+			},
+			{
+				"type": "space",
+				"value": " ",
+				"line": 14,
+				"column": 31
+			},
+			{
+				"type": "literal",
+				"value": "value",
+				"line": 14,
+				"column": 32
+			},
+			{
+				"type": "space",
+				"value": " ",
+				"line": 14,
+				"column": 37
+			},
+			{
+				"type": "bracket",
+				"value": "{",
+				"line": 14,
+				"column": 38
+			},
+			{
+				"type": "literal",
+				"value": "Name",
+				"line": 14,
+				"column": 39
+			},
+			{
+				"type": "control",
+				"value": ":",
+				"line": 14,
+				"column": 43
+			},
+			{
+				"type": "quotedString",
+				"bracket": "\"",
+				"value": "{\\\"text\\\":\\\"Start\\\",\\\"color\\\":\\\"green\\\",\\\"italic\\\":false}\\\"]}",
+				"line": 14,
+				"column": 44
+			},
+			{
+				"type": "bracket",
+				"value": "}",
+				"line": 14,
+				"column": 107
+			}
+		],
+		"line": 14,
+		"column": 1
+	}
+]

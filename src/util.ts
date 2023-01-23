@@ -1,3 +1,5 @@
+import { AnyToken } from './tokenizers/vanillaTokenizer'
+
 /**
  * Compresses a number array to single values or min/max ranges
  * @returns A compressed version of the original array
@@ -33,9 +35,15 @@ export function genComparison(str: string) {
 		.map(r => (typeof r === 'number' ? `c===${r}` : `(c>=${r[0]}&&c<=${r[1]})`))
 		.join('||')}`
 
-	return new Function('c', `if (c===undefined) return false; return ${operations}`) as (c?: number) => boolean
+	return new Function('c', `if (c===undefined) return false; return ${operations}`) as (
+		c?: number
+	) => boolean
 }
 
 export function roundToN(v: number, n: number) {
 	return Math.round(v * n) / n
+}
+
+export function tokenToString(token?: AnyToken): string {
+	return `${token?.type}:'${token?.value}'`
 }

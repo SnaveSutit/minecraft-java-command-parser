@@ -3,6 +3,7 @@
  * Useful for language parsing
  */
 export class GenericStream<ItemType> {
+	// TODO Check the performance of making item a getter instead
 	item?: ItemType
 	index: number = -1
 	array: ItemType[]
