@@ -130,6 +130,7 @@ function highlightSyntaxToken(token: AnySyntaxToken) {
 			break
 		case 'targetSelectorArgument':
 			term(token.key).brightCyan('=')
+			if (token.inverted) term.brightRed('!')
 			if (token.value) highlightSyntaxToken(token.value)
 			break
 		// case 'uuid':
