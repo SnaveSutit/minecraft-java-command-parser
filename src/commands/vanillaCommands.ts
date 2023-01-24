@@ -1,5 +1,6 @@
 import { MinecraftSyntaxError, throwSyntaxError } from '../errors'
 import {
+	AnyNBTSyntaxToken,
 	AnySyntaxToken,
 	consumeAll,
 	expectAndConsume,
@@ -248,20 +249,17 @@ function parseRange<T extends 'int' | 'float'>(
 			} as unknown as ISyntaxTokens[`${T}Range`]
 		}
 	}
-	throwSyntaxError(
-		s.item!,
-		`Expected ${numberType} at %POS but found ${tokenToString(s.item)} instead.`
-	)
+	throwSyntaxError(s.item!, `Expected ${numberType} at %POS but found %TOKEN instead.`)
 }
 
 function parseScoreObject(s: TokenStream): ISyntaxTokens['scoreObject'] {
 	const { line, column } = s.item!
 	const scores: Record<string, ISyntaxTokens['int'] | ISyntaxTokens['intRange']> = {}
 	expectAndConsume(s, 'bracket', '{')
+	consumeAll(s, 'space')
 	while (s.item) {
 		if (s.item.type === 'bracket' && s.item.value === '}') break
 		consumeAll(s, 'space')
-		// console.log(s.item)
 		const key = expectAndConsume(s, 'literal')
 		expectAndConsume(s, 'control', '=')
 		scores[key.value] = parseRange(s, 'int')
@@ -287,7 +285,7 @@ function parseAdvancementObject(s: TokenStream): ISyntaxTokens['advancementObjec
 		// console.log(s.item)
 		const key = parseResourceLocation(s, false)
 		expectAndConsume(s, 'control', '=')
-		advancements.set(key, parseLiteralBoolean(s))
+		advancements.set(key, expectAndConsume(s, 'boolean'))
 		if (s.item.type === 'control' && s.item.value === ',') s.consume()
 	}
 	expectAndConsume(s, 'bracket', '}')
@@ -311,10 +309,7 @@ function parseResourceLocation(
 	// Allow tag resource locations
 	if (s.item?.type === 'control') {
 		if (!(allowTag && s.item.value === '#'))
-			throwSyntaxError(
-				s.item,
-				`Unexpected ${tokenToString(s.item)} starting resourceLocation at %POS`
-			)
+			throwSyntaxError(s.item, `Unexpected %TOKEN starting resourceLocation at %POS`)
 		namespace += '#'
 		s.consume()
 	}
@@ -333,13 +328,13 @@ function parseResourceLocation(
 				}
 				break
 			}
-			throwSyntaxError(s.item, `Unexpected %TOKEN at %POS`)
+			throwSyntaxError(s.item, `Found unexpected %TOKEN at %POS`)
 		}
 	} catch (e: any) {
 		if (e.name === 'MinecraftSyntaxError') {
 			throwSyntaxError(
 				undefined,
-				`Unexpected error while parsing resourceLocation at %POS:%n%t${e.message}`,
+				`Unexpected error while parsing resourceLocation at %POS:\n\t${e.message}`,
 				line,
 				column
 			)
@@ -349,20 +344,184 @@ function parseResourceLocation(
 	return { type: 'resourceLocation', namespace, path, line, column }
 }
 
-function parseLiteralBoolean(s: TokenStream): ISyntaxTokens['boolean'] {
+function parseUnquotedString(s: TokenStream): ISyntaxTokens['unquotedString'] {
 	const { line, column } = s.item!
-	let value = false
+	let value = ''
 
-	if (s.item?.type === 'literal') {
-		if (s.item.value === 'true') {
-			s.consume()
-			return { type: 'boolean', value: true, line, column }
-		} else if (s.item.value === 'false') {
-			s.consume()
-			return { type: 'boolean', value: false, line, column }
+	while (s.item) {
+		switch (s.item.type) {
+			case 'int':
+			case 'float':
+			case 'boolean':
+			case 'literal':
+				value += s.collect()!.value
+				break
+			case 'space':
+			case 'bracket':
+				return { type: 'unquotedString', value, line, column }
+			case 'control':
+				if (s.item.value === '.' || s.item.value === '-' || s.item.value === '+') {
+					value += s.collect()!.value
+					break
+				} else return { type: 'unquotedString', value, line, column }
+			default:
+				throwSyntaxError(
+					s.item,
+					`Found unexpected %TOKEN at %POS while parsing unquotedString`
+				)
 		}
 	}
-	throwSyntaxError(s.item, `Expected boolean at %POS but found %TOKEN instead.`)
+
+	return { type: 'unquotedString', value, line, column }
+}
+
+function parseNbtList(s: TokenStream): ISyntaxTokens['nbtList'] {
+	// TODO Add typed array support
+	const { line, column } = s.item!
+	const items: ISyntaxTokens['nbtList']['items'] = []
+	expectAndConsume(s, 'bracket', '[')
+	consumeAll(s, 'space')
+	let itemType: ISyntaxTokens['nbtList']['itemType'] | undefined
+	if (s.item?.type === 'literal' && 'lbi'.includes(s.item.value.toLowerCase())) {
+		switch (s.item.value.toLowerCase()) {
+			case 'l':
+				itemType = 'long'
+				break
+			case 'b':
+				itemType = 'byte'
+				break
+			case 'i':
+				itemType = 'int'
+				break
+		}
+		s.consume()
+		expectAndConsume(s, 'control', ';')
+	}
+
+	try {
+		while (s.item) {
+			if (s.item.type === 'bracket' && s.item.value === ']') break
+			consumeAll(s, 'space')
+			const item = _parseNbtValue(s)
+			if (itemType) {
+				switch (itemType) {
+					case 'byte':
+						if (
+							!(
+								item.type === 'int' &&
+								(item.identifier === 'B' || item.identifier === 'b')
+							)
+						)
+							throwSyntaxError(
+								s.item,
+								'Expected item in ByteArray to be a Byte but found %TOKEN instead at %POS.'
+							)
+						break
+					case 'int':
+						if (!(item.type === 'int' && item.identifier === undefined))
+							throwSyntaxError(
+								s.item,
+								'Expected item in IntArray to be a Int but found %TOKEN instead at %POS.'
+							)
+						break
+					case 'long':
+						if (
+							!(
+								item.type === 'int' &&
+								(item.identifier === 'L' || item.identifier === 'l')
+							)
+						)
+							throwSyntaxError(
+								s.item,
+								'Expected item in LongArray to be a Long but found %TOKEN instead at %POS.'
+							)
+						break
+				}
+			}
+			items.push(item)
+			consumeAll(s, 'space')
+			if (s.item.type === 'control' && s.item.value === ',') {
+				s.consume()
+				consumeAll(s, 'space')
+			}
+		}
+	} catch (e: any) {
+		if (e.name === 'MinecraftSyntaxError')
+			throwSyntaxError(
+				undefined,
+				`Unexpected error while parsing nbtList at %POS\n\t${e.message}`,
+				line,
+				column
+			)
+		throw e
+	}
+
+	expectAndConsume(s, 'bracket', ']')
+
+	return {
+		type: 'nbtList',
+		itemType,
+		items,
+		line,
+		column,
+	}
+}
+
+function _parseNbtValue(s: TokenStream): AnyNBTSyntaxToken {
+	switch (s.item?.type) {
+		case 'int':
+		case 'float':
+		case 'literal':
+		case 'boolean':
+		case 'quotedString':
+			return s.collect() as AnyNBTSyntaxToken
+		case 'bracket':
+			if (s.item.value === '{') return parseNbtObject(s)
+			else if (s.item.value === '[') return parseNbtList(s)
+		default:
+			throwSyntaxError(s.item, 'Unexpected %TOKEN at %POS')
+	}
+}
+
+function parseNbtObject(s: TokenStream): ISyntaxTokens['nbtObject'] {
+	const { line, column } = s.item!
+	const value: ISyntaxTokens['nbtObject']['value'] = {}
+	expectAndConsume(s, 'bracket', '{')
+
+	try {
+		while (s.item) {
+			if (s.item.type === 'bracket' && s.item.value === '}') break
+			consumeAll(s, 'space')
+			const key = parseUnquotedString(s)
+			consumeAll(s, 'space')
+			expectAndConsume(s, 'control', ':')
+			consumeAll(s, 'space')
+			value[key.value] = _parseNbtValue(s)
+			consumeAll(s, 'space')
+			if (s.item.type === 'control' && s.item.value === ',') {
+				s.consume()
+				consumeAll(s, 'space')
+			}
+		}
+	} catch (e: any) {
+		if (e.name === 'MinecraftSyntaxError') {
+			throwSyntaxError(
+				undefined,
+				`Failed to parse NBT Object at %POS\n\t${e.message}`,
+				line,
+				column
+			)
+		}
+	}
+
+	expectAndConsume(s, 'bracket', '}')
+
+	return {
+		type: 'nbtObject',
+		value,
+		line,
+		column,
+	}
 }
 
 function _throwTargetSelectorArgumentCannotBeInverted(token: AnyToken | undefined, key: string) {
@@ -420,6 +579,18 @@ function _parseTargetSelectorArgument(
 						return s.collect()! as ISyntaxTokens['literal']
 				}
 			}
+		case 'gamemode':
+			if (s.item?.type === 'literal') {
+				switch (s.item.value) {
+					case 'survival':
+					case 'creative':
+					case 'adventure':
+					case 'spectator':
+						return s.collect()! as ISyntaxTokens['literal']
+				}
+			}
+		case 'nbt':
+			return parseNbtObject(s)
 		case 'advancements':
 			return parseAdvancementObject(s)
 		default:
@@ -460,11 +631,8 @@ function parseTargetSelectorArguments(s: TokenStream): ISyntaxTokens['targetSele
 			s.consume()
 			return args
 		} else {
-			console.log(args)
-			throwSyntaxError(
-				s.item,
-				`Expected selector argument but found ${tokenToString(s.item)} at %POS`
-			)
+			// console.log(args)
+			throwSyntaxError(s.item, `Expected selector argument but found %TOKEN at %POS`)
 		}
 	}
 

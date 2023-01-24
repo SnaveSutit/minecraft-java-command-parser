@@ -1,6 +1,7 @@
 import { StringStream } from '../util/stringStream'
 import { throwTokenError } from '../errors'
 import { genComparison } from '../util'
+import { NumberTypeIdentifier } from '../parsers/vanillaParser'
 
 export interface IToken<T, V> {
 	type: T
@@ -15,6 +16,7 @@ export interface ITokens {
 	control: IToken<
 		'control',
 		| ':'
+		| ';'
 		| ','
 		| '$'
 		| '#'
@@ -38,8 +40,13 @@ export interface ITokens {
 	comment: IToken<'comment', string>
 	newline: IToken<'newline', '\n'>
 	number: IToken<'number', string>
-	int: IToken<'int', string>
-	float: IToken<'float', string>
+	int: IToken<'int', string> & {
+		identifier?: NumberTypeIdentifier
+	}
+	float: IToken<'float', string> & {
+		identifier?: NumberTypeIdentifier
+	}
+	boolean: IToken<'boolean', 'true' | 'false'>
 	quotedString: IToken<'quotedString', string> & {
 		bracket: '"' | "'"
 	}
@@ -67,10 +74,10 @@ CHARS.quotes = `'"`
 CHARS.newline = '\n\r'
 CHARS.number = numbers
 CHARS.bracket = '[]{}()'
-CHARS.control = `:,$#@/\\=*<>%+~^-.!`
+CHARS.control = `:,$#@/\\=*<>%+~^-.!;`
 CHARS.whitespace = `\t\r\n `
 // CHARS.numberStart = `-.${numbers}`
-CHARS.word = `${alphabet}${alphabet.toUpperCase()}${numbers}._-`
+CHARS.word = `${alphabet}${alphabet.toUpperCase()}${numbers}_`
 // CHARS.notWord = `${CHARS.quotes}${CHARS.newline}${CHARS.whitespace}`
 
 export const COMP = {
@@ -108,16 +115,17 @@ function collectSpace(s: StringStream): ITokens['space'] {
 	}
 }
 
-function collectLiteral(s: StringStream, startValue: string = ''): ITokens['literal'] {
+function collectLiteral(
+	s: StringStream,
+	startValue: string = ''
+): ITokens['literal'] | ITokens['boolean'] {
 	const { line, column } = s
 	const value = startValue + s.collectWhile(s => COMP.word(s.itemCode))
 	if (COMP.word(s.itemCode)) throwTokenError(s, `Expected word to end but found ${s.item}`)
-	return {
-		type: 'literal',
-		value,
-		line,
-		column,
-	}
+	if (value === 'true') return { type: 'boolean', value: 'true', line, column }
+	else if (value === 'false') return { type: 'boolean', value: 'false', line, column }
+
+	return { type: 'literal', value, line, column }
 }
 
 function collectNumber(

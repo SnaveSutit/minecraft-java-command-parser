@@ -19,6 +19,7 @@ export class MinecraftTokenError extends Error {
 function createPointerErrorMessage(s: StringStream, line: number, column: number) {
 	let lineStart
 	if (line == 0) lineStart = 0
+	else if (line > s.lines.length) lineStart = s.lineStart
 	else lineStart = s.lineNumberToIndex(line)
 	const i = (s.seek('\n') || 0) - 1
 	const halfTerm = Math.ceil(process.stdout.columns / 2)
@@ -28,7 +29,7 @@ function createPointerErrorMessage(s: StringStream, line: number, column: number
 		.slice(lineStart + column, i)
 		.slice(0, process.stdout.columns - start.length)
 	let spacing = ''
-	if (column > 0) spacing = ' '.repeat(start.length)
+	if (column > 0) spacing = ' '.repeat(start.length - 1)
 	return `${start}${end}\n${spacing}^`
 }
 
@@ -41,14 +42,9 @@ export function throwTokenError(
 	if (!line) line = s.line
 	if (!column) column = s.column
 	throw new MinecraftTokenError(
-		`${message
-			.replaceAll('\r', '\\r')
-			.replaceAll('\n', '\\n')
-			.replaceAll('\t', '\\t')} at ${line}:${column}\n${createPointerErrorMessage(
-			s,
-			line + 1,
-			column
-		)}`
+		`${message.replaceAll('\r', '\\r').replaceAll('\n', '\\n').replaceAll('\t', '\\t')} at ${
+			line + 1
+		}:${column}\n${createPointerErrorMessage(s, line + 1, column)}`
 	)
 }
 
@@ -62,12 +58,13 @@ export function throwSyntaxError(
 	if (!column) column = token!.column
 	throw new MinecraftSyntaxError(
 		message
-			.replaceAll('\r', '\\r')
-			.replaceAll('\n', '\\n')
-			.replaceAll('\t', '\\t')
 			.replaceAll('%POS', `${line + 1}:${column}`)
-			.replaceAll('%TOKEN', `${tokenToString(token)}`)
-			.replaceAll('%n', '\n')
-			.replaceAll('%t', '\t')
+			.replaceAll(
+				'%TOKEN',
+				`${tokenToString(token)
+					.replaceAll('\r', '\\r')
+					.replaceAll('\n', '\\n')
+					.replaceAll('\t', '\\t')}`
+			)
 	)
 }

@@ -9,7 +9,7 @@ import { AnyToken, ITokens } from '../tokenizers/vanillaTokenizer'
 import { GenericStream } from '../util/genericStream'
 
 export type SelectorChar = 'a' | 'e' | 'r' | 's' | 'p'
-export type NumberTypeIdentifier = 's' | 'b' | 't' | 'f' | 'd' | 'l'
+export type NumberTypeIdentifier = 's' | 'b' | 't' | 'f' | 'd' | 'l' | 'S' | 'B' | 'F' | 'L'
 
 export interface ISyntaxToken<T> {
 	type: T
@@ -37,6 +37,9 @@ export interface ISyntaxTokens {
 	quotedString: ISyntaxToken<'quotedString'> & {
 		value: string
 		bracket: '"' | "'"
+	}
+	unquotedString: ISyntaxToken<'unquotedString'> & {
+		value: string
 	}
 	uuid: ISyntaxToken<'uuid'> & {
 		value: string
@@ -80,7 +83,7 @@ export interface ISyntaxTokens {
 		inverted: boolean
 	}
 	boolean: ISyntaxToken<'boolean'> & {
-		value: boolean
+		value: 'true' | 'false'
 	}
 	advancementObject: ISyntaxToken<'advancementObject'> & {
 		advancements: Map<ISyntaxTokens['resourceLocation'], ISyntaxTokens['boolean']>
@@ -116,6 +119,7 @@ export interface ISyntaxTokens {
 		value: Record<string, AnyNBTSyntaxToken>
 	}
 	nbtList: ISyntaxToken<'nbtList'> & {
+		itemType?: 'byte' | 'int' | 'long'
 		items: AnyNBTSyntaxToken[]
 	}
 	nbtPath: ISyntaxToken<'nbtPath'> & {
@@ -147,12 +151,14 @@ export function expectAndConsume<T extends AnyToken>(
 	if (token?.type !== expectedType)
 		throwSyntaxError(
 			token!,
-			`Expected '${expectedType}' at %POS but found ${token?.type}:'${token?.value}' instead`
+			`Expected ${
+				expectedValue ? `${expectedType}:'${expectedValue}'` : `${expectedType}`
+			} at %POS but found %TOKEN instead`
 		)
 	else if (expectedValue != undefined && token.value != expectedValue) {
 		throwSyntaxError(
 			token!,
-			`Expected ${expectedType}:'${expectedValue}' at %POS but found ${token.type}:'${token.value}' instead`
+			`Expected ${expectedType}:'${expectedValue}' at %POS but found %TOKEN instead`
 		)
 	}
 	return token as T
@@ -223,9 +229,24 @@ function combineNumbersIntoIntFloatOrLiteral(s: TokenStream, newTokens: AnyToken
 		}
 	}
 
+	let identifier
+	if (s.item?.type === 'literal') {
+		switch (s.item.value.toLowerCase() as NumberTypeIdentifier) {
+			case 'b':
+			case 'd':
+			case 'f':
+			case 'l':
+			case 's':
+			case 't':
+				identifier = s.collect()!.value as NumberTypeIdentifier
+				break
+		}
+	}
+
 	newTokens.push({
 		type,
 		value: value,
+		identifier,
 		line,
 		column,
 	})
@@ -291,7 +312,7 @@ function secondPass(
 			s.consume()
 		} else if (s.item?.type === 'literal') {
 			syntaxTree.push(parseGenericCommand(s))
-		} else throwSyntaxError(s.item, `Unexpected Token ${s.item.type}:'${s.item.value}' at %POS`)
+		} else throwSyntaxError(s.item, `Unexpected Token %TOKEN at %POS`)
 	}
 
 	return syntaxTree

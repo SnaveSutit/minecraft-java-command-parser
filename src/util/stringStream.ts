@@ -9,7 +9,7 @@ export class StringStream {
 	itemCode?: number
 	line: number = 0
 	column: number = 0
-	private lineStart: number = 0
+	lineStart: number = 0
 	lines: {
 		number: number
 		startIndex: number
@@ -70,9 +70,9 @@ export class StringStream {
 		const last = this.item
 		this.item = this.string.at(this.index + 1)
 		this.itemCode = this.item?.charCodeAt(0)
-		if (last === '\n' || (!(last == undefined) && this.item == undefined)) this.addLine()
 		this.index++
 		this.column++
+		if (last === '\n' || (!(last == undefined) && this.item == undefined)) this.addLine()
 	}
 
 	/**
@@ -109,19 +109,19 @@ export class StringStream {
 	 * @returns The index of the character or undefined if no character is found.
 	 */
 	seek(
-		comparison: string | ((stream: this) => boolean),
+		comparison: string | ((c?: string) => boolean),
 		maxDistance: number = Infinity
 	): number | undefined {
 		maxDistance = Math.min(this.index + maxDistance, this.length)
 		if (typeof comparison === 'function') {
 			for (let i = this.index; i < maxDistance; i++) {
-				// @ts-ignore
-				if (comparison(this)) return i
+				const c = this.string.at(i)
+				if (comparison(c)) return i
 			}
 		} else {
 			for (let i = this.index; i < maxDistance; i++) {
 				const c = this.string.at(i)
-				if (c && c === comparison) return i
+				if (c === comparison) return i
 			}
 		}
 	}
@@ -130,6 +130,7 @@ export class StringStream {
 	 * Returns the stream index of the line specified
 	 */
 	lineNumberToIndex(lineNumber: number) {
+		console.log(this.lines)
 		const line = this.lines.at(lineNumber - 1)
 		if (!line) throw new Error(`Tried to access line ${lineNumber} before stream reached it.`)
 		return line.startIndex
@@ -138,12 +139,12 @@ export class StringStream {
 	private addLine(): void {
 		this.line++
 		this.lineStart = this.index
-		const i = this.seek(s => s.item === '\n' || s.item === undefined)
+		const i = this.seek(c => c === '\n' || c === undefined)
 		this.lines.push({
 			number: this.line,
 			startIndex: this.lineStart,
 			content: this.string.slice(this.lineStart, i ? i + 1 : this.length),
 		})
-		this.column = 0
+		this.column = 1
 	}
 }

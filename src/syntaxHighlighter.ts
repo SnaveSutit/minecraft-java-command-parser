@@ -1,7 +1,6 @@
 import { AnySyntaxToken } from './parsers/vanillaParser'
 import { terminal as term } from 'terminal-kit'
 import { AnyToken } from './tokenizers/vanillaTokenizer'
-import { tokenToString } from './util'
 
 function escape(str: string) {
 	return str.replace(/\%/g, '%%')
@@ -39,6 +38,9 @@ export function highlightToken(token: AnyToken) {
 		case 'space':
 			term(' ')
 			break
+		case 'boolean':
+			term.red(token.value)
+			break
 		default:
 			// @ts-ignore
 			throw Error(`Unexpected token type '${token.type}' when highlighting tokens`)
@@ -66,11 +68,13 @@ function highlightSyntaxToken(token: AnySyntaxToken) {
 			break
 		case 'command':
 			if (token.name === 'unknown') {
-				term('\n').brightBlue(token.commandName)(' ')
+				term.brightBlue(token.commandName)(' ')
 				token.tokens.forEach(t => highlightToken(t))
+				term('\n')
 			} else {
-				term('\n').brightBlue(token.name)(' ')
+				term.brightBlue(token.name)(' ')
 				token.subCommands.forEach(t => highlightSyntaxToken(t))
+				term('\n')
 			}
 			break
 		case 'executeSubCommand':
@@ -82,7 +86,8 @@ function highlightSyntaxToken(token: AnySyntaxToken) {
 			break
 		case 'int':
 		case 'float':
-			term.green(token.value)
+			term.brightGreen(token.value)
+			if (token.identifier) term.green(token.identifier)
 			break
 		case 'intRange':
 		case 'floatRange':
@@ -93,10 +98,39 @@ function highlightSyntaxToken(token: AnySyntaxToken) {
 		case 'literal':
 			term(token.value)
 			break
-		// case 'nbtList':
-		// case 'nbtObject':
+		case 'nbtList':
+			term.brightRed('[')
+			switch (token.itemType) {
+				case 'int':
+					term.cyan('I;')
+					break
+				case 'byte':
+					term.cyan('B;')
+					break
+				case 'long':
+					term.cyan('L;')
+					break
+			}
+			token.items.forEach((v, i) => {
+				highlightSyntaxToken(v)
+				if (i < token.items.length - 1) term.brightCyan(',')
+			})
+			term.brightRed(']')
+			break
+		case 'nbtObject':
+			term.brightRed('{')
+			const obj = Object.entries(token.value)
+			obj.forEach(([k, v], i) => {
+				term(k).brightCyan(':')
+				highlightSyntaxToken(v)
+				if (i < obj.length - 1) term.brightCyan(',')
+			})
+			term.brightRed('}')
+			break
 		// case 'nbtPath':
-		// case 'quotedString':
+		case 'quotedString':
+			term.brightBlue(token.bracket + token.value + token.bracket)
+			break
 		case 'resourceLocation':
 			term.brightBlue(token.namespace + ':' + token.path)
 			break

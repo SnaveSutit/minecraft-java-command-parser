@@ -92,14 +92,15 @@ export class GenericStream<ItemType> {
 	 * @returns The index of the item or undefined if no item is found.
 	 */
 	seek(
-		comparison: ItemType | ((stream: this) => boolean),
+		comparison: ItemType | ((c?: string) => boolean),
 		maxDistance: number = Infinity
 	): number | undefined {
 		maxDistance = Math.min(this.index + maxDistance, this.length)
 		if (typeof comparison === 'function') {
 			for (let i = this.index; i < maxDistance; i++) {
+				const c = this.array.at(i)
 				// @ts-ignore
-				if (comparison(this)) return i
+				if (comparison(c)) return i
 			}
 		} else {
 			for (let i = this.index; i < maxDistance; i++) {

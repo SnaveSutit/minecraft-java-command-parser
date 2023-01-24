@@ -15,10 +15,11 @@ async function main() {
 	try {
 		tokens = vanillaTokenizer.tokenize(new StringStream(code))
 	} catch (e: any) {
+		throw e
 		if (e.name === 'MinecraftTokenError') {
 			console.log(e.message)
 		} else {
-			console.error(e)
+			throw e
 		}
 	}
 
@@ -36,10 +37,11 @@ async function main() {
 	try {
 		syntaxTree = vanillaParser.parse(tokens)
 	} catch (e: any) {
+		throw e
 		if (e.name === 'MinecraftSyntaxError' || e.name === 'MinecraftTokenError') {
 			console.log(e.message)
 		} else {
-			console.error(e)
+			throw e
 		}
 	}
 
@@ -47,7 +49,7 @@ async function main() {
 
 	term('\n')('--- Syntax ---')('\n')
 	highlightSyntaxTree(syntaxTree)
-	term('\n')('--------------')('\n')
+	term('--------------')('\n')
 
 	fs.writeFileSync('./debug/syntaxTree.json', JSON.stringify(syntaxTree, null, '\t'))
 }

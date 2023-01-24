@@ -72,33 +72,33 @@ describe('Tokenization', () => {
 	it('tokenizes numbers', () => {
 		let tokens = vanillaTokenizer.tokenize(new StringStream('0 -3 16 4000 .2 10.5 15.'))
 		expect(tokens[0].type).toBe('number')
-		expect(tokens[0].value).toBe(0)
+		expect(tokens[0].value).toBe('0')
 
 		expect(tokens[2].type).toBe('control')
 		expect(tokens[2].value).toBe('-')
 		expect(tokens[3].type).toBe('number')
-		expect(tokens[3].value).toBe(3)
+		expect(tokens[3].value).toBe('3')
 
 		expect(tokens[5].type).toBe('number')
-		expect(tokens[5].value).toBe(16)
+		expect(tokens[5].value).toBe('16')
 
 		expect(tokens[7].type).toBe('number')
-		expect(tokens[7].value).toBe(4000)
+		expect(tokens[7].value).toBe('4000')
 
 		expect(tokens[9].type).toBe('control')
 		expect(tokens[9].value).toBe('.')
 		expect(tokens[10].type).toBe('number')
-		expect(tokens[10].value).toBe(2)
+		expect(tokens[10].value).toBe('2')
 
 		expect(tokens[12].type).toBe('number')
-		expect(tokens[12].value).toBe(10)
+		expect(tokens[12].value).toBe('10')
 		expect(tokens[13].type).toBe('control')
 		expect(tokens[13].value).toBe('.')
 		expect(tokens[14].type).toBe('number')
-		expect(tokens[14].value).toBe(5)
+		expect(tokens[14].value).toBe('5')
 
 		expect(tokens[16].type).toBe('number')
-		expect(tokens[16].value).toBe(15)
+		expect(tokens[16].value).toBe('15')
 		expect(tokens[17].type).toBe('control')
 		expect(tokens[17].value).toBe('.')
 	})

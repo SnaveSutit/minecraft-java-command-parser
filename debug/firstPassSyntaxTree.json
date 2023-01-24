@@ -1404,16 +1404,421 @@
 		"column": 127
 	},
 	{
-		"type": "comment",
-		"value": " execute as @e[nbt={ foo :{bar: [{baz: 2s}, {bif:true}] }, boz:\"fib\"}, gamemode=survival, gamemode=creative, gamemode=spectator, gamemode=adventure]",
+		"type": "literal",
+		"value": "execute",
 		"line": 5,
 		"column": 1
+	},
+	{
+		"type": "space",
+		"value": " ",
+		"line": 5,
+		"column": 8
+	},
+	{
+		"type": "literal",
+		"value": "as",
+		"line": 5,
+		"column": 9
+	},
+	{
+		"type": "space",
+		"value": " ",
+		"line": 5,
+		"column": 11
+	},
+	{
+		"type": "control",
+		"value": "@",
+		"line": 5,
+		"column": 12
+	},
+	{
+		"type": "literal",
+		"value": "e",
+		"line": 5,
+		"column": 13
+	},
+	{
+		"type": "bracket",
+		"value": "[",
+		"line": 5,
+		"column": 14
+	},
+	{
+		"type": "literal",
+		"value": "nbt",
+		"line": 5,
+		"column": 15
+	},
+	{
+		"type": "control",
+		"value": "=",
+		"line": 5,
+		"column": 18
+	},
+	{
+		"type": "bracket",
+		"value": "{",
+		"line": 5,
+		"column": 19
+	},
+	{
+		"type": "space",
+		"value": " ",
+		"line": 5,
+		"column": 20
+	},
+	{
+		"type": "literal",
+		"value": "foo",
+		"line": 5,
+		"column": 21
+	},
+	{
+		"type": "space",
+		"value": " ",
+		"line": 5,
+		"column": 24
+	},
+	{
+		"type": "control",
+		"value": ":",
+		"line": 5,
+		"column": 25
+	},
+	{
+		"type": "bracket",
+		"value": "{",
+		"line": 5,
+		"column": 26
+	},
+	{
+		"type": "literal",
+		"value": "bar",
+		"line": 5,
+		"column": 27
+	},
+	{
+		"type": "control",
+		"value": ":",
+		"line": 5,
+		"column": 30
+	},
+	{
+		"type": "space",
+		"value": " ",
+		"line": 5,
+		"column": 31
+	},
+	{
+		"type": "bracket",
+		"value": "[",
+		"line": 5,
+		"column": 32
+	},
+	{
+		"type": "bracket",
+		"value": "{",
+		"line": 5,
+		"column": 33
+	},
+	{
+		"type": "literal",
+		"value": "baz",
+		"line": 5,
+		"column": 34
+	},
+	{
+		"type": "control",
+		"value": ":",
+		"line": 5,
+		"column": 37
+	},
+	{
+		"type": "space",
+		"value": " ",
+		"line": 5,
+		"column": 38
+	},
+	{
+		"type": "int",
+		"value": "2",
+		"identifier": "s",
+		"line": 5,
+		"column": 39
+	},
+	{
+		"type": "bracket",
+		"value": "}",
+		"line": 5,
+		"column": 41
+	},
+	{
+		"type": "control",
+		"value": ",",
+		"line": 5,
+		"column": 42
+	},
+	{
+		"type": "space",
+		"value": " ",
+		"line": 5,
+		"column": 43
+	},
+	{
+		"type": "bracket",
+		"value": "{",
+		"line": 5,
+		"column": 44
+	},
+	{
+		"type": "literal",
+		"value": "bif",
+		"line": 5,
+		"column": 45
+	},
+	{
+		"type": "control",
+		"value": ":",
+		"line": 5,
+		"column": 48
+	},
+	{
+		"type": "boolean",
+		"value": "true",
+		"line": 5,
+		"column": 49
+	},
+	{
+		"type": "bracket",
+		"value": "}",
+		"line": 5,
+		"column": 53
+	},
+	{
+		"type": "bracket",
+		"value": "]",
+		"line": 5,
+		"column": 54
+	},
+	{
+		"type": "space",
+		"value": " ",
+		"line": 5,
+		"column": 55
+	},
+	{
+		"type": "bracket",
+		"value": "}",
+		"line": 5,
+		"column": 56
+	},
+	{
+		"type": "control",
+		"value": ",",
+		"line": 5,
+		"column": 57
+	},
+	{
+		"type": "space",
+		"value": " ",
+		"line": 5,
+		"column": 58
+	},
+	{
+		"type": "literal",
+		"value": "boz",
+		"line": 5,
+		"column": 59
+	},
+	{
+		"type": "control",
+		"value": ":",
+		"line": 5,
+		"column": 62
+	},
+	{
+		"type": "quotedString",
+		"bracket": "\"",
+		"value": "fib",
+		"line": 5,
+		"column": 63
+	},
+	{
+		"type": "control",
+		"value": ",",
+		"line": 5,
+		"column": 68
+	},
+	{
+		"type": "space",
+		"value": " ",
+		"line": 5,
+		"column": 69
+	},
+	{
+		"type": "literal",
+		"value": "bog",
+		"line": 5,
+		"column": 70
+	},
+	{
+		"type": "control",
+		"value": ":",
+		"line": 5,
+		"column": 73
+	},
+	{
+		"type": "space",
+		"value": " ",
+		"line": 5,
+		"column": 74
+	},
+	{
+		"type": "quotedString",
+		"bracket": "'",
+		"value": "gleb",
+		"line": 5,
+		"column": 75
+	},
+	{
+		"type": "bracket",
+		"value": "}",
+		"line": 5,
+		"column": 81
+	},
+	{
+		"type": "control",
+		"value": ",",
+		"line": 5,
+		"column": 82
+	},
+	{
+		"type": "space",
+		"value": " ",
+		"line": 5,
+		"column": 83
+	},
+	{
+		"type": "literal",
+		"value": "gamemode",
+		"line": 5,
+		"column": 84
+	},
+	{
+		"type": "control",
+		"value": "=",
+		"line": 5,
+		"column": 92
+	},
+	{
+		"type": "literal",
+		"value": "survival",
+		"line": 5,
+		"column": 93
+	},
+	{
+		"type": "control",
+		"value": ",",
+		"line": 5,
+		"column": 101
+	},
+	{
+		"type": "space",
+		"value": " ",
+		"line": 5,
+		"column": 102
+	},
+	{
+		"type": "literal",
+		"value": "gamemode",
+		"line": 5,
+		"column": 103
+	},
+	{
+		"type": "control",
+		"value": "=",
+		"line": 5,
+		"column": 111
+	},
+	{
+		"type": "literal",
+		"value": "creative",
+		"line": 5,
+		"column": 112
+	},
+	{
+		"type": "control",
+		"value": ",",
+		"line": 5,
+		"column": 120
+	},
+	{
+		"type": "space",
+		"value": " ",
+		"line": 5,
+		"column": 121
+	},
+	{
+		"type": "literal",
+		"value": "gamemode",
+		"line": 5,
+		"column": 122
+	},
+	{
+		"type": "control",
+		"value": "=",
+		"line": 5,
+		"column": 130
+	},
+	{
+		"type": "literal",
+		"value": "spectator",
+		"line": 5,
+		"column": 131
+	},
+	{
+		"type": "control",
+		"value": ",",
+		"line": 5,
+		"column": 140
+	},
+	{
+		"type": "space",
+		"value": " ",
+		"line": 5,
+		"column": 141
+	},
+	{
+		"type": "literal",
+		"value": "gamemode",
+		"line": 5,
+		"column": 142
+	},
+	{
+		"type": "control",
+		"value": "=",
+		"line": 5,
+		"column": 150
+	},
+	{
+		"type": "literal",
+		"value": "adventure",
+		"line": 5,
+		"column": 151
+	},
+	{
+		"type": "bracket",
+		"value": "]",
+		"line": 5,
+		"column": 160
 	},
 	{
 		"type": "newline",
 		"value": "\n",
 		"line": 5,
-		"column": 150
+		"column": 161
 	},
 	{
 		"type": "literal",
@@ -1488,26 +1893,20 @@
 		"column": 24
 	},
 	{
-		"type": "bracket",
-		"value": "}",
+		"type": "space",
+		"value": "  ",
 		"line": 6,
 		"column": 25
 	},
 	{
-		"type": "control",
-		"value": ",",
-		"line": 6,
-		"column": 26
-	},
-	{
-		"type": "space",
-		"value": " ",
+		"type": "bracket",
+		"value": "}",
 		"line": 6,
 		"column": 27
 	},
 	{
-		"type": "literal",
-		"value": "advancements",
+		"type": "control",
+		"value": ",",
 		"line": 6,
 		"column": 28
 	},
@@ -1515,13 +1914,13 @@
 		"type": "space",
 		"value": " ",
 		"line": 6,
-		"column": 40
+		"column": 29
 	},
 	{
-		"type": "control",
-		"value": "=",
+		"type": "literal",
+		"value": "advancements",
 		"line": 6,
-		"column": 41
+		"column": 30
 	},
 	{
 		"type": "space",
@@ -1530,1086 +1929,1560 @@
 		"column": 42
 	},
 	{
+		"type": "control",
+		"value": "=",
+		"line": 6,
+		"column": 43
+	},
+	{
+		"type": "space",
+		"value": " ",
+		"line": 6,
+		"column": 44
+	},
+	{
 		"type": "bracket",
 		"value": "{",
 		"line": 6,
-		"column": 43
+		"column": 45
 	},
 	{
 		"type": "literal",
 		"value": "minecraft",
 		"line": 6,
-		"column": 44
+		"column": 46
 	},
 	{
 		"type": "control",
 		"value": ":",
 		"line": 6,
-		"column": 53
+		"column": 55
 	},
 	{
 		"type": "literal",
 		"value": "end",
 		"line": 6,
-		"column": 54
+		"column": 56
 	},
 	{
 		"type": "control",
 		"value": "/",
 		"line": 6,
-		"column": 57
+		"column": 59
 	},
 	{
 		"type": "literal",
 		"value": "death",
 		"line": 6,
-		"column": 58
+		"column": 60
 	},
 	{
 		"type": "control",
 		"value": "=",
 		"line": 6,
-		"column": 63
+		"column": 65
 	},
 	{
-		"type": "literal",
+		"type": "boolean",
 		"value": "false",
 		"line": 6,
-		"column": 64
+		"column": 66
 	},
 	{
 		"type": "control",
 		"value": ",",
 		"line": 6,
-		"column": 69
+		"column": 71
 	},
 	{
 		"type": "space",
 		"value": " ",
 		"line": 6,
-		"column": 70
+		"column": 72
 	},
 	{
 		"type": "literal",
 		"value": "minecraft",
 		"line": 6,
-		"column": 71
+		"column": 73
 	},
 	{
 		"type": "control",
 		"value": ":",
 		"line": 6,
-		"column": 80
+		"column": 82
 	},
 	{
 		"type": "literal",
 		"value": "end",
 		"line": 6,
-		"column": 81
+		"column": 83
 	},
 	{
 		"type": "control",
 		"value": "/",
 		"line": 6,
-		"column": 84
+		"column": 86
 	},
 	{
 		"type": "literal",
 		"value": "baby",
 		"line": 6,
-		"column": 85
+		"column": 87
 	},
 	{
 		"type": "control",
 		"value": "=",
 		"line": 6,
-		"column": 89
+		"column": 91
 	},
 	{
-		"type": "literal",
+		"type": "boolean",
 		"value": "true",
 		"line": 6,
-		"column": 90
+		"column": 92
 	},
 	{
 		"type": "bracket",
 		"value": "}",
 		"line": 6,
-		"column": 94
+		"column": 96
 	},
 	{
 		"type": "control",
 		"value": ",",
 		"line": 6,
-		"column": 95
+		"column": 97
 	},
 	{
 		"type": "space",
 		"value": " ",
 		"line": 6,
-		"column": 96
+		"column": 98
 	},
 	{
 		"type": "literal",
 		"value": "limit",
 		"line": 6,
-		"column": 97
+		"column": 99
 	},
 	{
 		"type": "control",
 		"value": "=",
 		"line": 6,
-		"column": 102
+		"column": 104
 	},
 	{
 		"type": "int",
 		"value": "2",
 		"line": 6,
-		"column": 103
+		"column": 105
 	},
 	{
 		"type": "control",
 		"value": ",",
 		"line": 6,
-		"column": 104
+		"column": 106
 	},
 	{
 		"type": "space",
 		"value": " ",
 		"line": 6,
-		"column": 105
+		"column": 107
 	},
 	{
 		"type": "literal",
 		"value": "sort",
 		"line": 6,
-		"column": 106
+		"column": 108
 	},
 	{
 		"type": "control",
 		"value": "=",
 		"line": 6,
-		"column": 110
+		"column": 112
 	},
 	{
 		"type": "literal",
 		"value": "nearest",
 		"line": 6,
-		"column": 111
+		"column": 113
 	},
 	{
 		"type": "control",
 		"value": ",",
 		"line": 6,
-		"column": 118
+		"column": 120
 	},
 	{
 		"type": "space",
 		"value": " ",
 		"line": 6,
-		"column": 119
+		"column": 121
 	},
 	{
 		"type": "literal",
 		"value": "sort",
 		"line": 6,
-		"column": 120
+		"column": 122
 	},
 	{
 		"type": "control",
 		"value": "=",
 		"line": 6,
-		"column": 124
+		"column": 126
 	},
 	{
 		"type": "literal",
 		"value": "arbitrary",
 		"line": 6,
-		"column": 125
+		"column": 127
 	},
 	{
 		"type": "control",
 		"value": ",",
 		"line": 6,
-		"column": 134
+		"column": 136
 	},
 	{
 		"type": "space",
 		"value": " ",
 		"line": 6,
-		"column": 135
+		"column": 137
 	},
 	{
 		"type": "literal",
 		"value": "sort",
 		"line": 6,
-		"column": 136
+		"column": 138
 	},
 	{
 		"type": "control",
 		"value": "=",
 		"line": 6,
-		"column": 140
+		"column": 142
 	},
 	{
 		"type": "literal",
 		"value": "random",
 		"line": 6,
-		"column": 141
+		"column": 143
 	},
 	{
 		"type": "control",
 		"value": ",",
 		"line": 6,
-		"column": 147
+		"column": 149
 	},
 	{
 		"type": "space",
 		"value": " ",
 		"line": 6,
-		"column": 148
+		"column": 150
 	},
 	{
 		"type": "literal",
 		"value": "sort",
 		"line": 6,
-		"column": 149
+		"column": 151
 	},
 	{
 		"type": "control",
 		"value": "=",
 		"line": 6,
-		"column": 153
+		"column": 155
 	},
 	{
 		"type": "literal",
 		"value": "furthest",
 		"line": 6,
-		"column": 154
+		"column": 156
 	},
 	{
 		"type": "bracket",
 		"value": "]",
 		"line": 6,
-		"column": 162
+		"column": 164
 	},
 	{
 		"type": "newline",
 		"value": "\n",
 		"line": 6,
-		"column": 163
+		"column": 165
 	},
 	{
 		"type": "literal",
-		"value": "say",
-		"line": 8,
+		"value": "execute",
+		"line": 7,
 		"column": 1
 	},
 	{
 		"type": "space",
 		"value": " ",
-		"line": 8,
+		"line": 7,
+		"column": 8
+	},
+	{
+		"type": "literal",
+		"value": "as",
+		"line": 7,
+		"column": 9
+	},
+	{
+		"type": "space",
+		"value": " ",
+		"line": 7,
+		"column": 11
+	},
+	{
+		"type": "control",
+		"value": "@",
+		"line": 7,
+		"column": 12
+	},
+	{
+		"type": "literal",
+		"value": "e",
+		"line": 7,
+		"column": 13
+	},
+	{
+		"type": "bracket",
+		"value": "[",
+		"line": 7,
+		"column": 14
+	},
+	{
+		"type": "literal",
+		"value": "nbt",
+		"line": 7,
+		"column": 15
+	},
+	{
+		"type": "control",
+		"value": "=",
+		"line": 7,
+		"column": 18
+	},
+	{
+		"type": "bracket",
+		"value": "{",
+		"line": 7,
+		"column": 19
+	},
+	{
+		"type": "literal",
+		"value": "int",
+		"line": 7,
+		"column": 20
+	},
+	{
+		"type": "control",
+		"value": ":",
+		"line": 7,
+		"column": 23
+	},
+	{
+		"type": "bracket",
+		"value": "[",
+		"line": 7,
+		"column": 24
+	},
+	{
+		"type": "literal",
+		"value": "I",
+		"line": 7,
+		"column": 25
+	},
+	{
+		"type": "control",
+		"value": ";",
+		"line": 7,
+		"column": 26
+	},
+	{
+		"type": "int",
+		"value": "1",
+		"line": 7,
+		"column": 27
+	},
+	{
+		"type": "control",
+		"value": ",",
+		"line": 7,
+		"column": 28
+	},
+	{
+		"type": "space",
+		"value": " ",
+		"line": 7,
+		"column": 29
+	},
+	{
+		"type": "int",
+		"value": "2",
+		"line": 7,
+		"column": 30
+	},
+	{
+		"type": "control",
+		"value": ",",
+		"line": 7,
+		"column": 31
+	},
+	{
+		"type": "space",
+		"value": " ",
+		"line": 7,
+		"column": 32
+	},
+	{
+		"type": "int",
+		"value": "3",
+		"line": 7,
+		"column": 33
+	},
+	{
+		"type": "bracket",
+		"value": "]",
+		"line": 7,
+		"column": 34
+	},
+	{
+		"type": "control",
+		"value": ",",
+		"line": 7,
+		"column": 35
+	},
+	{
+		"type": "space",
+		"value": " ",
+		"line": 7,
+		"column": 36
+	},
+	{
+		"type": "literal",
+		"value": "byte",
+		"line": 7,
+		"column": 37
+	},
+	{
+		"type": "control",
+		"value": ":",
+		"line": 7,
+		"column": 41
+	},
+	{
+		"type": "space",
+		"value": " ",
+		"line": 7,
+		"column": 42
+	},
+	{
+		"type": "bracket",
+		"value": "[",
+		"line": 7,
+		"column": 43
+	},
+	{
+		"type": "literal",
+		"value": "B",
+		"line": 7,
+		"column": 44
+	},
+	{
+		"type": "control",
+		"value": ";",
+		"line": 7,
+		"column": 45
+	},
+	{
+		"type": "space",
+		"value": " ",
+		"line": 7,
+		"column": 46
+	},
+	{
+		"type": "int",
+		"value": "1",
+		"identifier": "b",
+		"line": 7,
+		"column": 47
+	},
+	{
+		"type": "control",
+		"value": ",",
+		"line": 7,
+		"column": 49
+	},
+	{
+		"type": "space",
+		"value": " ",
+		"line": 7,
+		"column": 50
+	},
+	{
+		"type": "int",
+		"value": "2",
+		"identifier": "B",
+		"line": 7,
+		"column": 51
+	},
+	{
+		"type": "control",
+		"value": ",",
+		"line": 7,
+		"column": 53
+	},
+	{
+		"type": "space",
+		"value": " ",
+		"line": 7,
+		"column": 54
+	},
+	{
+		"type": "int",
+		"value": "3",
+		"identifier": "b",
+		"line": 7,
+		"column": 55
+	},
+	{
+		"type": "bracket",
+		"value": "]",
+		"line": 7,
+		"column": 57
+	},
+	{
+		"type": "control",
+		"value": ",",
+		"line": 7,
+		"column": 58
+	},
+	{
+		"type": "space",
+		"value": " ",
+		"line": 7,
+		"column": 59
+	},
+	{
+		"type": "literal",
+		"value": "long",
+		"line": 7,
+		"column": 60
+	},
+	{
+		"type": "control",
+		"value": ":",
+		"line": 7,
+		"column": 64
+	},
+	{
+		"type": "space",
+		"value": " ",
+		"line": 7,
+		"column": 65
+	},
+	{
+		"type": "bracket",
+		"value": "[",
+		"line": 7,
+		"column": 66
+	},
+	{
+		"type": "literal",
+		"value": "L",
+		"line": 7,
+		"column": 67
+	},
+	{
+		"type": "control",
+		"value": ";",
+		"line": 7,
+		"column": 68
+	},
+	{
+		"type": "space",
+		"value": " ",
+		"line": 7,
+		"column": 69
+	},
+	{
+		"type": "int",
+		"value": "1",
+		"identifier": "l",
+		"line": 7,
+		"column": 70
+	},
+	{
+		"type": "control",
+		"value": ",",
+		"line": 7,
+		"column": 72
+	},
+	{
+		"type": "space",
+		"value": " ",
+		"line": 7,
+		"column": 73
+	},
+	{
+		"type": "int",
+		"value": "2",
+		"identifier": "L",
+		"line": 7,
+		"column": 74
+	},
+	{
+		"type": "control",
+		"value": ",",
+		"line": 7,
+		"column": 76
+	},
+	{
+		"type": "space",
+		"value": " ",
+		"line": 7,
+		"column": 77
+	},
+	{
+		"type": "int",
+		"value": "3",
+		"identifier": "l",
+		"line": 7,
+		"column": 78
+	},
+	{
+		"type": "bracket",
+		"value": "]",
+		"line": 7,
+		"column": 80
+	},
+	{
+		"type": "bracket",
+		"value": "}",
+		"line": 7,
+		"column": 81
+	},
+	{
+		"type": "bracket",
+		"value": "]",
+		"line": 7,
+		"column": 82
+	},
+	{
+		"type": "newline",
+		"value": "\n",
+		"line": 7,
+		"column": 83
+	},
+	{
+		"type": "literal",
+		"value": "say",
+		"line": 9,
+		"column": 1
+	},
+	{
+		"type": "space",
+		"value": " ",
+		"line": 9,
 		"column": 4
 	},
 	{
 		"type": "control",
 		"value": "-",
-		"line": 8,
+		"line": 9,
 		"column": 5
 	},
 	{
 		"type": "literal",
 		"value": "awd",
-		"line": 8,
+		"line": 9,
 		"column": 6
 	},
 	{
 		"type": "space",
 		"value": " ",
-		"line": 8,
+		"line": 9,
 		"column": 9
 	},
 	{
 		"type": "control",
 		"value": ".",
-		"line": 8,
+		"line": 9,
 		"column": 10
 	},
 	{
 		"type": "literal",
 		"value": "awd",
-		"line": 8,
+		"line": 9,
 		"column": 11
 	},
 	{
 		"type": "newline",
 		"value": "\n",
-		"line": 8,
+		"line": 9,
 		"column": 14
 	},
 	{
 		"type": "literal",
 		"value": "say",
-		"line": 9,
+		"line": 10,
 		"column": 1
 	},
 	{
 		"type": "space",
 		"value": " ",
-		"line": 9,
+		"line": 10,
 		"column": 4
 	},
 	{
 		"type": "control",
 		"value": "<",
-		"line": 9,
+		"line": 10,
 		"column": 5
 	},
 	{
 		"type": "control",
 		"value": "%",
-		"line": 9,
+		"line": 10,
 		"column": 6
 	},
 	{
 		"type": "literal",
 		"value": "awd",
-		"line": 9,
+		"line": 10,
 		"column": 7
 	},
 	{
 		"type": "control",
 		"value": "%",
-		"line": 9,
+		"line": 10,
 		"column": 10
 	},
 	{
 		"type": "control",
 		"value": ">",
-		"line": 9,
+		"line": 10,
 		"column": 11
 	},
 	{
 		"type": "newline",
 		"value": "\n",
-		"line": 9,
+		"line": 10,
 		"column": 12
 	},
 	{
 		"type": "literal",
 		"value": "data",
-		"line": 10,
+		"line": 11,
 		"column": 1
 	},
 	{
 		"type": "space",
 		"value": " ",
-		"line": 10,
+		"line": 11,
 		"column": 5
 	},
 	{
 		"type": "literal",
 		"value": "remove",
-		"line": 10,
+		"line": 11,
 		"column": 6
 	},
 	{
 		"type": "space",
 		"value": " ",
-		"line": 10,
+		"line": 11,
 		"column": 12
 	},
 	{
 		"type": "literal",
 		"value": "entity",
-		"line": 10,
+		"line": 11,
 		"column": 13
 	},
 	{
 		"type": "space",
 		"value": " ",
-		"line": 10,
+		"line": 11,
 		"column": 19
 	},
 	{
 		"type": "int",
 		"value": "2",
-		"line": 10,
+		"line": 11,
 		"column": 20
 	},
 	{
 		"type": "literal",
-		"value": "d12be42-52a9-4a91-a8a1-11c01849e498",
-		"line": 10,
+		"value": "d12be42",
+		"line": 11,
 		"column": 21
+	},
+	{
+		"type": "int",
+		"value": "-52",
+		"line": 11,
+		"column": 28
+	},
+	{
+		"type": "literal",
+		"value": "a9",
+		"line": 11,
+		"column": 31
+	},
+	{
+		"type": "int",
+		"value": "-4",
+		"line": 11,
+		"column": 33
+	},
+	{
+		"type": "literal",
+		"value": "a91",
+		"line": 11,
+		"column": 35
+	},
+	{
+		"type": "control",
+		"value": "-",
+		"line": 11,
+		"column": 38
+	},
+	{
+		"type": "literal",
+		"value": "a8a1",
+		"line": 11,
+		"column": 39
+	},
+	{
+		"type": "int",
+		"value": "-11",
+		"line": 11,
+		"column": 43
+	},
+	{
+		"type": "literal",
+		"value": "c01849e498",
+		"line": 11,
+		"column": 46
 	},
 	{
 		"type": "space",
 		"value": " ",
-		"line": 10,
+		"line": 11,
 		"column": 56
 	},
 	{
 		"type": "literal",
-		"value": "data.path.nodes",
-		"line": 10,
+		"value": "data",
+		"line": 11,
 		"column": 57
+	},
+	{
+		"type": "control",
+		"value": ".",
+		"line": 11,
+		"column": 61
+	},
+	{
+		"type": "literal",
+		"value": "path",
+		"line": 11,
+		"column": 62
+	},
+	{
+		"type": "control",
+		"value": ".",
+		"line": 11,
+		"column": 66
+	},
+	{
+		"type": "literal",
+		"value": "nodes",
+		"line": 11,
+		"column": 67
 	},
 	{
 		"type": "bracket",
 		"value": "[",
-		"line": 10,
+		"line": 11,
 		"column": 72
 	},
 	{
 		"type": "int",
 		"value": "0",
-		"line": 10,
+		"line": 11,
 		"column": 73
 	},
 	{
 		"type": "bracket",
 		"value": "]",
-		"line": 10,
+		"line": 11,
 		"column": 74
 	},
 	{
 		"type": "newline",
 		"value": "\n",
-		"line": 10,
+		"line": 11,
 		"column": 75
 	},
 	{
 		"type": "literal",
 		"value": "tellraw",
-		"line": 11,
+		"line": 12,
 		"column": 1
 	},
 	{
 		"type": "space",
 		"value": " ",
-		"line": 11,
+		"line": 12,
 		"column": 8
 	},
 	{
 		"type": "control",
 		"value": "@",
-		"line": 11,
+		"line": 12,
 		"column": 9
 	},
 	{
 		"type": "literal",
 		"value": "a",
-		"line": 11,
+		"line": 12,
 		"column": 10
 	},
 	{
 		"type": "space",
 		"value": " ",
-		"line": 11,
+		"line": 12,
 		"column": 11
 	},
 	{
 		"type": "bracket",
 		"value": "[",
-		"line": 11,
+		"line": 12,
 		"column": 12
 	},
 	{
 		"type": "bracket",
 		"value": "{",
-		"line": 11,
+		"line": 12,
 		"column": 13
 	},
 	{
 		"type": "quotedString",
 		"bracket": "\"",
 		"value": "storage",
-		"line": 11,
+		"line": 12,
 		"column": 14
 	},
 	{
 		"type": "control",
 		"value": ":",
-		"line": 11,
+		"line": 12,
 		"column": 23
 	},
 	{
 		"type": "space",
 		"value": " ",
-		"line": 11,
+		"line": 12,
 		"column": 24
 	},
 	{
 		"type": "quotedString",
 		"bracket": "\"",
 		"value": "bonnie:text",
-		"line": 11,
+		"line": 12,
 		"column": 25
 	},
 	{
 		"type": "control",
 		"value": ",",
-		"line": 11,
+		"line": 12,
 		"column": 38
 	},
 	{
 		"type": "space",
 		"value": " ",
-		"line": 11,
+		"line": 12,
 		"column": 39
 	},
 	{
 		"type": "quotedString",
 		"bracket": "\"",
 		"value": "nbt",
-		"line": 11,
+		"line": 12,
 		"column": 40
 	},
 	{
 		"type": "control",
 		"value": ":",
-		"line": 11,
+		"line": 12,
 		"column": 45
 	},
 	{
 		"type": "space",
 		"value": " ",
-		"line": 11,
+		"line": 12,
 		"column": 46
 	},
 	{
 		"type": "quotedString",
 		"bracket": "\"",
 		"value": "log.state_change",
-		"line": 11,
+		"line": 12,
 		"column": 47
 	},
 	{
 		"type": "control",
 		"value": ",",
-		"line": 11,
+		"line": 12,
 		"column": 65
 	},
 	{
 		"type": "space",
 		"value": " ",
-		"line": 11,
+		"line": 12,
 		"column": 66
 	},
 	{
 		"type": "quotedString",
 		"bracket": "\"",
 		"value": "interpret",
-		"line": 11,
+		"line": 12,
 		"column": 67
 	},
 	{
 		"type": "control",
 		"value": ":",
-		"line": 11,
+		"line": 12,
 		"column": 78
 	},
 	{
 		"type": "space",
 		"value": " ",
-		"line": 11,
+		"line": 12,
 		"column": 79
 	},
 	{
-		"type": "literal",
+		"type": "boolean",
 		"value": "true",
-		"line": 11,
+		"line": 12,
 		"column": 80
 	},
 	{
 		"type": "bracket",
 		"value": "}",
-		"line": 11,
+		"line": 12,
 		"column": 84
 	},
 	{
 		"type": "control",
 		"value": ",",
-		"line": 11,
+		"line": 12,
 		"column": 85
 	},
 	{
 		"type": "space",
 		"value": " ",
-		"line": 11,
+		"line": 12,
 		"column": 86
 	},
 	{
 		"type": "bracket",
 		"value": "{",
-		"line": 11,
+		"line": 12,
 		"column": 87
 	},
 	{
 		"type": "quotedString",
 		"bracket": "\"",
 		"value": "text",
-		"line": 11,
+		"line": 12,
 		"column": 88
 	},
 	{
 		"type": "control",
 		"value": ":",
-		"line": 11,
+		"line": 12,
 		"column": 94
 	},
 	{
 		"type": "space",
 		"value": " ",
-		"line": 11,
+		"line": 12,
 		"column": 95
 	},
 	{
 		"type": "quotedString",
 		"bracket": "\"",
 		"value": "AGGRO_WAITING_FOR_PATH",
-		"line": 11,
+		"line": 12,
 		"column": 96
 	},
 	{
 		"type": "control",
 		"value": ",",
-		"line": 11,
+		"line": 12,
 		"column": 120
 	},
 	{
 		"type": "space",
 		"value": " ",
-		"line": 11,
+		"line": 12,
 		"column": 121
 	},
 	{
 		"type": "quotedString",
 		"bracket": "\"",
 		"value": "color",
-		"line": 11,
+		"line": 12,
 		"column": 122
 	},
 	{
 		"type": "control",
 		"value": ":",
-		"line": 11,
+		"line": 12,
 		"column": 129
 	},
 	{
 		"type": "space",
 		"value": " ",
-		"line": 11,
+		"line": 12,
 		"column": 130
 	},
 	{
 		"type": "quotedString",
 		"bracket": "\"",
 		"value": "red",
-		"line": 11,
+		"line": 12,
 		"column": 131
 	},
 	{
 		"type": "bracket",
 		"value": "}",
-		"line": 11,
+		"line": 12,
 		"column": 136
 	},
 	{
 		"type": "control",
 		"value": ",",
-		"line": 11,
+		"line": 12,
 		"column": 137
 	},
 	{
 		"type": "space",
 		"value": " ",
-		"line": 11,
+		"line": 12,
 		"column": 138
 	},
 	{
 		"type": "quotedString",
 		"bracket": "\"",
 		"value": " -> ",
-		"line": 11,
+		"line": 12,
 		"column": 139
 	},
 	{
 		"type": "control",
 		"value": ",",
-		"line": 11,
+		"line": 12,
 		"column": 145
 	},
 	{
 		"type": "space",
 		"value": " ",
-		"line": 11,
+		"line": 12,
 		"column": 146
 	},
 	{
 		"type": "bracket",
 		"value": "{",
-		"line": 11,
+		"line": 12,
 		"column": 147
 	},
 	{
 		"type": "quotedString",
 		"bracket": "\"",
 		"value": "text",
-		"line": 11,
+		"line": 12,
 		"column": 148
 	},
 	{
 		"type": "control",
 		"value": ":",
-		"line": 11,
+		"line": 12,
 		"column": 154
 	},
 	{
 		"type": "space",
 		"value": " ",
-		"line": 11,
+		"line": 12,
 		"column": 155
 	},
 	{
 		"type": "quotedString",
 		"bracket": "\"",
 		"value": "AGGRO_FOLLOWING_PATH",
-		"line": 11,
+		"line": 12,
 		"column": 156
 	},
 	{
 		"type": "control",
 		"value": ",",
-		"line": 11,
+		"line": 12,
 		"column": 178
 	},
 	{
 		"type": "space",
 		"value": " ",
-		"line": 11,
+		"line": 12,
 		"column": 179
 	},
 	{
 		"type": "quotedString",
 		"bracket": "\"",
 		"value": "color",
-		"line": 11,
+		"line": 12,
 		"column": 180
 	},
 	{
 		"type": "control",
 		"value": ":",
-		"line": 11,
+		"line": 12,
 		"column": 187
 	},
 	{
 		"type": "space",
 		"value": " ",
-		"line": 11,
+		"line": 12,
 		"column": 188
 	},
 	{
 		"type": "quotedString",
 		"bracket": "\"",
 		"value": "green",
-		"line": 11,
+		"line": 12,
 		"column": 189
 	},
 	{
 		"type": "bracket",
 		"value": "}",
-		"line": 11,
+		"line": 12,
 		"column": 196
 	},
 	{
 		"type": "bracket",
 		"value": "]",
-		"line": 11,
+		"line": 12,
 		"column": 197
 	},
 	{
 		"type": "newline",
 		"value": "\n",
-		"line": 11,
+		"line": 12,
 		"column": 198
 	},
 	{
 		"type": "literal",
 		"value": "data",
-		"line": 12,
+		"line": 13,
 		"column": 1
 	},
 	{
 		"type": "space",
 		"value": " ",
-		"line": 12,
+		"line": 13,
 		"column": 5
 	},
 	{
 		"type": "literal",
 		"value": "modify",
-		"line": 12,
+		"line": 13,
 		"column": 6
 	},
 	{
 		"type": "space",
 		"value": " ",
-		"line": 12,
+		"line": 13,
 		"column": 12
 	},
 	{
 		"type": "literal",
 		"value": "entity",
-		"line": 12,
+		"line": 13,
 		"column": 13
 	},
 	{
 		"type": "space",
 		"value": " ",
-		"line": 12,
+		"line": 13,
 		"column": 19
 	},
 	{
 		"type": "control",
 		"value": "@",
-		"line": 12,
+		"line": 13,
 		"column": 20
 	},
 	{
 		"type": "literal",
 		"value": "s",
-		"line": 12,
+		"line": 13,
 		"column": 21
 	},
 	{
 		"type": "space",
 		"value": " ",
-		"line": 12,
-		"column": 22
-	},
-	{
-		"type": "literal",
-		"value": "data.path",
-		"line": 12,
-		"column": 23
-	},
-	{
-		"type": "space",
-		"value": " ",
-		"line": 12,
-		"column": 32
-	},
-	{
-		"type": "literal",
-		"value": "set",
-		"line": 12,
-		"column": 33
-	},
-	{
-		"type": "space",
-		"value": " ",
-		"line": 12,
-		"column": 36
-	},
-	{
-		"type": "literal",
-		"value": "from",
-		"line": 12,
-		"column": 37
-	},
-	{
-		"type": "space",
-		"value": " ",
-		"line": 12,
-		"column": 41
-	},
-	{
-		"type": "literal",
-		"value": "storage",
-		"line": 12,
-		"column": 42
-	},
-	{
-		"type": "space",
-		"value": " ",
-		"line": 12,
-		"column": 49
-	},
-	{
-		"type": "literal",
-		"value": "astar",
-		"line": 12,
-		"column": 50
-	},
-	{
-		"type": "control",
-		"value": ":",
-		"line": 12,
-		"column": 55
-	},
-	{
-		"type": "literal",
-		"value": "ram",
-		"line": 12,
-		"column": 56
-	},
-	{
-		"type": "space",
-		"value": " ",
-		"line": 12,
-		"column": 59
-	},
-	{
-		"type": "literal",
-		"value": "this.path",
-		"line": 12,
-		"column": 60
-	},
-	{
-		"type": "newline",
-		"value": "\n",
-		"line": 12,
-		"column": 69
-	},
-	{
-		"type": "comment",
-		"value": " scoreboard objectives add <%config.internalScoreboard%> dummy [{\"text\":\"A* Internal\",\"color\":\"green\"}]",
 		"line": 13,
-		"column": 1
-	},
-	{
-		"type": "newline",
-		"value": "\n",
-		"line": 13,
-		"column": 105
-	},
-	{
-		"type": "literal",
-		"value": "data",
-		"line": 14,
-		"column": 1
-	},
-	{
-		"type": "space",
-		"value": " ",
-		"line": 14,
-		"column": 5
-	},
-	{
-		"type": "literal",
-		"value": "modify",
-		"line": 14,
-		"column": 6
-	},
-	{
-		"type": "space",
-		"value": " ",
-		"line": 14,
-		"column": 12
-	},
-	{
-		"type": "literal",
-		"value": "entity",
-		"line": 14,
-		"column": 13
-	},
-	{
-		"type": "space",
-		"value": " ",
-		"line": 14,
-		"column": 19
-	},
-	{
-		"type": "control",
-		"value": "@",
-		"line": 14,
-		"column": 20
-	},
-	{
-		"type": "literal",
-		"value": "s",
-		"line": 14,
-		"column": 21
-	},
-	{
-		"type": "space",
-		"value": " ",
-		"line": 14,
 		"column": 22
 	},
 	{
 		"type": "literal",
 		"value": "data",
-		"line": 14,
+		"line": 13,
 		"column": 23
 	},
 	{
-		"type": "space",
-		"value": " ",
-		"line": 14,
+		"type": "control",
+		"value": ".",
+		"line": 13,
 		"column": 27
 	},
 	{
 		"type": "literal",
-		"value": "set",
-		"line": 14,
+		"value": "path",
+		"line": 13,
 		"column": 28
 	},
 	{
 		"type": "space",
 		"value": " ",
+		"line": 13,
+		"column": 32
+	},
+	{
+		"type": "literal",
+		"value": "set",
+		"line": 13,
+		"column": 33
+	},
+	{
+		"type": "space",
+		"value": " ",
+		"line": 13,
+		"column": 36
+	},
+	{
+		"type": "literal",
+		"value": "from",
+		"line": 13,
+		"column": 37
+	},
+	{
+		"type": "space",
+		"value": " ",
+		"line": 13,
+		"column": 41
+	},
+	{
+		"type": "literal",
+		"value": "storage",
+		"line": 13,
+		"column": 42
+	},
+	{
+		"type": "space",
+		"value": " ",
+		"line": 13,
+		"column": 49
+	},
+	{
+		"type": "literal",
+		"value": "astar",
+		"line": 13,
+		"column": 50
+	},
+	{
+		"type": "control",
+		"value": ":",
+		"line": 13,
+		"column": 55
+	},
+	{
+		"type": "literal",
+		"value": "ram",
+		"line": 13,
+		"column": 56
+	},
+	{
+		"type": "space",
+		"value": " ",
+		"line": 13,
+		"column": 59
+	},
+	{
+		"type": "literal",
+		"value": "this",
+		"line": 13,
+		"column": 60
+	},
+	{
+		"type": "control",
+		"value": ".",
+		"line": 13,
+		"column": 64
+	},
+	{
+		"type": "literal",
+		"value": "path",
+		"line": 13,
+		"column": 65
+	},
+	{
+		"type": "newline",
+		"value": "\n",
+		"line": 13,
+		"column": 69
+	},
+	{
+		"type": "comment",
+		"value": " scoreboard objectives add <%config.internalScoreboard%> dummy [{\"text\":\"A* Internal\",\"color\":\"green\"}]",
 		"line": 14,
+		"column": 1
+	},
+	{
+		"type": "newline",
+		"value": "\n",
+		"line": 14,
+		"column": 105
+	},
+	{
+		"type": "literal",
+		"value": "data",
+		"line": 15,
+		"column": 1
+	},
+	{
+		"type": "space",
+		"value": " ",
+		"line": 15,
+		"column": 5
+	},
+	{
+		"type": "literal",
+		"value": "modify",
+		"line": 15,
+		"column": 6
+	},
+	{
+		"type": "space",
+		"value": " ",
+		"line": 15,
+		"column": 12
+	},
+	{
+		"type": "literal",
+		"value": "entity",
+		"line": 15,
+		"column": 13
+	},
+	{
+		"type": "space",
+		"value": " ",
+		"line": 15,
+		"column": 19
+	},
+	{
+		"type": "control",
+		"value": "@",
+		"line": 15,
+		"column": 20
+	},
+	{
+		"type": "literal",
+		"value": "s",
+		"line": 15,
+		"column": 21
+	},
+	{
+		"type": "space",
+		"value": " ",
+		"line": 15,
+		"column": 22
+	},
+	{
+		"type": "literal",
+		"value": "data",
+		"line": 15,
+		"column": 23
+	},
+	{
+		"type": "space",
+		"value": " ",
+		"line": 15,
+		"column": 27
+	},
+	{
+		"type": "literal",
+		"value": "set",
+		"line": 15,
+		"column": 28
+	},
+	{
+		"type": "space",
+		"value": " ",
+		"line": 15,
 		"column": 31
 	},
 	{
 		"type": "literal",
 		"value": "value",
-		"line": 14,
+		"line": 15,
 		"column": 32
 	},
 	{
 		"type": "space",
 		"value": " ",
-		"line": 14,
+		"line": 15,
 		"column": 37
 	},
 	{
 		"type": "bracket",
 		"value": "{",
-		"line": 14,
+		"line": 15,
 		"column": 38
 	},
 	{
 		"type": "literal",
 		"value": "Name",
-		"line": 14,
+		"line": 15,
 		"column": 39
 	},
 	{
 		"type": "control",
 		"value": ":",
-		"line": 14,
+		"line": 15,
 		"column": 43
 	},
 	{
 		"type": "quotedString",
 		"bracket": "\"",
 		"value": "{\\\"text\\\":\\\"Start\\\",\\\"color\\\":\\\"green\\\",\\\"italic\\\":false}\\\"]}",
-		"line": 14,
+		"line": 15,
 		"column": 44
 	},
 	{
 		"type": "bracket",
 		"value": "}",
-		"line": 14,
+		"line": 15,
 		"column": 107
 	},
 	{
 		"type": "newline",
 		"value": "\n",
-		"line": 14,
+		"line": 15,
 		"column": 108
 	}
 ]
