@@ -1,9 +1,13 @@
-import { MinecraftSyntaxError, throwSyntaxError } from '../errors'
+import { throwSyntaxError, throwTokenError } from '../errors'
 import {
 	AnyNBTSyntaxToken,
 	AnySyntaxToken,
+	assertTypeAndCollect,
+	assertTypeAndConsume,
+	assertValueAndCollect,
+	assertValueAndConsume,
 	consumeAll,
-	expectAndConsume,
+	createParserFunc,
 	ISyntaxToken,
 	ISyntaxTokens,
 	SelectorChar,
@@ -11,19 +15,13 @@ import {
 } from '../parsers/vanillaParser'
 import { AnyToken, ITokens } from '../tokenizers/vanillaTokenizer'
 import { tokenToString } from '../util'
+import { AnyExecuteSubCommand, parseExecuteCommand } from './vanillaCommands/executeCommand'
 
 export interface ISyntaxTokenCommand<N> extends ISyntaxToken<'command'> {
 	name: N
 }
 
-export interface IExecuteSubCommandToken<N> extends ISyntaxToken<'executeSubCommand'> {
-	name: N
-}
-
 export type AnyCommandSyntaxToken = ICommandSyntaxTokens[keyof ICommandSyntaxTokens]
-
-export type AnyExecuteSubCommand = IExecuteSubCommandTokens[keyof IExecuteSubCommandTokens]
-export type ExecuteStoreSubCommandDataType = 'byte' | 'double' | 'float' | 'int' | 'long' | 'short'
 
 export interface ICommandSyntaxTokens {
 	unknown: ISyntaxTokenCommand<'unknown'> & {
@@ -35,164 +33,23 @@ export interface ICommandSyntaxTokens {
 	}
 }
 
-export interface IExecuteSubCommandTokens {
-	align: IExecuteSubCommandToken<'align'> & {
-		swizzle: string
-	}
-	anchored: IExecuteSubCommandToken<'anchored'> & {
-		swizzle: string
-	}
-	as: IExecuteSubCommandToken<'as'> & {
-		target: ISyntaxTokens['targetSelector'] | ISyntaxTokens['literal']
-	}
-	at: IExecuteSubCommandToken<'at'> & {
-		target: ISyntaxTokens['targetSelector'] | ISyntaxTokens['literal']
-	}
-	facing: IExecuteSubCommandToken<'facing'> &
-		(
-			| {
-					entityBranch: false
-					position: ISyntaxTokens['vec3']
-			  }
-			| {
-					entityBranch: true
-					target: ISyntaxTokens['targetSelector'] | ISyntaxTokens['literal']
-					focus: 'eyes' | 'feet'
-			  }
-		)
-	in: IExecuteSubCommandToken<'in'> & {
-		dimention: ISyntaxTokens['resourceLocation']
-	}
-	on: IExecuteSubCommandToken<'on'> & {
-		target:
-			| 'attacker'
-			| 'controller'
-			| 'leasher'
-			| 'owner'
-			| 'passengers'
-			| 'target'
-			| 'vehicle'
-	}
-	positioned: IExecuteSubCommandToken<'positioned'> &
-		(
-			| {
-					asBranch: true
-					target: ISyntaxTokens['targetSelector']
-			  }
-			| {
-					asBranch: false
-					position: ISyntaxTokens['vec3']
-			  }
-		)
-	rotated: IExecuteSubCommandToken<'rotated'> &
-		(
-			| {
-					asBranch: true
-					target: ISyntaxTokens['targetSelector']
-			  }
-			| {
-					asBranch: false
-					position: ISyntaxTokens['vec2'] & {
-						xSpaceMod?: '~'
-						ySpaceMod?: '~'
-					}
-			  }
-		)
-	store: IExecuteSubCommandToken<'store'> & {
-		storeMode: 'result' | 'success'
-	} & (
-			| {
-					storeBranch: 'block'
-					targetPos: ISyntaxTokens['vec3']
-					path: ISyntaxTokens['nbtPath']
-					dataType: ExecuteStoreSubCommandDataType
-			  }
-			| {
-					storeBranch: 'bossbar'
-			  }
-			| {
-					storeBranch: 'entity'
-			  }
-			| {
-					storeBranch: 'score'
-			  }
-			| {
-					storeBranch: 'storage'
-			  }
-		)
-	if: IExecuteSubCommandToken<'if' | 'unless'> &
-		(
-			| {
-					conditionBranch: 'block'
-					position: ISyntaxTokens['vec3']
-					block: ISyntaxTokens['blockstate']
-			  }
-			| {
-					conditionBranch: 'blocks'
-					start: ISyntaxTokens['vec3']
-					end: ISyntaxTokens['vec3']
-					target: ISyntaxTokens['vec3']
-					maskMode: 'all' | 'masked'
-			  }
-			| ({
-					conditionBranch: 'data'
-			  } & (
-					| {
-							dataBranch: 'block'
-							sourcePos: ISyntaxTokens['vec3']
-							path: ISyntaxTokens['nbtPath']
-					  }
-					| {
-							dataBranch: 'entity'
-							source: ISyntaxTokens['targetSelector']
-							path: ISyntaxTokens['nbtPath']
-					  }
-					| {
-							dataBranch: 'storage'
-							source: ISyntaxTokens['resourceLocation']
-							path: ISyntaxTokens['nbtPath']
-					  }
-			  ))
-			| {
-					conditionBranch: 'entity'
-					target: ISyntaxTokens['targetSelector']
-			  }
-			| {
-					conditionBranch: 'predicate'
-					predicate: ISyntaxTokens['resourceLocation']
-			  }
-			| ({
-					conditionBranch: 'score'
-					target: ISyntaxTokens['targetSelector']
-					targetObjective: ISyntaxTokens['literal']
-			  } & (
-					| {
-							matchesBranch: true
-							range: ISyntaxTokens['intRange']
-					  }
-					| {
-							matchesBranch: false
-							operation: '<=' | '<' | '=' | '>' | '>='
-							source: ISyntaxTokens['targetSelector']
-							sourceObjective: ISyntaxTokens['literal']
-					  }
-			  ))
-			| {
-					conditionBranch: 'dimension'
-					dimension: ISyntaxTokens['resourceLocation']
-			  }
-			| {
-					conditionBranch: 'loaded'
-					position: ISyntaxTokens['vec3']
-			  }
-		)
-	unless: IExecuteSubCommandTokens['if']
-	run: IExecuteSubCommandToken<'run'> & {
-		command: AnyCommandSyntaxToken
-	}
+export function isEndOfCommand(s: TokenStream): boolean {
+	if (s.item?.type === 'newline') return true
+	return false
 }
 
-function parseRange<T extends 'int' | 'float'>(
+export function assertEndOfArg(s: TokenStream) {
+	if (s.item === undefined || s.item?.type === 'newline' || s.item?.type === 'space') return
+	throwSyntaxError(s.item, 'Expected end of argument at %POS but found %TOKEN instead.')
+}
+
+export function assertAndConsumeEndOfArg(s: TokenStream) {
+	if (s.item === undefined || s.item?.type === 'newline' || s.item?.type === 'space')
+		return s.collect()
+	throwSyntaxError(s.item, 'Expected end of argument at %POS but found %TOKEN instead.')
+}
+
+export function parseRange<T extends 'int' | 'float'>(
 	s: TokenStream,
 	numberType: T
 ): ISyntaxTokens[T] | ISyntaxTokens[`${T}Range`] {
@@ -252,20 +109,20 @@ function parseRange<T extends 'int' | 'float'>(
 	throwSyntaxError(s.item!, `Expected ${numberType} at %POS but found %TOKEN instead.`)
 }
 
-function parseScoreObject(s: TokenStream): ISyntaxTokens['scoreObject'] {
+export function parseScoreObject(s: TokenStream): ISyntaxTokens['scoreObject'] {
 	const { line, column } = s.item!
 	const scores: Record<string, ISyntaxTokens['int'] | ISyntaxTokens['intRange']> = {}
-	expectAndConsume(s, 'bracket', '{')
+	assertValueAndConsume(s, 'bracket', '{')
 	consumeAll(s, 'space')
 	while (s.item) {
 		if (s.item.type === 'bracket' && s.item.value === '}') break
 		consumeAll(s, 'space')
-		const key = expectAndConsume(s, 'literal')
-		expectAndConsume(s, 'control', '=')
+		const key = assertTypeAndCollect(s, 'literal')
+		assertValueAndConsume(s, 'control', '=')
 		scores[key.value] = parseRange(s, 'int')
 		if (s.item.type === 'control' && s.item.value === ',') s.consume()
 	}
-	expectAndConsume(s, 'bracket', '}')
+	assertValueAndConsume(s, 'bracket', '}')
 
 	return {
 		type: 'scoreObject',
@@ -275,20 +132,20 @@ function parseScoreObject(s: TokenStream): ISyntaxTokens['scoreObject'] {
 	}
 }
 
-function parseAdvancementObject(s: TokenStream): ISyntaxTokens['advancementObject'] {
+export function parseAdvancementObject(s: TokenStream): ISyntaxTokens['advancementObject'] {
 	const { line, column } = s.item!
 	const advancements = new Map<ISyntaxTokens['resourceLocation'], ISyntaxTokens['boolean']>()
-	expectAndConsume(s, 'bracket', '{')
+	assertValueAndConsume(s, 'bracket', '{')
 	while (s.item) {
 		if (s.item.type === 'bracket' && s.item.value === '}') break
 		consumeAll(s, 'space')
 		// console.log(s.item)
 		const key = parseResourceLocation(s, false)
-		expectAndConsume(s, 'control', '=')
-		advancements.set(key, expectAndConsume(s, 'boolean'))
+		assertValueAndConsume(s, 'control', '=')
+		advancements.set(key, assertTypeAndCollect(s, 'boolean'))
 		if (s.item.type === 'control' && s.item.value === ',') s.consume()
 	}
-	expectAndConsume(s, 'bracket', '}')
+	assertValueAndConsume(s, 'bracket', '}')
 
 	return {
 		type: 'advancementObject',
@@ -298,7 +155,7 @@ function parseAdvancementObject(s: TokenStream): ISyntaxTokens['advancementObjec
 	}
 }
 
-function parseResourceLocation(
+export function parseResourceLocation(
 	s: TokenStream,
 	allowTag: boolean
 ): ISyntaxTokens['resourceLocation'] {
@@ -315,18 +172,23 @@ function parseResourceLocation(
 	}
 
 	try {
-		namespace += expectAndConsume(s, 'literal').value
-		expectAndConsume(s, 'control', ':')
+		namespace += assertTypeAndCollect(s, 'literal').value
+		assertValueAndConsume(s, 'control', ':')
 		while (s.item) {
-			if (s.item.type === 'literal') {
-				path += s.collect()!.value
-				continue
-			} else if (s.item.type === 'control') {
-				if (s.item.value === '/') {
+			switch (s.item.type) {
+				case 'literal':
 					path += s.collect()!.value
 					continue
-				}
-				break
+				case 'control':
+					if (s.item.value === '/') {
+						path += s.collect()!.value
+						continue
+					}
+					return { type: 'resourceLocation', namespace, path, line, column }
+				case 'space':
+				case 'bracket':
+				case 'newline':
+					return { type: 'resourceLocation', namespace, path, line, column }
 			}
 			throwSyntaxError(s.item, `Found unexpected %TOKEN at %POS`)
 		}
@@ -344,7 +206,7 @@ function parseResourceLocation(
 	return { type: 'resourceLocation', namespace, path, line, column }
 }
 
-function parseUnquotedString(s: TokenStream): ISyntaxTokens['unquotedString'] {
+export function parseUnquotedString(s: TokenStream): ISyntaxTokens['unquotedString'] {
 	const { line, column } = s.item!
 	let value = ''
 
@@ -375,11 +237,11 @@ function parseUnquotedString(s: TokenStream): ISyntaxTokens['unquotedString'] {
 	return { type: 'unquotedString', value, line, column }
 }
 
-function parseNbtList(s: TokenStream): ISyntaxTokens['nbtList'] {
+export function parseNbtList(s: TokenStream): ISyntaxTokens['nbtList'] {
 	// TODO Add typed array support
 	const { line, column } = s.item!
 	const items: ISyntaxTokens['nbtList']['items'] = []
-	expectAndConsume(s, 'bracket', '[')
+	assertValueAndConsume(s, 'bracket', '[')
 	consumeAll(s, 'space')
 	let itemType: ISyntaxTokens['nbtList']['itemType'] | undefined
 	if (s.item?.type === 'literal' && 'lbi'.includes(s.item.value.toLowerCase())) {
@@ -395,7 +257,7 @@ function parseNbtList(s: TokenStream): ISyntaxTokens['nbtList'] {
 				break
 		}
 		s.consume()
-		expectAndConsume(s, 'control', ';')
+		assertValueAndConsume(s, 'control', ';')
 	}
 
 	try {
@@ -456,7 +318,7 @@ function parseNbtList(s: TokenStream): ISyntaxTokens['nbtList'] {
 		throw e
 	}
 
-	expectAndConsume(s, 'bracket', ']')
+	assertValueAndConsume(s, 'bracket', ']')
 
 	return {
 		type: 'nbtList',
@@ -483,10 +345,10 @@ function _parseNbtValue(s: TokenStream): AnyNBTSyntaxToken {
 	}
 }
 
-function parseNbtObject(s: TokenStream): ISyntaxTokens['nbtObject'] {
+export function parseNbtObject(s: TokenStream): ISyntaxTokens['nbtObject'] {
 	const { line, column } = s.item!
 	const value: ISyntaxTokens['nbtObject']['value'] = {}
-	expectAndConsume(s, 'bracket', '{')
+	assertValueAndConsume(s, 'bracket', '{')
 
 	try {
 		while (s.item) {
@@ -494,7 +356,7 @@ function parseNbtObject(s: TokenStream): ISyntaxTokens['nbtObject'] {
 			consumeAll(s, 'space')
 			const key = parseUnquotedString(s)
 			consumeAll(s, 'space')
-			expectAndConsume(s, 'control', ':')
+			assertValueAndConsume(s, 'control', ':')
 			consumeAll(s, 'space')
 			value[key.value] = _parseNbtValue(s)
 			consumeAll(s, 'space')
@@ -514,7 +376,7 @@ function parseNbtObject(s: TokenStream): ISyntaxTokens['nbtObject'] {
 		}
 	}
 
-	expectAndConsume(s, 'bracket', '}')
+	assertValueAndConsume(s, 'bracket', '}')
 
 	return {
 		type: 'nbtObject',
@@ -593,12 +455,17 @@ function _parseTargetSelectorArgument(
 			return parseNbtObject(s)
 		case 'advancements':
 			return parseAdvancementObject(s)
+		case 'name':
+			if (s.item?.type === 'quotedString') return s.collect() as ISyntaxTokens['quotedString']
+			return parseUnquotedString(s)
 		default:
 			throwSyntaxError(s.item!, `Unknown selector argument '${key}' as %POS`, line, column)
 	}
 }
 
-function parseTargetSelectorArguments(s: TokenStream): ISyntaxTokens['targetSelectorArgument'][] {
+export function parseTargetSelectorArguments(
+	s: TokenStream
+): ISyntaxTokens['targetSelectorArgument'][] {
 	const args: ISyntaxTokens['targetSelectorArgument'][] = []
 	// Return no args if no bracket exists
 	if (!(s.item?.type === 'bracket' && s.item.value === '[')) return args
@@ -611,7 +478,7 @@ function parseTargetSelectorArguments(s: TokenStream): ISyntaxTokens['targetSele
 			let inverted = false
 			const key = s.collect()! as ISyntaxTokens['literal']
 			consumeAll(s, 'space')
-			expectAndConsume(s, 'control', '=')
+			assertValueAndConsume(s, 'control', '=')
 			consumeAll(s, 'space')
 			if ((s.item as AnyToken)?.type === 'control' && s.item.value === '!') {
 				s.consume()
@@ -639,85 +506,260 @@ function parseTargetSelectorArguments(s: TokenStream): ISyntaxTokens['targetSele
 	return args
 }
 
-function parseTargetSelector(s: TokenStream): ISyntaxTokens['targetSelector'] {
-	const { line, column } = s.item!
+export const parseTargetSelector = createParserFunc(
+	'at targetSelector at %POS',
+	(s: TokenStream): ISyntaxTokens['targetSelector'] => {
+		const { line, column } = s.item!
 
-	switch (s.item?.type) {
-		case 'literal':
-			// FIXME Doesn't understand the difference between a player name and a UUID
-			return {
-				type: 'targetSelector',
-				targetType: 'literal',
-				value: s.item,
-				line,
-				column,
-			}
-		case 'control':
-			expectAndConsume(s, 'control')
-			const selectorChar = expectAndConsume(s, 'literal').value as SelectorChar
-			const args = parseTargetSelectorArguments(s)
-
-			return {
-				type: 'targetSelector',
-				targetType: 'selector',
-				selectorChar,
-				args,
-				line,
-				column,
-			}
-		default:
-			throwSyntaxError(
-				s.item!,
-				`Expected 'targetSelector' at %POS but found '${s.item?.type}' instead.`
-			)
-	}
-}
-
-export function parseExecuteCommand(s: TokenStream): ICommandSyntaxTokens['execute'] {
-	const { line, column } = s.collect()!
-	const subCommands: AnyExecuteSubCommand[] = []
-	expectAndConsume(s, 'space')
-
-	let commandFinished = false
-	while (!commandFinished && s.item) {
-		switch (s.item.type) {
+		switch (s.item?.type) {
 			case 'literal':
-				switch (s.item.value) {
-					case 'as':
-						const pos = { line: s.item.line, column: s.item.column }
-						s.consume() // Consume as literal
-						expectAndConsume(s, 'space')
-						const targetSelector = parseTargetSelector(s)
-						subCommands.push({
-							type: 'executeSubCommand',
-							name: 'as',
-							target: targetSelector,
-							...pos,
-						})
-						break
-					default:
-						throwSyntaxError(
-							s.item,
-							`Unknown ExecuteSubCommand ${s.item.value}' at %POS`
-						)
+				// FIXME Doesn't understand the difference between a player name and a UUID
+				return {
+					type: 'targetSelector',
+					targetType: 'literal',
+					value: s.item,
+					line,
+					column,
 				}
-				break
-			case 'newline':
-				commandFinished = true
-				break
+			case 'control':
+				assertTypeAndConsume(s, 'control')
+				const selectorChar = assertTypeAndCollect(s, 'literal').value as SelectorChar
+				const args = parseTargetSelectorArguments(s)
+
+				return {
+					type: 'targetSelector',
+					targetType: 'selector',
+					selectorChar,
+					args,
+					line,
+					column,
+				}
 			default:
 				throwSyntaxError(
-					s.item,
-					`Expected ExecuteSubCommand but found '${s.item.value}' at %POS`
+					s.item!,
+					`Expected 'targetSelector' at %POS but found '${s.item?.type}' instead.`
 				)
 		}
 	}
+)
 
-	return {
-		type: 'command',
-		name: 'execute',
-		subCommands,
-		line,
-		column,
-	}
+export function parseSwizzle(s: TokenStream): string {
+	const swizzle = assertTypeAndCollect(s, 'literal').value
+	const xCount = swizzle.split('x').length - 1
+	const yCount = swizzle.split('y').length - 1
+	const zCount = swizzle.split('z').length - 1
+
+	if (xCount < 1 || xCount > 1 || yCount < 1 || yCount > 1 || zCount < 1 || zCount > 1)
+		throwSyntaxError(s.item, `Invalid swizzle '${swizzle}' at %POS`)
+
+	return swizzle
 }
+
+export const parseVec3 = createParserFunc(
+	'at vec3 at %POS',
+	(s: TokenStream): ISyntaxTokens['vec3'] => {
+		const { line, column } = s.item!
+		let x, y, z, xSpace, ySpace, zSpace
+
+		if (s.item?.type === 'control' && (s.item.value === '~' || s.item.value === '^'))
+			xSpace = s.collect()!.value as ISyntaxTokens['vec3']['xSpace']
+
+		if (s.item?.type === 'int' || s.item?.type === 'float')
+			x = s.collect()! as ISyntaxTokens['int' | 'float']
+		else if (s.item?.type === 'space') {
+			// Allow undefined if no number is provided
+		} else
+			throwSyntaxError(s.item, 'Expected int or float for X of vec3 but found %TOKEN at %POS')
+		assertAndConsumeEndOfArg(s)
+
+		if (
+			(s.item as AnyToken)?.type === 'control' &&
+			(s.item.value === '~' || s.item.value === '^')
+		)
+			ySpace = s.collect()!.value as ISyntaxTokens['vec3']['ySpace']
+
+		if (s.item?.type === 'int' || s.item?.type === 'float')
+			y = s.collect()! as ISyntaxTokens['int' | 'float']
+		else if (s.item?.type === 'space') {
+			// Allow undefined if no number is provided
+		} else
+			throwSyntaxError(s.item, 'Expected int or float for Y of vec3 but found %TOKEN at %POS')
+		assertAndConsumeEndOfArg(s)
+
+		if (
+			(s.item as AnyToken)?.type === 'control' &&
+			(s.item.value === '~' || s.item.value === '^')
+		)
+			zSpace = s.collect()!.value as ISyntaxTokens['vec3']['zSpace']
+
+		if (s.item?.type === 'int' || s.item?.type === 'float')
+			z = s.collect()! as ISyntaxTokens['int' | 'float']
+		else if (s.item?.type === 'space') {
+			// Allow undefined if no number is provided
+		} else
+			throwSyntaxError(s.item, 'Expected int or float for Z of vec3 but found %TOKEN at %POS')
+		assertEndOfArg(s)
+
+		return { type: 'vec3', x, y, z, xSpace, ySpace, zSpace, line, column }
+	}
+)
+
+export const parseBlockstate = createParserFunc(
+	'at Blockstate at %POS',
+	(s): ISyntaxTokens['blockstate'] => {
+		const { line, column } = assertValueAndCollect(s, 'bracket', '[')
+		const states: ISyntaxTokens['blockstate']['states'] = {}
+
+		consumeAll(s, 'space')
+		while (s.item) {
+			if (s.item.type === 'bracket' && s.item.value === ']') break
+			consumeAll(s, 'space')
+			const key = assertTypeAndCollect(s, 'literal')
+			assertValueAndConsume(s, 'control', '=')
+			switch ((s.item as AnyToken)?.type) {
+				case 'int':
+				case 'boolean':
+				case 'literal':
+					states[key.value] = s.collect()! as ISyntaxTokens['literal' | 'boolean']
+					break
+				default:
+					throwSyntaxError(
+						s.item,
+						'Expected boolean|literal|int at %POS but found %TOKEN instead.'
+					)
+			}
+			if (s.item.type === 'control' && s.item.value === ',') s.consume()
+		}
+		assertValueAndConsume(s, 'bracket', ']')
+
+		return { type: 'blockstate', states, line, column }
+	}
+)
+
+export const parseBlock = createParserFunc('at Block at %POS', (s): ISyntaxTokens['block'] => {
+	const { line, column } = s.item!
+	const block = parseResourceLocation(s, true)
+	let blockstate
+	if (s.item?.type === 'bracket' && s.item.value === '[') blockstate = parseBlockstate(s)
+	return { type: 'block', block, blockstate, line, column }
+})
+// FIXME This function is a horrendous mess. Clean it up.
+export const parseNbtPath = createParserFunc(
+	'at NBTPath at %POS',
+	function (s): ISyntaxTokens['nbtPath'] {
+		const { line, column } = s.item!
+		const parts: AnySyntaxToken[] = []
+		let lastItem: AnyToken | undefined
+
+		while (s.item) {
+			if (
+				lastItem?.type === 'literal' ||
+				lastItem?.type === 'boolean' ||
+				lastItem?.type === 'quotedString' ||
+				(lastItem?.type === 'bracket' && (lastItem.value === '[' || lastItem.value === '{'))
+			) {
+				if (lastItem?.type === 'quotedString' && lastItem.bracket === "'")
+					throwSyntaxError(s.item, 'Quoted strings in NBTPaths must be double-quoted.')
+
+				if (s.item.type === 'control' && s.item.value === '.') {
+					lastItem = s.item
+					parts.push(s.collect()! as ISyntaxTokens['control'])
+				} else if (s.item.type === 'bracket' && s.item.value === '{') {
+					lastItem = s.item
+					parts.push(parseNbtObject(s))
+				} else if (s.item.type === 'bracket' && s.item.value === '[') {
+					lastItem = s.item
+					parts.push(s.collect()! as ISyntaxTokens['bracket'])
+
+					if ((s.item as AnyToken)?.type === 'int')
+						parts.push(s.collect()! as ISyntaxTokens['int'])
+					else if (
+						(s.item as AnyToken)?.type === 'bracket' &&
+						(s.item as AnyToken).value === ']'
+					) {
+					} else if (
+						(s.item as AnyToken)?.type === 'bracket' &&
+						(s.item as AnyToken).value === '{'
+					)
+						parts.push(parseNbtObject(s))
+					else
+						throwSyntaxError(s.item, 'Expected int|{ at %POS but found %TOKEN instead.')
+
+					parts.push(assertValueAndCollect(s, 'bracket', ']') as ISyntaxTokens['bracket'])
+				} else if (s.item.type === 'space' || s.item.type === 'newline') {
+					break
+				} else throwSyntaxError(s.item, `Expected .|[|{ at %POS but found %TOKEN instead.`)
+			} else if (
+				s.item?.type === 'literal' ||
+				s.item?.type === 'boolean' ||
+				s.item?.type === 'quotedString' ||
+				(s.item?.type === 'bracket' && (s.item.value === '[' || s.item.value === '{'))
+			) {
+				lastItem = s.item
+				if (s.item.type === 'bracket' && s.item.value === '{') parts.push(parseNbtObject(s))
+				else if (s.item.type === 'bracket' && s.item.value === '[') {
+					parts.push(s.collect()! as ISyntaxTokens['bracket'])
+
+					if ((s.item as AnyToken)?.type === 'int')
+						parts.push(s.collect()! as ISyntaxTokens['int'])
+					else if (
+						(s.item as AnyToken)?.type === 'bracket' &&
+						(s.item as AnyToken).value === ']'
+					) {
+					} else if (
+						(s.item as AnyToken)?.type === 'bracket' &&
+						(s.item as AnyToken).value === '{'
+					)
+						parts.push(parseNbtObject(s))
+					else
+						throwSyntaxError(s.item, 'Expected int|{ at %POS but found %TOKEN instead.')
+
+					parts.push(assertValueAndCollect(s, 'bracket', ']') as ISyntaxTokens['bracket'])
+				} else
+					parts.push(
+						s.collect()! as ISyntaxTokens['literal' | 'boolean' | 'quotedString']
+					)
+			} else {
+				console.log(parts)
+				throwSyntaxError(s.item, 'Unexpected %TOKEN at %POS')
+			}
+		}
+
+		return { type: 'nbtPath', parts, line, column }
+	}
+)
+
+export const parseGenericCommand = createParserFunc(
+	`at Command '%TOKEN.VALUE' at %POS`,
+	function (s: TokenStream): AnyCommandSyntaxToken {
+		const name = s.item as ITokens['literal']
+		switch (name.value as ICommandSyntaxTokens[keyof ICommandSyntaxTokens]['name']) {
+			case 'execute':
+				return parseExecuteCommand(s)
+			default:
+				break
+		}
+
+		// Unknown command
+		const { line, column } = s.item!
+		const commandName = s.collect()!
+		const tokens: AnyToken[] = []
+		assertTypeAndConsume(s, 'space')
+
+		while (s.item) {
+			if (s.item.type === 'newline') break
+			if (s.item.value) {
+				tokens.push(s.item)
+			}
+			s.consume()
+		}
+		return {
+			type: 'command',
+			name: 'unknown',
+			commandName: commandName.value,
+			tokens: tokens,
+			line,
+			column,
+		}
+	}
+)

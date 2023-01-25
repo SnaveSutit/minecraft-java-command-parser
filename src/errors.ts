@@ -54,17 +54,20 @@ export function throwSyntaxError(
 	line?: number,
 	column?: number
 ): never {
-	if (!line) line = token!.line
-	if (!column) column = token!.column
-	throw new MinecraftSyntaxError(
-		message
+	if (token) {
+		if (!line) line = token!.line
+		if (!column) column = token!.column
+		message = message
 			.replaceAll('%POS', `${line + 1}:${column}`)
-			.replaceAll(
-				'%TOKEN',
-				`${tokenToString(token)
-					.replaceAll('\r', '\\r')
-					.replaceAll('\n', '\\n')
-					.replaceAll('\t', '\\t')}`
-			)
+			.replaceAll('%TOKEN.VALUE', token?.value)
+	}
+	throw new MinecraftSyntaxError(
+		message.replaceAll(
+			'%TOKEN',
+			`${tokenToString(token)
+				.replaceAll('\r', '\\r')
+				.replaceAll('\n', '\\n')
+				.replaceAll('\t', '\\t')}`
+		)
 	)
 }

@@ -61,8 +61,20 @@ function highlightSyntaxToken(token: AnySyntaxToken) {
 			})
 			term.brightRed('}')
 			break
-		// case 'block':
-		// case 'blockstate':
+		case 'block':
+			highlightSyntaxToken(token.block)
+			if (token.blockstate) highlightSyntaxToken(token.blockstate)
+			break
+		case 'blockstate':
+			term.brightRed('[')
+			const states = Object.entries(token.states)
+			states.forEach(([k, v], i) => {
+				term(k).brightCyan('=')
+				highlightSyntaxToken(v)
+				if (i < states.length - 1) term.brightCyan(',')
+			})
+			term.brightRed(']')
+			break
 		case 'boolean':
 			term.red(String(token.value))
 			break
@@ -78,11 +90,44 @@ function highlightSyntaxToken(token: AnySyntaxToken) {
 			}
 			break
 		case 'executeSubCommand':
-			if (token.name === 'as') {
-				term.yellow('as')(' ')
-				highlightSyntaxToken(token.target)
-				term(' ')
+			term.yellow(token.name)(' ')
+			switch (token.name) {
+				case 'align':
+					term.yellow(token.swizzle)
+					break
+				case 'anchored':
+					term.yellow(token.anchor)
+					break
+				case 'as':
+					highlightSyntaxToken(token.target)
+					break
+				case 'at':
+					highlightSyntaxToken(token.target)
+					break
+				case 'facing':
+					if (token.entityBranch) {
+						highlightSyntaxToken(token.target)
+						term(' ')
+						term.yellow(token.anchor)
+					} else highlightSyntaxToken(token.position)
+					break
+				case 'if':
+				case 'unless':
+					term.yellow(token.conditionBranch)(' ')
+					switch (token.conditionBranch) {
+						case 'block':
+							highlightSyntaxToken(token.position)
+							term(' ')
+							highlightSyntaxToken(token.block)
+							break
+						default:
+							throw new Error(`Unknown if condition '${token.name}'`)
+					}
+					break
+				default:
+					throw new Error(`Unknown executeSubCommand '${token.name}'`)
 			}
+			term(' ')
 			break
 		case 'int':
 		case 'float':
@@ -153,12 +198,15 @@ function highlightSyntaxToken(token: AnySyntaxToken) {
 					term(token.value)(' ')
 					break
 				case 'selector':
-					term.brightCyan('@' + token.selectorChar).brightRed('[')
-					token.args.forEach((t, i) => {
-						highlightSyntaxToken(t)
-						if (i < token.args.length - 1) term.brightCyan(',')
-					})
-					term.brightRed(']')
+					term.brightCyan('@' + token.selectorChar)
+					if (token.args.length > 0) {
+						term.brightRed('[')
+						token.args.forEach((t, i) => {
+							highlightSyntaxToken(t)
+							if (i < token.args.length - 1) term.brightCyan(',')
+						})
+						term.brightRed(']')
+					}
 					break
 			}
 			break
@@ -169,7 +217,16 @@ function highlightSyntaxToken(token: AnySyntaxToken) {
 			break
 		// case 'uuid':
 		// case 'vec2':
-		// case 'vec3':
+		case 'vec3':
+			if (token.xSpace) term.brightGreen(token.xSpace)
+			if (token.x) highlightSyntaxToken(token.x)
+			term(' ')
+			if (token.ySpace) term.brightGreen(token.ySpace)
+			if (token.y) highlightSyntaxToken(token.y)
+			term(' ')
+			if (token.zSpace) term.brightGreen(token.zSpace)
+			if (token.z) highlightSyntaxToken(token.z)
+			break
 		default:
 			throw new Error(
 				`Syntax highligher encountered unexpected token '${(token as AnySyntaxToken).type}'`

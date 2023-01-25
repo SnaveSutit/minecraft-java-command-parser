@@ -47,3 +47,25 @@ export function roundToN(v: number, n: number) {
 export function tokenToString(token?: AnyToken): string {
 	return `${token?.type}:'${token?.value}'`
 }
+
+export class Clock {
+	startTime?: number
+	endTime?: number
+
+	constructor() {}
+
+	start(): this {
+		this.startTime = Date.now()
+		return this
+	}
+
+	end(): this {
+		this.endTime = Date.now()
+		return this
+	}
+
+	get diff(): number | undefined {
+		if (this.endTime && this.startTime) return this.endTime - this.startTime
+		return
+	}
+}

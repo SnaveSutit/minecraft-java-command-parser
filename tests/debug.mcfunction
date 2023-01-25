@@ -15,3 +15,6 @@ data modify entity @s data.path set from storage astar:ram this.path
 # scoreboard objectives add <%config.internalScoreboard%> dummy [{"text":"A* Internal","color":"green"}]
 data modify entity @s data set value {Name:"{\"text\":\"Start\",\"color\":\"green\",\"italic\":false}\"]}"}
 
+# Testing NBT path parsing
+data get entity @s ArmorItems[-1].tag."my Special Tag"
+data modify block ~ ~ ~ Items[{Slot:12b}].tag.list insert 0 value "my_value"

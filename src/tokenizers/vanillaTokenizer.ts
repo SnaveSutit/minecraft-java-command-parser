@@ -38,7 +38,7 @@ export interface ITokens {
 	>
 	bracket: IToken<'bracket', '[' | ']' | '{' | '}' | '(' | ')'>
 	comment: IToken<'comment', string>
-	newline: IToken<'newline', '\n'>
+	newline: IToken<'newline', '\n' | '|'>
 	number: IToken<'number', string>
 	int: IToken<'int', string> & {
 		identifier?: NumberTypeIdentifier
@@ -71,7 +71,7 @@ interface IChars {
 
 const CHARS = {} as IChars
 CHARS.quotes = `'"`
-CHARS.newline = '\n\r'
+CHARS.newline = '\n\r|'
 CHARS.number = numbers
 CHARS.bracket = '[]{}()'
 CHARS.control = `:,$#@/\\=*<>%+~^-.!;`
