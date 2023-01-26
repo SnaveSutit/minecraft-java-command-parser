@@ -1,7 +1,7 @@
 {
 	"name": "minecraft-java-command-parser",
 	"title": "Minecraft Java Edition Command Parser",
-	"version": "1.0.0",
+	"version": "0.1.0",
 	"author": {
 		"name": "SnaveSutit",
 		"email": "snavesutit@gmail.com",
@@ -12,12 +12,8 @@
 		"url": "https://github.com/SnaveSutit/minecraft-java-command-parser"
 	},
 	"description": "A Minecraft Java-Edition command parser",
-	"main": "./dist/index.js",
+	"main": "./dist/minecraft-java-command-parser.js",
 	"types": "./dist/index.d.ts",
-	"private": true,
-	"pkg": {
-		"assets": "node_modules/terminal-kit/**/*"
-	},
 	"scripts": {
 		"manual-test": "node ./dist/minecraft-java-command-parser.js",
 		"dev": "node ./tools/esbuild.js --mode=dev",
