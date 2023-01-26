@@ -1,9 +1,10 @@
 import * as fs from 'fs'
-import { throwSyntaxError } from '../errors'
+import { throwSyntaxError, throwTokenError } from '../errors'
 import { GenericStream } from '../util/genericStream'
 import { AnyToken, ITokens } from '../tokenizers/vanillaTokenizer'
 import { AnyExecuteSubCommand } from '../commands/vanillaCommands/executeCommand'
 import { AnyCommandSyntaxToken, parseGenericCommand } from '../commands/vanillaCommands'
+import { StringStream } from '../util/stringStream'
 
 export type SelectorChar = 'a' | 'e' | 'r' | 's' | 'p'
 export type NumberTypeIdentifier = 's' | 'b' | 't' | 'f' | 'd' | 'l' | 'S' | 'B' | 'F' | 'L'
@@ -35,6 +36,9 @@ export interface ISyntaxTokens {
 	literal: ISyntaxToken<'literal'> & {
 		value: string
 	}
+	operation: ISyntaxToken<'operation'> & {
+		value: '<=' | '<' | '=' | '>' | '>='
+	}
 	quotedString: ISyntaxToken<'quotedString'> & {
 		value: string
 		bracket: '"' | "'"
@@ -53,14 +57,18 @@ export interface ISyntaxTokens {
 		value: string
 		identifier?: NumberTypeIdentifier
 	}
-	intRange: ISyntaxToken<'intRange'> & {
-		min?: ISyntaxTokens['int']
-		max?: ISyntaxTokens['int']
-	}
-	floatRange: ISyntaxToken<'floatRange'> & {
-		min?: ISyntaxTokens['float']
-		max?: ISyntaxTokens['float']
-	}
+	intRange:
+		| (ISyntaxToken<'intRange'> & {
+				min?: ISyntaxTokens['int']
+				max?: ISyntaxTokens['int']
+		  })
+		| ISyntaxToken<'int'>
+	floatRange:
+		| (ISyntaxToken<'floatRange'> & {
+				min?: ISyntaxTokens['float']
+				max?: ISyntaxTokens['float']
+		  })
+		| ISyntaxToken<'float'>
 	targetSelector: ISyntaxToken<'targetSelector'> &
 		(
 			| {
@@ -90,10 +98,10 @@ export interface ISyntaxTokens {
 		advancements: Map<ISyntaxTokens['resourceLocation'], ISyntaxTokens['boolean']>
 	}
 	vec2: ISyntaxToken<'vec2'> & {
-		x: ISyntaxTokens['int'] | ISyntaxTokens['float']
+		x?: ISyntaxTokens['int'] | ISyntaxTokens['float']
 		xSpace?: '~' | '^'
-		y: ISyntaxTokens['int'] | ISyntaxTokens['float']
-		ySpace?: '~' | '^'
+		z?: ISyntaxTokens['int'] | ISyntaxTokens['float']
+		zSpace?: '~' | '^'
 	}
 	vec3: ISyntaxToken<'vec3'> & {
 		x?: ISyntaxTokens['int'] | ISyntaxTokens['float']
@@ -136,23 +144,41 @@ export interface ISyntaxTokens {
 export class TokenStream extends GenericStream<AnyToken> {}
 
 /**
- * Wraps a function in a try-catch statement. Allows for descriptive recursive error messages
- * @param fn The function to execute
- * @returns
+ * Wraps a function in a try-catch statement. Allows for descriptive recursive parser error messages
  */
-export function catchFunction<Args extends any[], Ret, Err>(
-	fn: (...args: Args) => Ret,
-	onError: (e: Err) => never
+export function createCatchFunc<Args extends any[], Ret>(
+	errMessage: string,
+	fn: (...args: Args) => Ret
 ) {
 	return (...args: Args): Ret => {
 		try {
 			return fn(...args)
 		} catch (e: any) {
-			onError(e)
+			throw Error(errMessage + '\n\t' + e.message)
 		}
 	}
 }
 
+/**
+ * Wraps a function in a try-catch statement. Allows for descriptive recursive parser error messages
+ */
+export function createTokenizerFunc<Args extends any[], Ret>(
+	errMessage: string,
+	fn: (s: StringStream, ...args: Args) => Ret
+) {
+	return (s: StringStream, ...args: Args): Ret => {
+		const { line, column } = s
+		try {
+			return fn(s, ...args)
+		} catch (e: any) {
+			throwTokenError(s, errMessage + '\n\t' + e.message, line, column)
+		}
+	}
+}
+
+/**
+ * Wraps a function in a try-catch statement. Allows for descriptive recursive parser error messages
+ */
 export function createParserFunc<Args extends any[], Ret>(
 	errMessage: string,
 	fn: (s: TokenStream, ...args: Args) => Ret
@@ -167,39 +193,58 @@ export function createParserFunc<Args extends any[], Ret>(
 	}
 }
 
-export function consumeAll<T extends AnyToken>(s: TokenStream, tokenType: T['type']): void {
+/**
+ * Consumes all tokens of the given type
+ */
+export function consumeAll<T extends keyof ITokens>(s: TokenStream, tokenType: T): void {
 	while (s.item?.type === tokenType) s.consume()
 }
 
-export function collectAll<T extends AnyToken>(s: TokenStream, tokenType: T['type']): T[] {
-	const tokens: T[] = []
-	while (s.item?.type === tokenType) tokens.push(s.consume()! as T)
+/**
+ * Collects all tokens of the given type
+ */
+export function collectAll<T extends keyof ITokens>(s: TokenStream, tokenType: T): ITokens[T][] {
+	const tokens: ITokens[T][] = []
+	while (s.item?.type === tokenType) tokens.push(s.consume()! as ITokens[T])
 	return tokens
 }
 
-export function assertTypeAndConsume<T extends AnyToken>(
+/**
+ * Asserts that s.item is the expected type. If not, throws a MinecraftSyntaxError
+ */
+export function assertTypeAndConsume<Type extends keyof ITokens>(
 	s: TokenStream,
-	expectedType: T['type']
+	expectedType: Type
 ): void {
 	if (s.item?.type !== expectedType)
 		throwSyntaxError(s.item, `Expected '${expectedType}' at %POS but found %TOKEN instead`)
 	s.consume()
 }
-
-export function assertTypeAndCollect<T extends AnyToken>(
+/**
+ * Asserts that s.item is the expected type then returns it. If not, throws a MinecraftSyntaxError
+ */
+export function assertTypeAndCollect<Type extends keyof ITokens>(
 	s: TokenStream,
-	expectedType: T['type']
-): T {
-	if (s.item?.type !== expectedType)
+	expectedType: Type | Type[]
+): ITokens[Type] {
+	if (typeof expectedType === 'string' && s.item?.type !== expectedType)
 		throwSyntaxError(s.item, `Expected '${expectedType}' at %POS but found %TOKEN instead`)
-	return s.collect() as T
+	else if (Array.isArray(expectedType) && !expectedType.includes(s.item?.type as any))
+		throwSyntaxError(
+			s.item,
+			'Expected one of ' + expectedType.join(', ') + ' at %POS but found %TOKEN instead'
+		)
+
+	return s.collect() as ITokens[Type]
 }
 
-export function assertValueAndConsume<T extends AnyToken>(
-	s: TokenStream,
-	expectedType: T['type'],
-	expectedValue: T['value']
-): void {
+/**
+ * Asserts that s.item is the expected type and value. If not, throws a MinecraftSyntaxError
+ */
+export function assertValueAndConsume<
+	Type extends keyof ITokens,
+	Value extends ITokens[Type]['value']
+>(s: TokenStream, expectedType: Type, expectedValue: Value): void {
 	if (s.item?.type !== expectedType && s.item?.value !== expectedValue)
 		throwSyntaxError(
 			s.item,
@@ -208,50 +253,37 @@ export function assertValueAndConsume<T extends AnyToken>(
 	s.consume()
 }
 
-export function assertValueAndCollect<T extends AnyToken>(
+/**
+ * Asserts that s.item is the expected type and value then returns it. If not, throws a MinecraftSyntaxError
+ */
+export function assertValueAndCollect<
+	Type extends keyof ITokens,
+	Value extends ITokens[Type]['value']
+>(
 	s: TokenStream,
-	expectedType: T['type'],
-	expectedValue: T['value']
-): T {
-	if (s.item?.type !== expectedType && s.item?.value !== expectedValue)
+	expectedType: Type,
+	expectedValue: Value | Value[]
+): ITokens[Type] & { value: Value } {
+	if (
+		typeof expectedValue === 'string' &&
+		s.item?.type !== expectedType &&
+		s.item?.value !== expectedValue
+	)
 		throwSyntaxError(
 			s.item,
 			`Expected ${expectedType}:'${expectedValue}' at %POS but found %TOKEN instead`
 		)
-	return s.collect() as T
+	else if (
+		Array.isArray(expectedValue) &&
+		s.item?.type !== expectedType &&
+		!expectedValue.includes(s.item?.value as any)
+	)
+		throwSyntaxError(
+			s.item,
+			`Expected ${expectedType}:'${expectedValue}' at %POS but found %TOKEN instead`
+		)
+	return s.collect() as ITokens[Type] & { value: Value }
 }
-
-// export function parseGenericCommand(s: TokenStream): AnySyntaxToken {
-// 	const name = s.item as ITokens['literal']
-// 	switch (name.value as ICommandSyntaxTokens[keyof ICommandSyntaxTokens]['name']) {
-// 		case 'execute':
-// 			return parseExecuteCommand(s)
-// 		default:
-// 			break
-// 	}
-
-// 	// Unknown command
-// 	const { line, column } = s.item!
-// 	const commandName = s.collect()!
-// 	const tokens: AnyToken[] = []
-// 	assertTypeAndConsume(s, 'space')
-
-// 	while (s.item) {
-// 		if (s.item.type === 'newline') break
-// 		if (s.item.value) {
-// 			tokens.push(s.item)
-// 		}
-// 		s.consume()
-// 	}
-// 	return {
-// 		type: 'command',
-// 		name: 'unknown',
-// 		commandName: commandName.value,
-// 		tokens: tokens,
-// 		line,
-// 		column,
-// 	}
-// }
 
 function squashLiteral(s: TokenStream, value = ''): ISyntaxTokens['literal'] {
 	const { line, column } = s.item!
@@ -283,7 +315,6 @@ function squashLiteral(s: TokenStream, value = ''): ISyntaxTokens['literal'] {
 	return { type: 'literal', value, line, column }
 }
 
-// TODO (number) => int | float | literal
 function combineNumbersIntoIntFloatOrLiteral(s: TokenStream, newTokens: AnyToken[]): void {
 	const { line, column } = s.item!
 	let value = ''
@@ -361,6 +392,7 @@ function firstPass(
 ) {
 	const newTokens: AnyToken[] = []
 	const s = new TokenStream(tokens)
+	let lastItem: AnyToken | undefined
 
 	while (s.item) {
 		if (customFirstPass && customFirstPass(s, newTokens)) {
@@ -413,12 +445,22 @@ export function parse(
 	customFirstPass?: (stream: TokenStream, newTokens: AnyToken[]) => boolean,
 	customSecondPass?: (stream: TokenStream, syntaxTree: AnySyntaxToken[]) => boolean
 ): AnySyntaxToken[] {
+	let tree
 	try {
-		let tree = firstPass(tokens, customFirstPass)
-		// TODO Remove this debug line
-		fs.writeFileSync('./debug/firstPassSyntaxTree.json', JSON.stringify(tree, null, '\t'))
+		tree = firstPass(tokens, customFirstPass)
+	} catch (e: any) {
+		throwSyntaxError(undefined, 'Unexpected error parsing Tokens (first pass):\n\t' + e.message)
+	}
+
+	// TODO Remove this debug line
+	// fs.writeFileSync('./debug/firstPassSyntaxTree.json', JSON.stringify(tree, null, '\t'))
+
+	try {
 		return secondPass(tree, customSecondPass)
 	} catch (e: any) {
-		throwSyntaxError(undefined, 'Unexpected Error while parsing Tokens:\n\t' + e.message)
+		throwSyntaxError(
+			undefined,
+			'Unexpected Error parsing Commands (second pass):\n\t' + e.message
+		)
 	}
 }

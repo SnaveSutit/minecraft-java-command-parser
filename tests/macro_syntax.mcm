@@ -1,0 +1,18 @@
+
+# Order of argument types is important!
+macro foo (arg1: vec3, arg2: scoreholder | int, arg3: mcbBlock) {
+	IF(args.arg2.type === 'scoreholder') {
+		say scoreholder
+	}
+
+	embed call arg3
+	embed content arg3
+}
+
+macro foo ~0 ~2 3 #count v
+macro foo 0 0 0 2
+macro foo 0 0 0 #count v block name {
+	say hello!
+}
+macro foo 0 0 0 #count v function name
+

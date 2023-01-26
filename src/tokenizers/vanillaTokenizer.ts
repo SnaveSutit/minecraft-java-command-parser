@@ -13,6 +13,7 @@ export interface IToken<T, V> {
 export interface ITokens {
 	space: IToken<'space', string>
 	literal: IToken<'literal', string>
+	unknown: IToken<'unknown', string>
 	control: IToken<
 		'control',
 		| ':'
@@ -76,9 +77,7 @@ CHARS.number = numbers
 CHARS.bracket = '[]{}()'
 CHARS.control = `:,$#@/\\=*<>%+~^-.!;`
 CHARS.whitespace = `\t\r\n `
-// CHARS.numberStart = `-.${numbers}`
 CHARS.word = `${alphabet}${alphabet.toUpperCase()}${numbers}_`
-// CHARS.notWord = `${CHARS.quotes}${CHARS.newline}${CHARS.whitespace}`
 
 export const COMP = {
 	quotes: genComparison(CHARS.quotes),
@@ -87,15 +86,13 @@ export const COMP = {
 	bracket: genComparison(CHARS.bracket),
 	control: genComparison(CHARS.control),
 	whitespace: genComparison(CHARS.whitespace),
-	// numberStart: genComparison(CHARS.numberStart),
 	word: genComparison(CHARS.word),
-	// notWord: genComparison(CHARS.notWord),
 }
 
 function collectComment(s: StringStream): ITokens['comment'] {
 	const { line, column } = s
 	s.consume()
-	const value = s.collectWhile(s => !COMP.newline(s.itemCode))
+	const value = s.collectWhile(s => !COMP.newline(s.itemCode) || s.item === '|')
 	return {
 		type: 'comment',
 		value,
@@ -121,11 +118,19 @@ function collectLiteral(
 ): ITokens['literal'] | ITokens['boolean'] {
 	const { line, column } = s
 	const value = startValue + s.collectWhile(s => COMP.word(s.itemCode))
+	// REVIEW - Is this needed?
 	if (COMP.word(s.itemCode)) throwTokenError(s, `Expected word to end but found ${s.item}`)
+	// Return Boolean instead
 	if (value === 'true') return { type: 'boolean', value: 'true', line, column }
 	else if (value === 'false') return { type: 'boolean', value: 'false', line, column }
 
 	return { type: 'literal', value, line, column }
+}
+
+function collectUnknown(s: StringStream): ITokens['unknown'] {
+	const { line, column } = s
+	const value = s.collect()!
+	return { type: 'unknown', value, line, column }
 }
 
 function collectNumber(
@@ -144,8 +149,10 @@ function collectNumber(
 
 function collectNewline(s: StringStream): ITokens['newline'] {
 	const { line, column } = s
+	if (s.item === '\r') s.consume() // Windows moment
+	const value = s.item as ITokens['newline']['value']
 	s.consumeWhile(s => COMP.newline(s.itemCode))
-	return { type: 'newline', value: '\n', line, column }
+	return { type: 'newline', value, line, column }
 }
 
 function collectControl(s: StringStream): ITokens['control'] | ITokens['literal'] {
@@ -223,7 +230,8 @@ export function tokenize(
 		} else if (s.item === '\t') {
 			s.consume()
 		} else {
-			throwTokenError(s, `Unexpected character '${s.item}'`)
+			tokens.push(collectUnknown(s))
+			// throwTokenError(s, `Unexpected character '${s.item}'`)
 		}
 	}
 

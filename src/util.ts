@@ -25,19 +25,22 @@ export function packArray(array: number[]) {
  * @param str The characters this function will check for
  */
 export function genComparison(str: string) {
-	const chars = str
-		.split('')
+	// Remove duplicate characters
+	const obj: { [key: string]: number } = {}
+	for (const c of str) obj[c] = c.charCodeAt(0)
+	// Sort the characters by their char code to allow optimized ranged comparisons
+	const chars = Object.keys(obj)
 		.map(c => c.charCodeAt(0))
-		.sort((a, b) => a - b) // JS doesn't seem to want to sort the array with it's internal function for some reason....
+		// JS doesn't seem to want to sort the array with it's internal function for some reason...
+		.sort((a, b) => a - b)
+
 	const ranges = packArray(chars)
 
 	const operations = `${ranges
 		.map(r => (typeof r === 'number' ? `c===${r}` : `(c>=${r[0]}&&c<=${r[1]})`))
 		.join('||')}`
 
-	return new Function('c', `if (c===undefined) return false; return ${operations}`) as (
-		c?: number
-	) => boolean
+	return new Function('c', `return ${operations}`) as (c?: number) => boolean
 }
 
 export function roundToN(v: number, n: number) {

@@ -7,6 +7,8 @@ execute as @e[nbt={ foo :{bar: [{baz: 2s}, {bif:true}] }, boz:"fib", bog: 'gleb'
 execute as @e[scores = {  }, advancements = {minecraft:end/death=false, minecraft:end/baby=true}, limit=2, sort=nearest, sort=arbitrary, sort=random, sort=furthest]
 execute as @e[nbt={int:[I;1, 2, 3], byte: [B; 1b, 2B, 3b], long: [L; 1l, 2L, 3l]}]
 
+scoreboard players set :,$#@/\\\\=*<>%+~^awd!()*@!@!@@#$%^&*([]]}|\\\"'<>/,.+=-`~▬♂,7Xƒ*+8M╕7 v 10
+
 say -awd .awd
 say <%awd%>
 data remove entity 2d12be42-52a9-4a91-a8a1-11c01849e498 data.path.nodes[0]
