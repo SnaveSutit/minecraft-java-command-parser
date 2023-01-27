@@ -1,13 +1,15 @@
 {
+	"include": ["./src/**/*"],
+	"exclude": ["./node_modules", "./dist", "./types"],
 	"compilerOptions": {
-		"outDir": "./dist/",
+		"declarationDir": "./types/",
 		"noImplicitAny": true,
-		"module": "ES2022",
+		"module": "es2022",
 		"target": "ES2022",
-		"sourceMap": true,
+		"moduleResolution": "node",
 		"strict": true,
-		"moduleResolution": "Node"
-		// "declaration": true,
-		// "emitDeclarationOnly": true
+		"resolveJsonModule": true,
+		"declaration": true,
+		"emitDeclarationOnly": true
 	}
 }

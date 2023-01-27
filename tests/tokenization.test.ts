@@ -6,7 +6,7 @@ describe('StringStream', () => {
 	const testFile = fs.readFileSync('./tests/tokenization.test.mcfunction', 'utf-8')
 
 	it('gets the right line number', () => {
-		const s = new StringStream(testFile)
+		const s = new StringStream('a\nb\nc\nd')
 		expect(s.line).toBe(0)
 
 		s.consumeWhile(s => s.item !== '\n')
@@ -103,5 +103,3 @@ describe('Tokenization', () => {
 		expect(tokens[17].value).toBe('.')
 	})
 })
-
-describe('Parsing', () => {})

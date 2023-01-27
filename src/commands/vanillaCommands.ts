@@ -16,13 +16,12 @@ import {
 import { AnyToken, ITokens } from '../tokenizers/vanillaTokenizer'
 import { tokenToString } from '../util'
 import { AnyExecuteSubCommand, parseExecuteCommand } from './vanillaCommands/executeCommand'
+import { parseScheduleCommand } from './vanillaCommands/scheduleCommand'
 
 export interface ISyntaxTokenCommand<N> extends ISyntaxToken<'command'> {
 	name: N
 }
-
 export type AnyCommandSyntaxToken = ICommandSyntaxTokens[keyof ICommandSyntaxTokens]
-
 export interface ICommandSyntaxTokens {
 	unknown: ISyntaxTokenCommand<'unknown'> & {
 		tokens: AnyToken[]
@@ -44,6 +43,9 @@ export interface ICommandSyntaxTokens {
 					replaceMode?: 'replace' | 'append'
 			  }
 		)
+	function: ISyntaxTokenCommand<'function'> & {
+		functionName: ISyntaxTokens['resourceLocation']
+	}
 }
 
 export function isEndOfCommand(s: TokenStream): boolean {
@@ -62,10 +64,37 @@ export function assertAndConsumeEndOfArg(s: TokenStream) {
 	throwSyntaxError(s.item, 'Expected end of argument at %POS but found %TOKEN instead.')
 }
 
-export function parseRange<T extends 'int' | 'float'>(
+export function collectOptionalArg<
+	Type extends keyof ITokens,
+	Value extends ITokens[Type]['value']
+>(
 	s: TokenStream,
-	numberType: T
-): ISyntaxTokens[T] | ISyntaxTokens[`${T}Range`] {
+	expectedType: Type,
+	expectedValue: Value | Value[]
+): (ITokens[Type] & { value: Value }) | undefined {
+	if (s.item?.type === 'space') {
+		if (
+			typeof expectedValue === 'string' &&
+			s.next?.type === expectedType &&
+			s.next?.value === expectedValue
+		) {
+			s.consume()
+			return s.collect() as ITokens[Type] & { value: Value }
+		} else if (
+			Array.isArray(expectedValue) &&
+			s.next?.type === expectedType &&
+			expectedValue.includes(s.next?.value as Value)
+		) {
+			s.consume()
+			return s.collect() as ITokens[Type] & { value: Value }
+		}
+	}
+}
+
+export function parseRange<Type extends 'int' | 'float'>(
+	s: TokenStream,
+	numberType: Type
+): ISyntaxTokens[Type] | ISyntaxTokens[`${Type}Range`] {
 	const { line, column } = s.item!
 	// Value could be:
 	// (num)
@@ -75,7 +104,7 @@ export function parseRange<T extends 'int' | 'float'>(
 
 	// (num)
 	if (s.item?.type === 'int' || (s.item?.type === 'float' && numberType === 'float')) {
-		const min = s.collect() as ISyntaxTokens[T]
+		const min = s.collect() as ISyntaxTokens[Type]
 		// (num)(..)
 		if ((s.item as AnyToken)?.type === 'control' && s.item?.value === '..') {
 			// console.log(tokenToString(s.item), '(num)(..)')
@@ -93,7 +122,7 @@ export function parseRange<T extends 'int' | 'float'>(
 				max,
 				line,
 				column,
-			} as unknown as ISyntaxTokens[`${T}Range`]
+			} as unknown as ISyntaxTokens[`${Type}Range`]
 		}
 		// (num)
 		// console.log(tokenToString(s.item), '(num)')
@@ -102,7 +131,7 @@ export function parseRange<T extends 'int' | 'float'>(
 			value: min.value,
 			line,
 			column,
-		} as unknown as ISyntaxTokens[T]
+		} as unknown as ISyntaxTokens[Type]
 	} else if (s.item?.type === 'control' && s.item.value === '..') {
 		s.consume()
 		// (..)(num)
@@ -113,10 +142,10 @@ export function parseRange<T extends 'int' | 'float'>(
 		) {
 			return {
 				type: `${numberType}Range`,
-				max: s.collect() as AnyToken as ISyntaxTokens[T],
+				max: s.collect() as AnyToken as ISyntaxTokens[Type],
 				line,
 				column,
-			} as unknown as ISyntaxTokens[`${T}Range`]
+			} as unknown as ISyntaxTokens[`${Type}Range`]
 		}
 	}
 	throwSyntaxError(s.item!, `Expected ${numberType} at %POS but found %TOKEN instead.`)
@@ -858,6 +887,8 @@ export const parseGenericCommand = createParserFunc(
 		switch (name.value as ICommandSyntaxTokens[keyof ICommandSyntaxTokens]['name']) {
 			case 'execute':
 				return parseExecuteCommand(s)
+			case 'schedule':
+				return parseScheduleCommand(s)
 			default:
 				break
 		}
@@ -885,3 +916,7 @@ export const parseGenericCommand = createParserFunc(
 		}
 	}
 )
+
+export * as executeCommand from './vanillaCommands/executeCommand'
+export * as functionCommand from './vanillaCommands/functionCommand'
+export * as scheduleCommand from './vanillaCommands/scheduleCommand'

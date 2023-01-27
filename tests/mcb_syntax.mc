@@ -98,12 +98,12 @@ dir testing {
 	}
 }
 
-IF (config.folder_context) {
+IF <%config.folder_context%> {
 	function folder_context_function {
 		say Hello World From an IF in folder context!
-		IF (config.function_context) {
+		IF <%config.function_context%> {
 			say Hello World From an IF in function context!
-		} ELSE IF (config.else_if) {
+		} ELSE IF <%config.else_if%> {
 			say Hello World From an ELSE IF in function context!
 		} ELSE {
 			say Hello World From an ELSE in function context!
@@ -111,10 +111,10 @@ IF (config.folder_context) {
 	}
 }
 
-LOOP(10, i) {
+LOOP <%10, i%> {
 	function <%i%>_iter {
 		say Hello World From function <%i%>_iter!
-		LOOP(10, j) {
+		LOOP <%10, j%> {
 			say Hello World From function <%i%>_iter in loop <%j%>!
 		}
 	}

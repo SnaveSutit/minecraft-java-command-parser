@@ -1,10 +1,9 @@
-import * as fs from 'fs'
 import { throwSyntaxError, throwTokenError } from '../errors'
-import { GenericStream } from '../util/genericStream'
+import { GenericStream } from 'generic-stream'
 import { AnyToken, ITokens } from '../tokenizers/vanillaTokenizer'
 import { AnyExecuteSubCommand } from '../commands/vanillaCommands/executeCommand'
 import { AnyCommandSyntaxToken, parseGenericCommand } from '../commands/vanillaCommands'
-import { StringStream } from '../util/stringStream'
+import { StringStream } from 'generic-stream'
 
 export type SelectorChar = 'a' | 'e' | 'r' | 's' | 'p'
 export type NumberTypeIdentifier = 's' | 'b' | 't' | 'f' | 'd' | 'l' | 'S' | 'B' | 'F' | 'L'
@@ -62,13 +61,13 @@ export interface ISyntaxTokens {
 				min?: ISyntaxTokens['int']
 				max?: ISyntaxTokens['int']
 		  })
-		| ISyntaxToken<'int'>
+		| ISyntaxTokens['int']
 	floatRange:
 		| (ISyntaxToken<'floatRange'> & {
 				min?: ISyntaxTokens['float']
 				max?: ISyntaxTokens['float']
 		  })
-		| ISyntaxToken<'float'>
+		| ISyntaxTokens['float']
 	targetSelector: ISyntaxToken<'targetSelector'> &
 		(
 			| {
@@ -451,9 +450,6 @@ export function parse(
 	} catch (e: any) {
 		throwSyntaxError(undefined, 'Unexpected error parsing Tokens (first pass):\n\t' + e.message)
 	}
-
-	// TODO Remove this debug line
-	// fs.writeFileSync('./debug/firstPassSyntaxTree.json', JSON.stringify(tree, null, '\t'))
 
 	try {
 		return secondPass(tree, customSecondPass)

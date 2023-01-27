@@ -1,4 +1,4 @@
-import { StringStream } from './util/stringStream'
+import { StringStream } from 'generic-stream'
 import { AnyToken } from './tokenizers/vanillaTokenizer'
 import { tokenToString } from './util'
 

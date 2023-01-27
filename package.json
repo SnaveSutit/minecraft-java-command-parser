@@ -2,6 +2,7 @@
 	"name": "minecraft-java-command-parser",
 	"title": "Minecraft Java Edition Command Parser",
 	"version": "0.1.0",
+	"type": "module",
 	"author": {
 		"name": "SnaveSutit",
 		"email": "snavesutit@gmail.com",
@@ -13,18 +14,23 @@
 	},
 	"description": "A Minecraft Java-Edition command parser",
 	"main": "./dist/minecraft-java-command-parser.js",
-	"types": "./dist/index.d.ts",
+	"types": "./types/index.d.ts",
+	"private": true,
 	"scripts": {
 		"manual-test": "node ./dist/minecraft-java-command-parser.js",
-		"dev": "node ./tools/esbuild.js --mode=dev",
-		"build": "node ./tools/esbuild.js",
+		"dev": "node ./tools/esbuild.cjs --mode=dev",
+		"build": "tsc && node ./tools/esbuild.cjs",
 		"lint": "prettier --write .",
 		"test": "jest",
 		"test-watch": "jest --watchAll --verbose"
 	},
+	"files": [
+		"dist",
+		"types"
+	],
 	"devDependencies": {
 		"@types/jest": "^29.2.6",
-		"@types/node": "^17.0.21",
+		"@types/node": "^18.11.18",
 		"@types/terminal-kit": "^2.5.1",
 		"esbuild": "^0.17.3",
 		"jest": "^29.3.1",
@@ -33,6 +39,7 @@
 		"typescript": "^4.5.5"
 	},
 	"dependencies": {
+		"generic-stream": "^1.0.7",
 		"terminal-kit": "^3.0.0"
 	}
 }

@@ -1,4 +1,4 @@
-import { StringStream } from '../util/stringStream'
+import { StringStream } from 'generic-stream'
 import { throwTokenError } from '../errors'
 import { genComparison } from '../util'
 import { NumberTypeIdentifier } from '../parsers/vanillaParser'

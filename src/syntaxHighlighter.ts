@@ -79,14 +79,19 @@ function highlightSyntaxToken(token: AnySyntaxToken) {
 			term.red(String(token.value))
 			break
 		case 'command':
-			if (token.name === 'unknown') {
-				term.brightBlue(token.commandName)(' ')
-				token.tokens.forEach(t => highlightToken(t))
-				term('\n')
-			} else {
-				term.brightBlue(token.name)(' ')
-				token.subCommands.forEach(t => highlightSyntaxToken(t))
-				term('\n')
+			switch (token.name) {
+				case 'unknown':
+					term.brightBlue(token.commandName)(' ')
+					token.tokens.forEach(t => highlightToken(t))
+					term('\n')
+					break
+				case 'execute':
+					term.brightBlue(token.name)(' ')
+					token.subCommands.forEach(t => highlightSyntaxToken(t))
+					term('\n')
+					break
+				default:
+					throw new Error(`Unknown command '${token.name}'`)
 			}
 			break
 		case 'executeSubCommand':

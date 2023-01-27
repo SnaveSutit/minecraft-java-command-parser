@@ -8,7 +8,7 @@ import {
 	ISyntaxTokens,
 	TokenStream,
 } from '../../parsers/vanillaParser'
-import { AnyToken, IToken, ITokens } from '../../tokenizers/vanillaTokenizer'
+import { AnyToken } from '../../tokenizers/vanillaTokenizer'
 import {
 	ICommandSyntaxTokens,
 	parseSwizzle,
