@@ -1,9 +1,9 @@
 import { StringStream } from 'generic-stream'
-import { AnyToken, IToken, tokenize as vanillaTokenize } from './vanillaTokenizer'
+import { AnyToken, IToken, ITokens, tokenize as vanillaTokenize } from './vanillaTokenizer'
 
-export interface IMCBTokens {
-	inlineJS: IToken<'mcb:inlineJS', string>
-	multilineJS: IToken<'mcb:multilineJS', string>
+export interface IMCBTokens extends ITokens {
+	inlineJS: IToken<'inlineJS', string>
+	multilineJS: IToken<'multilineJS', string>
 }
 export type AnyMCBToken = IMCBTokens[keyof IMCBTokens] | AnyToken
 
@@ -19,7 +19,7 @@ function collectInlineJS(s: StringStream): IMCBTokens['inlineJS'] {
 	s.consume() // Consume '>'
 
 	return {
-		type: 'mcb:inlineJS',
+		type: 'inlineJS',
 		value,
 		line,
 		column,
@@ -40,7 +40,7 @@ function collectMultilineJS(s: StringStream): IMCBTokens['multilineJS'] {
 	s.consume() // Consume '>'
 
 	return {
-		type: 'mcb:multilineJS',
+		type: 'multilineJS',
 		value,
 		line,
 		column,

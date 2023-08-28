@@ -14,6 +14,7 @@ export interface ITokens {
 	space: IToken<'space', string>
 	literal: IToken<'literal', string>
 	unknown: IToken<'unknown', string>
+	macroTemplate: IToken<'macroTemplate', string>
 	control: IToken<
 		'control',
 		| ':'
@@ -72,10 +73,10 @@ interface IChars {
 
 const CHARS = {} as IChars
 CHARS.quotes = `'"`
-CHARS.newline = '\n\r|'
+CHARS.newline = '\n\r'
 CHARS.number = numbers
 CHARS.bracket = '[]{}()'
-CHARS.control = `:,$#@/\\=*<>%+~^-.!;`
+CHARS.control = `:,$#@/=*<>%+~^-.!;`
 CHARS.whitespace = `\t\r\n `
 CHARS.word = `${alphabet}${alphabet.toUpperCase()}${numbers}_`
 
@@ -212,7 +213,19 @@ export function tokenize(
 	while (s.item) {
 		if (customTokenizer && customTokenizer(s, tokens)) {
 		} else if (s.item === ' ') {
-			tokens.push(collectSpace(s))
+			if (s.look(1) === '\\') {
+				s.consume()
+				s.consume()
+				s.consumeWhile(s => COMP.whitespace(s.itemCode))
+				tokens.push({
+					type: 'space',
+					value: ' ',
+					line: s.line,
+					column: s.column,
+				})
+			} else {
+				tokens.push(collectSpace(s))
+			}
 		} else if (COMP.newline(s.itemCode)) {
 			tokens.push(collectNewline(s))
 			s.consumeWhile(s => COMP.whitespace(s.itemCode))

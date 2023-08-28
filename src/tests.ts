@@ -4,8 +4,9 @@ import { parser as mcbuildParser } from './parsers/mcbuildParser'
 import { tokenize as vanillaTokenizer } from './tokenizers/vanillaTokenizer'
 import { parse as vanillaParser } from './parsers/vanillaParser'
 import * as fs from 'fs'
-import { terminal as term } from 'terminal-kit'
+import termkit from 'terminal-kit'
 import { Clock, roundToN } from './util'
+const term = termkit.terminal
 
 function logResults(clock: Clock, length: number, message: string) {
 	const diff = clock.diff!
@@ -15,7 +16,7 @@ function logResults(clock: Clock, length: number, message: string) {
 	).brightGreen(`(${roundToN((diff / length) * 1000, 100000)}μs/item) \u{1F52C}\n`)
 }
 
-async function runPerfTest(n: number = 1000) {
+export async function runPerfTest(n: number = 1000) {
 	const progressBar = term.progressBar({
 		title: 'Running performance test...',
 		percent: true,
@@ -83,7 +84,7 @@ async function runPerfTest(n: number = 1000) {
 	term.brightGreen('Average tokenization time per character: ').brightCyan(
 		roundToN(times.reduce((a, b) => a + b.tokenTime / code.length, 0) / n, 100000) + 'μs\n'
 	)
-	term.brightGreen('Average syntax time per token: ').brightCyan(
+	term.brightGreen('Average syntax time per top-level token: ').brightCyan(
 		roundToN(times.reduce((a, b) => a + b.syntaxTime / b.tokenCount, 0) / n, 100000) + 'μs\n'
 	)
 	term.brightGreen('Average syntax parsing time per syntax node: ').brightCyan(
@@ -93,8 +94,9 @@ async function runPerfTest(n: number = 1000) {
 	term.brightGreen('-----------------------------\n')
 }
 
-async function vanillaTest() {
-	const code = fs.readFileSync('./tests/microchip_tick.mcfunction', 'utf-8')
+export async function vanillaTest() {
+	term.yellow('Running vanilla test...\n')
+	const code = fs.readFileSync('./tests/debug.mcfunction', 'utf-8')
 
 	const tokenClock = new Clock()
 	tokenClock.start()
@@ -104,7 +106,7 @@ async function vanillaTest() {
 	if (!tokens) process.exit()
 	logResults(tokenClock, code.length, 'Took %MS to parse %LENGTH characters. ')
 	term.brightCyan(`Created ${tokens.length} tokens.\n`)
-	// fs.writeFileSync('./debug/tokens.json', JSON.stringify(tokens, null, '\t'))
+	fs.writeFileSync('./debug/tokens.json', JSON.stringify(tokens, null, '\t'))
 	const syntaxClock = new Clock()
 	syntaxClock.start()
 	const syntaxTree = vanillaParser(tokens)
@@ -112,11 +114,12 @@ async function vanillaTest() {
 
 	logResults(syntaxClock, tokens.length, 'Took %MS to parse %LENGTH tokens. ')
 	term.brightCyan(`Created ${syntaxTree.length} Syntax Tokens.\n`)
-	// fs.writeFileSync('./debug/syntaxTree.json', JSON.stringify(syntaxTree, null, '\t'))
+	fs.writeFileSync('./debug/syntaxTree.json', JSON.stringify(syntaxTree, null, '\t'))
 }
 
-async function mcbuildTest() {
-	const code = fs.readFileSync('./tests/mcb_syntax.mc', 'utf-8')
+export async function mcbuildTest() {
+	term.yellow('Running mcbuild test...\n')
+	const code = fs.readFileSync('./tests/debug.mc', 'utf-8')
 
 	const tokenClock = new Clock()
 	tokenClock.start()
@@ -133,10 +136,10 @@ async function mcbuildTest() {
 	syntaxClock.end()
 
 	logResults(syntaxClock, tokens.length, 'Took %MS to parse %LENGTH tokens. ')
-	term.brightCyan(`Created ${syntaxTree.length} Syntax Tokens.\n`)
+	term.brightCyan(`Created ${syntaxTree.length} top-level Syntax Tokens.\n`)
 	fs.writeFileSync('./debug/syntaxTree.json', JSON.stringify(syntaxTree, null, '\t'))
 }
 
 // vanillaTest()
-mcbuildTest()
+// mcbuildTest()
 // runPerfTest(1000)

@@ -2,7 +2,11 @@ import { throwSyntaxError, throwTokenError } from '../errors'
 import { GenericStream } from 'generic-stream'
 import { AnyToken, ITokens } from '../tokenizers/vanillaTokenizer'
 import { AnyExecuteSubCommand } from '../commands/vanillaCommands/executeCommand'
-import { AnyCommandSyntaxToken, parseGenericCommand } from '../commands/vanillaCommands'
+import {
+	AnyCommandSyntaxToken,
+	parseGenericCommand,
+	parseMacroCommand,
+} from '../commands/vanillaCommands'
 import { StringStream } from 'generic-stream'
 
 export type SelectorChar = 'a' | 'e' | 'r' | 's' | 'p'
@@ -211,21 +215,24 @@ export function collectAll<T extends keyof ITokens>(s: TokenStream, tokenType: T
 /**
  * Asserts that s.item is the expected type. If not, throws a MinecraftSyntaxError
  */
-export function assertTypeAndConsume<Type extends keyof ITokens>(
-	s: TokenStream,
-	expectedType: Type
-): void {
+export function assertTypeAndConsume<
+	TokenList extends ITokens,
+	Type extends keyof TokenList = keyof TokenList
+>(s: TokenStream, expectedType: Type): void {
 	if (s.item?.type !== expectedType)
-		throwSyntaxError(s.item, `Expected '${expectedType}' at %POS but found %TOKEN instead`)
+		throwSyntaxError(
+			s.item,
+			`Expected '${String(expectedType)}' at %POS but found %TOKEN instead`
+		)
 	s.consume()
 }
 /**
  * Asserts that s.item is the expected type then returns it. If not, throws a MinecraftSyntaxError
  */
-export function assertTypeAndCollect<Type extends keyof ITokens>(
-	s: TokenStream,
-	expectedType: Type | Type[]
-): ITokens[Type] {
+export function assertTypeAndCollect<
+	TokenList extends ITokens = ITokens,
+	Type extends keyof TokenList = keyof TokenList
+>(s: TokenStream, expectedType: Type | Type[]): TokenList[Type] {
 	if (typeof expectedType === 'string' && s.item?.type !== expectedType)
 		throwSyntaxError(s.item, `Expected '${expectedType}' at %POS but found %TOKEN instead`)
 	else if (Array.isArray(expectedType) && !expectedType.includes(s.item?.type as any))
@@ -234,7 +241,7 @@ export function assertTypeAndCollect<Type extends keyof ITokens>(
 			'Expected one of ' + expectedType.join(', ') + ' at %POS but found %TOKEN instead'
 		)
 
-	return s.collect() as ITokens[Type]
+	return s.collect() as TokenList[Type]
 }
 
 /**
@@ -385,58 +392,120 @@ function parseRangeOperator(s: TokenStream, newTokens: AnyToken[]) {
 	})
 }
 
-function firstPass(
-	tokens: AnyToken[],
-	customFirstPass?: (stream: TokenStream, newTokens: AnyToken[]) => boolean
-) {
-	const newTokens: AnyToken[] = []
-	const s = new TokenStream(tokens)
-	let lastItem: AnyToken | undefined
+// export function firstPass(
+// 	tokens: AnyToken[],
+// 	customFirstPass?: (stream: TokenStream, newTokens: AnyToken[]) => boolean
+// ) {
+// 	const newTokens: AnyToken[] = []
+// 	const s = new TokenStream(tokens)
+// 	let lastItem: AnyToken | undefined
 
+// 	while (s.item) {
+// 		if (customFirstPass && customFirstPass(s, newTokens)) {
+// 		} else if (s.item.type === 'number') {
+// 			combineNumbersIntoIntFloatOrLiteral(s, newTokens)
+// 		} else if (s.item.type === 'control') {
+// 			if (s.item.value === '.' && s.next?.type === 'control' && s.next?.value === '.') {
+// 				parseRangeOperator(s, newTokens)
+// 			} else if (
+// 				(s.item.value === '-' || s.item.value === '.') &&
+// 				s.next?.type === 'number'
+// 			) {
+// 				combineNumbersIntoIntFloatOrLiteral(s, newTokens)
+// 			} else {
+// 				newTokens.push(s.item)
+// 				s.consume()
+// 			}
+// 		} else {
+// 			newTokens.push(s.item)
+// 			s.consume()
+// 		}
+// 	}
+
+// 	return newTokens
+// }
+
+// export function secondPass(
+// 	tokens: AnyToken[],
+// 	customSecondPass?: (stream: TokenStream, syntaxTree: AnySyntaxToken[]) => boolean
+// ): AnySyntaxToken[] {
+// 	const syntaxTree: AnySyntaxToken[] = []
+// 	const s = new TokenStream(tokens)
+
+// 	while (s.item) {
+// 		if (customSecondPass && customSecondPass(s, syntaxTree)) {
+// 		} else if (s.item?.type === 'newline') {
+// 			s.consume()
+// 		} else if (s.item?.type === 'comment') {
+// 			s.consume()
+// 		} else if (s.item?.type === 'control' && s.item?.value === '$') {
+// 			syntaxTree.push(parseMacroCommand(s))
+// 		} else if (s.item?.type === 'literal') {
+// 			syntaxTree.push(parseGenericCommand(s))
+// 		} else throwSyntaxError(s.item, `Unexpected Token (%TOKEN) at %POS`)
+// 	}
+
+// 	return syntaxTree
+// }
+
+export function rawFirstPassLoop(
+	s: TokenStream,
+	tree: AnyToken[],
+	customFirstPass?: (stream: TokenStream, tree: AnyToken[]) => boolean,
+	customExit?: (stream: TokenStream) => boolean
+) {
+	let lastItem: AnyToken | undefined
 	while (s.item) {
-		if (customFirstPass && customFirstPass(s, newTokens)) {
+		if (customFirstPass && customFirstPass(s, tree)) {
+			continue
+		} else if (customExit && customExit(s)) {
+			return
+		} else if (s.item === undefined) {
+			break
 		} else if (s.item.type === 'number') {
-			combineNumbersIntoIntFloatOrLiteral(s, newTokens)
+			combineNumbersIntoIntFloatOrLiteral(s, tree)
 		} else if (s.item.type === 'control') {
 			if (s.item.value === '.' && s.next?.type === 'control' && s.next?.value === '.') {
-				parseRangeOperator(s, newTokens)
+				parseRangeOperator(s, tree)
 			} else if (
 				(s.item.value === '-' || s.item.value === '.') &&
 				s.next?.type === 'number'
 			) {
-				combineNumbersIntoIntFloatOrLiteral(s, newTokens)
+				combineNumbersIntoIntFloatOrLiteral(s, tree)
 			} else {
-				newTokens.push(s.item)
+				tree.push(s.item)
 				s.consume()
 			}
 		} else {
-			newTokens.push(s.item)
+			tree.push(s.item)
 			s.consume()
 		}
 	}
-
-	return newTokens
 }
 
-function secondPass(
-	tokens: AnyToken[],
-	customSecondPass?: (stream: TokenStream, syntaxTree: AnySyntaxToken[]) => boolean
-): AnySyntaxToken[] {
-	const syntaxTree: AnySyntaxToken[] = []
-	const s = new TokenStream(tokens)
-
+export function rawSecondPassLoop(
+	s: TokenStream,
+	syntaxTree: AnySyntaxToken[],
+	customSecondPass?: (stream: TokenStream, syntaxTree: AnySyntaxToken[]) => boolean,
+	customExit?: (stream: TokenStream) => boolean
+) {
 	while (s.item) {
 		if (customSecondPass && customSecondPass(s, syntaxTree)) {
+			continue
+		} else if (customExit && customExit(s)) {
+			return
+		} else if (s.item === undefined) {
+			break
 		} else if (s.item?.type === 'newline') {
 			s.consume()
 		} else if (s.item?.type === 'comment') {
 			s.consume()
+		} else if (s.item?.type === 'control' && s.item?.value === '$') {
+			syntaxTree.push(parseMacroCommand(s))
 		} else if (s.item?.type === 'literal') {
 			syntaxTree.push(parseGenericCommand(s))
-		} else throwSyntaxError(s.item, `Unexpected Token %TOKEN at %POS`)
+		} else throwSyntaxError(s.item, `Unexpected Token (%TOKEN) at %POS`)
 	}
-
-	return syntaxTree
 }
 
 export function parse(
@@ -444,15 +513,23 @@ export function parse(
 	customFirstPass?: (stream: TokenStream, newTokens: AnyToken[]) => boolean,
 	customSecondPass?: (stream: TokenStream, syntaxTree: AnySyntaxToken[]) => boolean
 ): AnySyntaxToken[] {
-	let tree
+	const tree: AnyToken[] = []
 	try {
-		tree = firstPass(tokens, customFirstPass)
+		const s = new TokenStream(tokens)
+		rawFirstPassLoop(s, tree, customFirstPass)
+		// tree = firstPass(tokens, customFirstPass)
 	} catch (e: any) {
 		throwSyntaxError(undefined, 'Unexpected error parsing Tokens (first pass):\n\t' + e.message)
 	}
 
 	try {
-		return secondPass(tree, customSecondPass)
+		const syntaxTree: AnySyntaxToken[] = []
+		const s = new TokenStream(tree)
+
+		rawSecondPassLoop(s, syntaxTree, customSecondPass)
+
+		return syntaxTree
+		// return secondPass(tree, customSecondPass)
 	} catch (e: any) {
 		throwSyntaxError(
 			undefined,

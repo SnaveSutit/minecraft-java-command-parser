@@ -1,71 +1,340 @@
 [
 	{
-		"type": "command",
-		"name": "unknown",
-		"commandName": "function",
-		"tokens": [
+		"type": "mcb.command",
+		"name": "mcb:function_definition",
+		"functionName": {
+			"type": "literal",
+			"value": "test",
+			"line": 1,
+			"column": 10
+		},
+		"content": [
 			{
-				"type": "literal",
-				"value": "foo",
-				"line": 0,
-				"column": 10
-			}
-		],
-		"line": 0,
-		"column": 1
-	},
-	{
-		"type": "command",
-		"name": "unknown",
-		"commandName": "function",
-		"tokens": [
-			{
-				"type": "literal",
-				"value": "minecraft",
-				"line": 1,
-				"column": 10
+				"type": "command",
+				"name": "unknown",
+				"commandName": "say",
+				"tokens": [
+					{
+						"type": "literal",
+						"value": "A",
+						"line": 2,
+						"column": 6
+					}
+				],
+				"line": 2,
+				"column": 2
 			},
 			{
-				"type": "control",
-				"value": ":",
-				"line": 1,
-				"column": 19
+				"type": "mcb.command",
+				"name": "mcb:block",
+				"keyword": true,
+				"blockName": {
+					"type": "literal",
+					"value": "my_block",
+					"line": 3,
+					"column": 8
+				},
+				"content": [
+					{
+						"type": "command",
+						"name": "unknown",
+						"commandName": "say",
+						"tokens": [
+							{
+								"type": "literal",
+								"value": "B",
+								"line": 4,
+								"column": 7
+							}
+						],
+						"line": 4,
+						"column": 3
+					},
+					{
+						"type": "mcb.command",
+						"name": "mcb:block",
+						"content": [
+							{
+								"type": "command",
+								"name": "unknown",
+								"commandName": "say",
+								"tokens": [
+									{
+										"type": "literal",
+										"value": "C",
+										"line": 6,
+										"column": 8
+									}
+								],
+								"line": 6,
+								"column": 4
+							}
+						],
+						"line": 5,
+						"column": 3
+					}
+				],
+				"line": 3,
+				"column": 2
 			},
 			{
-				"type": "literal",
-				"value": "bar",
-				"line": 1,
-				"column": 20
+				"type": "mcb.command",
+				"name": "mcb:block",
+				"keyword": true,
+				"blockName": {
+					"type": "literal",
+					"value": "too_much_inlining",
+					"line": 9,
+					"column": 8
+				},
+				"content": [
+					{
+						"type": "command",
+						"name": "unknown",
+						"commandName": "say",
+						"tokens": [
+							{
+								"type": "literal",
+								"value": "D",
+								"line": 10,
+								"column": 7
+							}
+						],
+						"line": 10,
+						"column": 3
+					}
+				],
+				"line": 9,
+				"column": 2
+			},
+			{
+				"type": "command",
+				"name": "unknown",
+				"commandName": "say",
+				"tokens": [
+					{
+						"type": "literal",
+						"value": "F",
+						"line": 12,
+						"column": 6
+					}
+				],
+				"line": 12,
+				"column": 2
 			}
 		],
 		"line": 1,
 		"column": 1
 	},
 	{
-		"type": "command",
-		"name": "unknown",
-		"commandName": "function",
-		"tokens": [
+		"type": "mcb.command",
+		"name": "mcb:folder_definition",
+		"folderName": {
+			"type": "literal",
+			"value": "foo",
+			"line": 15,
+			"column": 5
+		},
+		"content": [
 			{
-				"type": "literal",
-				"value": "my_custom_name",
-				"line": 2,
-				"column": 10
-			},
-			{
-				"type": "control",
-				"value": ":",
-				"line": 2,
-				"column": 24
-			},
-			{
-				"type": "literal",
-				"value": "bar",
-				"line": 2,
-				"column": 25
+				"type": "mcb.command",
+				"name": "mcb:function_definition",
+				"functionName": {
+					"type": "literal",
+					"value": "bar",
+					"line": 16,
+					"column": 11
+				},
+				"content": [
+					{
+						"type": "command",
+						"name": "unknown",
+						"commandName": "say",
+						"tokens": [
+							{
+								"type": "inlineJS",
+								"value": "A",
+								"line": 17,
+								"column": 7
+							}
+						],
+						"line": 17,
+						"column": 3
+					}
+				],
+				"line": 16,
+				"column": 2
 			}
 		],
-		"line": 2,
+		"line": 15,
+		"column": 1
+	},
+	{
+		"type": "mcb.command",
+		"name": "mcb:compile_loop",
+		"loopCode": {
+			"type": "inlineJS",
+			"code": "['a', 'b', 'c']",
+			"line": 21,
+			"column": 6
+		},
+		"loopVar": {
+			"type": "literal",
+			"value": "i",
+			"line": 21,
+			"column": 26
+		},
+		"content": [
+			{
+				"type": "mcb.command",
+				"name": "mcb:function_definition",
+				"functionName": {
+					"type": "literal",
+					"value": "test",
+					"line": 22,
+					"column": 11
+				},
+				"content": [
+					{
+						"type": "command",
+						"name": "unknown",
+						"commandName": "say",
+						"tokens": [
+							{
+								"type": "inlineJS",
+								"value": "i",
+								"line": 23,
+								"column": 7
+							}
+						],
+						"line": 23,
+						"column": 3
+					}
+				],
+				"line": 22,
+				"column": 2
+			}
+		],
+		"line": 21,
+		"column": 1
+	},
+	{
+		"type": "mcb.command",
+		"name": "mcb:function_definition",
+		"functionName": {
+			"type": "literal",
+			"value": "say",
+			"line": 27,
+			"column": 10
+		},
+		"content": [
+			{
+				"type": "mcb.command",
+				"name": "mcb:compile_loop",
+				"loopCode": {
+					"type": "inlineJS",
+					"code": "10",
+					"line": 28,
+					"column": 7
+				},
+				"loopVar": {
+					"type": "literal",
+					"value": "i",
+					"line": 28,
+					"column": 14
+				},
+				"content": [
+					{
+						"type": "command",
+						"name": "unknown",
+						"commandName": "say",
+						"tokens": [
+							{
+								"type": "inlineJS",
+								"value": "i",
+								"line": 29,
+								"column": 7
+							}
+						],
+						"line": 29,
+						"column": 3
+					}
+				],
+				"line": 28,
+				"column": 2
+			},
+			{
+				"type": "mcb.command",
+				"name": "mcb:compile_loop",
+				"loopCode": {
+					"type": "inlineJS",
+					"code": "10",
+					"line": 32,
+					"column": 7
+				},
+				"loopVar": {
+					"type": "literal",
+					"value": "i",
+					"line": 32,
+					"column": 10
+				},
+				"content": [
+					{
+						"type": "command",
+						"name": "unknown",
+						"commandName": "say",
+						"tokens": [
+							{
+								"type": "inlineJS",
+								"value": "i",
+								"line": 33,
+								"column": 7
+							}
+						],
+						"line": 33,
+						"column": 3
+					}
+				],
+				"line": 32,
+				"column": 2
+			},
+			{
+				"type": "mcb.command",
+				"name": "mcb:compile_loop",
+				"loopCode": {
+					"type": "inlineJS",
+					"code": "config.things",
+					"line": 36,
+					"column": 7
+				},
+				"loopVar": {
+					"type": "literal",
+					"value": "i",
+					"line": 36,
+					"column": 25
+				},
+				"content": [
+					{
+						"type": "command",
+						"name": "unknown",
+						"commandName": "say",
+						"tokens": [
+							{
+								"type": "inlineJS",
+								"value": "i",
+								"line": 37,
+								"column": 7
+							}
+						],
+						"line": 37,
+						"column": 3
+					}
+				],
+				"line": 36,
+				"column": 2
+			}
+		],
+		"line": 27,
 		"column": 1
 	}
 ]

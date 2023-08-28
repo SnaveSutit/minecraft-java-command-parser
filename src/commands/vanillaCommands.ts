@@ -16,6 +16,7 @@ import {
 import { AnyToken, ITokens } from '../tokenizers/vanillaTokenizer'
 import { tokenToString } from '../util'
 import { AnyExecuteSubCommand, parseExecuteCommand } from './vanillaCommands/executeCommand'
+import { parseFunctionCommand } from './vanillaCommands/functionCommand'
 import { parseScheduleCommand } from './vanillaCommands/scheduleCommand'
 
 export interface ISyntaxTokenCommand<N> extends ISyntaxToken<'command'> {
@@ -24,6 +25,10 @@ export interface ISyntaxTokenCommand<N> extends ISyntaxToken<'command'> {
 export type AnyCommandSyntaxToken = ICommandSyntaxTokens[keyof ICommandSyntaxTokens]
 export interface ICommandSyntaxTokens {
 	unknown: ISyntaxTokenCommand<'unknown'> & {
+		tokens: AnyToken[]
+		commandName: string
+	}
+	macroCommand: ISyntaxTokenCommand<'macroCommand'> & {
 		tokens: AnyToken[]
 		commandName: string
 	}
@@ -45,11 +50,31 @@ export interface ICommandSyntaxTokens {
 		)
 	function: ISyntaxTokenCommand<'function'> & {
 		functionName: ISyntaxTokens['resourceLocation']
-	}
+	} & (
+			| {
+					withBranch?: undefined
+					arguments?: ISyntaxTokens['nbtObject']
+			  }
+			| {
+					withBranch: 'block'
+					sourcePos: ISyntaxTokens['vec3']
+					path: ISyntaxTokens['nbtPath']
+			  }
+			| {
+					withBranch: 'entity'
+					source: ISyntaxTokens['targetSelector']
+					path: ISyntaxTokens['nbtPath']
+			  }
+			| {
+					withBranch: 'storage'
+					storage: ISyntaxTokens['resourceLocation']
+					path: ISyntaxTokens['nbtPath']
+			  }
+		)
 }
 
 export function isEndOfCommand(s: TokenStream): boolean {
-	if (s.item?.type === 'newline') return true
+	if (s.item?.type === 'newline' || s.item === undefined) return true
 	return false
 }
 
@@ -470,7 +495,7 @@ function _parseTargetSelectorArgument(
 			if (inverted) _throwTargetSelectorArgumentCannotBeInverted(s.item, key)
 			if ((s.item as AnyToken)?.type === 'int' || (s.item as AnyToken)?.type === 'float')
 				return s.collect() as ISyntaxTokens['int'] | ISyntaxTokens['float']
-			else _throwTargetSelectorArgumentCannotBeInverted(s.item, key)
+			else throwSyntaxError(s.item, 'Expected int or float at %POS but got %TOKEN instead')
 		case 'distance':
 			if (inverted) _throwTargetSelectorArgumentCannotBeInverted(s.item, key)
 			return parseRange(s, 'float')
@@ -887,6 +912,8 @@ export const parseGenericCommand = createParserFunc(
 		switch (name.value as ICommandSyntaxTokens[keyof ICommandSyntaxTokens]['name']) {
 			case 'execute':
 				return parseExecuteCommand(s)
+			case 'function':
+				return parseFunctionCommand(s)
 			case 'schedule':
 				return parseScheduleCommand(s)
 			default:
@@ -910,6 +937,49 @@ export const parseGenericCommand = createParserFunc(
 			type: 'command',
 			name: 'unknown',
 			commandName: commandName.value,
+			tokens: tokens,
+			line,
+			column,
+		}
+	}
+)
+
+export const parseMacroCommand = createParserFunc(
+	`at MacroCommand '%TOKEN.VALUE' at %POS`,
+	function (s: TokenStream): AnyCommandSyntaxToken {
+		const { line, column } = s.item!
+		s.consume() // Consume $
+		const tokens: AnyToken[] = []
+
+		while (s.item) {
+			if (s.item.type === 'newline' && s.item.value === '\n') break
+			if (
+				s.item?.type === 'control' &&
+				s.item.value === '$' &&
+				s.next?.type === 'bracket' &&
+				s.next?.value === '('
+			) {
+				const { line, column } = s.item
+				s.consume()
+				s.consume()
+				const value = assertTypeAndCollect(s, 'literal').value
+				assertValueAndConsume(s, 'bracket', ')')
+				tokens.push({
+					type: 'macroTemplate',
+					value,
+					line,
+					column,
+				})
+				continue
+			} else if (s.item.value) {
+				tokens.push(s.item)
+			}
+			s.consume()
+		}
+		return {
+			type: 'command',
+			name: 'macroCommand',
+			commandName: '$',
 			tokens: tokens,
 			line,
 			column,
